@@ -1,5 +1,6 @@
 package com.waither.weatherservice.service;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -9,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.waither.weatherservice.entity.DailyWeather;
 import com.waither.weatherservice.entity.ExpectedWeather;
-import com.waither.weatherservice.openapi.OpenApiResponse;
+import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
 import com.waither.weatherservice.openapi.OpenApiUtil;
 import com.waither.weatherservice.redis.RedisUtil;
 
@@ -34,7 +35,7 @@ public class WeatherService {
 	) throws URISyntaxException {
 
 		// 1시간마다 업데이트 (1일 24회)
-		List<OpenApiResponse.Item> items = openApiUtil.callForeCastApi(nx, ny, baseDate, baseTime, 60,
+		List<ForeCastOpenApiResponse.Item> items = openApiUtil.callForeCastApi(nx, ny, baseDate, baseTime, 60,
 			"http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst");
 
 		List<String> expectedTempList = openApiUtil.apiResponseListFilter(items, "T1H");
@@ -42,7 +43,7 @@ public class WeatherService {
 		List<String> expectedPtyList = openApiUtil.apiResponseListFilter(items, "PTY");
 		List<String> expectedSkyList = openApiUtil.apiResponseListFilter(items, "SKY");
 
-		OpenApiResponse.Item item = items.get(0);
+		ForeCastOpenApiResponse.Item item = items.get(0);
 		String key = item.getNx() + "_" + item.getNy() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
 
 		redisUtil.saveAsList(key + ":expectedTemp", expectedTempList, 6L, TimeUnit.HOURS);
@@ -67,7 +68,7 @@ public class WeatherService {
 		String baseTime) throws URISyntaxException {
 
 		// Base_time : 0200, 0500, 0800, 1100, 1400, 1700, 2000, 2300 업데이트 (1일 8회)
-		List<OpenApiResponse.Item> items = openApiUtil.callForeCastApi(nx, ny, baseDate, baseTime, 350,
+		List<ForeCastOpenApiResponse.Item> items = openApiUtil.callForeCastApi(nx, ny, baseDate, baseTime, 350,
 			"http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst");
 
 		String pop = openApiUtil.apiResponseStringFilter(items, "POP");
@@ -77,7 +78,7 @@ public class WeatherService {
 		String vec = openApiUtil.apiResponseStringFilter(items, "VEC");
 		String wsd = openApiUtil.apiResponseStringFilter(items, "WSD");
 
-		OpenApiResponse.Item item = items.get(0);
+		ForeCastOpenApiResponse.Item item = items.get(0);
 		String key = item.getNx() + "_" + item.getNy() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
 
 		redisUtil.saveAsValue(key + "pop", pop, 8L, TimeUnit.HOURS);
@@ -99,5 +100,9 @@ public class WeatherService {
 
 		log.info("{} : ", dailyWeather);
 
+	}
+
+	public void createDisasterMsg(String location) throws URISyntaxException, IOException {
+		openApiUtil.callDisasterMsgApi(location);
 	}
 }

@@ -1,6 +1,6 @@
 package com.waither.weatherservice.dto;
 
-public record WeatherTestRequest(
+public record ForeCastTestRequest(
 	int nx,
 	int ny,
 	String baseDate,
