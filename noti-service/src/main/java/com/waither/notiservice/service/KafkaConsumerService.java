@@ -1,8 +1,12 @@
 package com.waither.notiservice.service;
 
-import com.waither.notiservice.domain.UserData;
-import com.waither.notiservice.dto.UserDataDto;
+import com.waither.notiservice.domain.UserMedian;
+import com.waither.notiservice.domain.type.Season;
+import com.waither.notiservice.dto.kafka.TokenDto;
+import com.waither.notiservice.dto.kafka.UserMedianDto;
+import com.waither.notiservice.dto.kafka.UserSettingsDto;
 import com.waither.notiservice.repository.UserDataRepository;
+import com.waither.notiservice.repository.UserMedianRepository;
 import com.waither.notiservice.utils.TemperatureUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.StringTokenizer;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,57 +24,71 @@ import java.util.StringTokenizer;
 public class KafkaConsumerService {
 
     private final UserDataRepository userDataRepository;
+    private final UserMedianRepository userMedianRepository;
 
     /**
-     * 사용자 데이터 동기화 Listener
+     * 중앙값 동기화 Listener
      * */
-    @KafkaListener(topics = "user-data", containerFactory = "userDataKafkaListenerContainerFactory")
-    public void consumeUserData(UserDataDto userDataDto) {
-      log.info("[ Kafka Listener ] User Data 동기화");
-      log.info("[ Kafka Listener ] User ID : --> {}", userDataDto.getUserId());
-      log.info("[ Kafka Listener ] LEVEL : --> {}", userDataDto.getLevel());
-      log.info("[ Kafka Listener ] TEMP : --> {}", userDataDto.getTemperature());
+    @KafkaListener(topics = "user-median", containerFactory = "userMedianKafkaListenerContainerFactory")
+    public void consumeUserMedian(UserMedianDto userMedianDto) {
 
-        Optional<UserData> userData = userDataRepository.findById(userDataDto.userId);
-        if (userData.isPresent()) {
-            userData.get().setLevel(userDataDto.getLevel(), userDataDto.getTemperature());
+        Season season = TemperatureUtils.getCurrentSeason();
+        log.info("[ Kafka Listener ] 사용자 중앙값 데이터 동기화");
+        log.info("[ Kafka Listener ] User Id : --> {}", userMedianDto.getUserId());
+        log.info("[ Kafka Listener ] Level : --> {}", userMedianDto.getLevel());
+        log.info("[ Kafka Listener ] Temperature : --> {}", userMedianDto.getTemperature());
+        log.info("[ Kafka Listener ] Season : --> {}", season.name());
+
+        Optional<UserMedian> userMedian = userMedianRepository.findById(userMedianDto.userId);
+        if (userMedian.isPresent()) {
+            userMedian.get()
+                    .setLevel(userMedianDto.getLevel(), userMedianDto.getTemperature());
         } else {
-            userDataRepository.save(userDataDto.toEntity());
+            UserMedian newUserMedian = UserMedian.builder()
+                    .userId(userMedianDto.getUserId())
+                    .build();
+            newUserMedian.setLevel(userMedianDto.getLevel(),
+                    userMedianDto.getTemperature());
+            userMedianRepository.save(newUserMedian);
         }
+
+
     }
+
 
     /**
-     * 외출 알림 Listener
+     * Firebase Token Listener
      * */
-    @KafkaListener(topics = "alarm-go-out")
-    public void consumeGoOutAlarm(@Payload String message) {
-        StringTokenizer st = new StringTokenizer(message, ", ");
-        String resultMessage = "";
-        Long userId = Long.valueOf(st.nextToken());
-        boolean isUserAlert = Boolean.parseBoolean(st.nextToken());
+    @KafkaListener(topics = "firebase-token", containerFactory = "firebaseTokenKafkaListenerContainerFactory")
+    public void consumeFirebaseToken(TokenDto tokenDto) {
 
+        log.info("[ Kafka Listener ] Firebase Token 동기화");
+        log.info("[ Kafka Listener ] User Id : --> {}", tokenDto.getUserId());
+        log.info("[ Kafka Listener ] Token : --> {}", tokenDto.getToken());
 
-        log.info("[ Kafka Listener ] 사용자 아침 알림");
-        log.info("[ Kafka Listener ] User ID : --> {}", userId);
-        log.info("[ Kafka Listener ] userAlert : --> {}", isUserAlert);
-
-        //TODO : 하루 날씨 정보 가져오기
-        double avgTemp = 2.5;
-
-        //TODO : 사용자 닉네임 가져오기
-        resultMessage += "진호님, 오늘 날씨는 ";
-
-        UserData userData = userDataRepository.findById(userId)
-                //TODO : Custom Exception
-                .orElseThrow(RuntimeException::new);
-        resultMessage += TemperatureUtils.createUserDataMessage(userData, avgTemp);
-
-        //TODO : 날씨 요약
-        resultMessage += "오후 6시에 비가 올 예정이예요. 우산을 챙겨가세요.";
-
-        //TODO : 푸시알림 전송
+        //TODO : Redis Token 저장
 
     }
+
+
+    /**
+     * User Settings Listener
+     * */
+    @KafkaListener(topics = "user-settings", containerFactory = "userSettingsKafkaListenerContainerFactory")
+    public void consumeUserSettings(UserSettingsDto userSettingsDto) {
+
+        log.info("[ Kafka Listener ] 사용자 설정값 데이터 동기화");
+        log.info("[ Kafka Listener ] User Id : --> {}", userSettingsDto.getUserId());
+        log.info("[ Kafka Listener ] Key : --> {}", userSettingsDto.getKey());
+        log.info("[ Kafka Listener ] Value : --> {}", userSettingsDto.getValue());
+
+        //TODO : User Setting 변경 정보 저장
+
+    }
+
+
+
+
 
     /**
      * 바람 세기 알림 Listener
@@ -93,8 +110,35 @@ public class KafkaConsumerService {
         //TODO : 푸시알림 전송
         String finalResultMessage = resultMessage;
         userIds.forEach(id ->{
-
             System.out.println("[ 푸시알림 ] 바람 세기 알림");
+            System.out.printf("[ 푸시알림 ] userId ---> {%d}", id);
+            System.out.printf("[ 푸시알림 ] message ---> {%s}", finalResultMessage);
+        });
+
+    }
+
+
+    /**
+     * 강설 정보 알림 Listener
+     * */
+    @KafkaListener(topics = "alarm-snow")
+    public void consumeSnow(@Payload String message) {
+        String resultMessage = "";
+        Double snow = Double.valueOf(message); //강수량
+
+        log.info("[ Kafka Listener ] 강수량");
+        log.info("[ Kafka Listener ] Snow : --> {}", snow);
+
+        //TODO : 알림 보낼 사용자 정보 가져오기 (Redis)
+        List<Long> userIds = new ArrayList<>();
+
+        //TODO : 알림 멘트 정리
+        resultMessage += "현재 강수량 " + snow + "m/s 이상입니다. 강풍에 주의하세요.";
+
+        //TODO : 푸시알림 전송
+        String finalResultMessage = resultMessage;
+        userIds.forEach(id ->{
+            System.out.println("[ 푸시알림 ] 강수량 알림");
             System.out.printf("[ 푸시알림 ] userId ---> {%d}", id);
             System.out.printf("[ 푸시알림 ] message ---> {%s}", finalResultMessage);
         });
@@ -118,7 +162,6 @@ public class KafkaConsumerService {
         //TODO : 푸시알림 전송
         String finalResultMessage = resultMessage;
         userIds.forEach(id ->{
-
             System.out.println("[ 푸시알림 ] 기상 특보 알림");
             System.out.printf("[ 푸시알림 ] userId ---> {%d}", id);
             System.out.printf("[ 푸시알림 ] message ---> {%s}", finalResultMessage);

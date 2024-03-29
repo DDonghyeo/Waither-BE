@@ -1,31 +1,62 @@
 package com.waither.notiservice.utils;
 
-import com.waither.notiservice.domain.UserData;
+import com.waither.notiservice.domain.UserMedian;
+import com.waither.notiservice.domain.type.Season;
+import com.waither.notiservice.enums.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+
+import static com.waither.notiservice.enums.Expressions.*;
 
 @RequiredArgsConstructor
 @Component
 public class TemperatureUtils {
 
-    public static String createUserDataMessage(UserData userData, double temperature) {
-        double medianBetween1And2 = (userData.getLevel1() + userData.getLevel2()) / 2;
-        double medianBetween2And3 = (userData.getLevel2() + userData.getLevel3()) / 2;
-        double medianBetween3And4 = (userData.getLevel3() + userData.getLevel4()) / 2;
-        double medianBetween4And5 = (userData.getLevel4() + userData.getLevel5()) / 2;
+    public static Expressions[] winterExpressions = {WARM, GOOD, LITTLE_COLD, COLD, VERY_COLD };
+    public static Expressions[] springAndAutumnExpressions = {HOT, LITTLE_HOT, GOOD, LITTLE_COLD, COLD};
+    public static Expressions[] summerExpressions = {COOL, GOOD, LITTLE_HOT, HOT, VERY_HOT};
 
-        //TODO : 계절별 멘트 정리
+    public static String createUserDataMessage(UserMedian userMedian, double temperature) {
+        double medianBetween1And2 = userMedian.getMedianOf1And2();
+        double medianBetween2And3 = userMedian.getMedianOf2And3();
+        double medianBetween3And4 = userMedian.getMedianOf3And4();
+        double medianBetween4And5 = userMedian.getMedianOf4And5();
+
         if (temperature < medianBetween1And2) {
-            return "더우실거예요.";
+            return getExpression(getCurrentSeason(), 1);
         } else if (medianBetween1And2 <= temperature && temperature < medianBetween2And3) {
-            return "조금 더우실거예요.";
+            return getExpression(getCurrentSeason(), 2);
         }else if (medianBetween2And3 <= temperature && temperature < medianBetween3And4) {
-            return "좋을거예요.";
+            return getExpression(getCurrentSeason(), 3);
         }else if (medianBetween3And4 <= temperature && temperature < medianBetween4And5) {
-            return "조금 추울거예요.";
+            return getExpression(getCurrentSeason(), 4);
         }else if (medianBetween4And5 <= temperature) {
-            return "추울거예요.";
+            return getExpression(getCurrentSeason(), 5);
         }
         return null;
+    }
+
+    public static Season getCurrentSeason() {
+        LocalDateTime now = LocalDateTime.now();
+        int month = now.getMonthValue();
+        if (3 <= month && month <= 5) { //봄 3, 4, 5
+            return Season.SPRING;
+        } else if (6 <= month && month <= 8) { //여름 6, 7, 8
+            return Season.SUMMER;
+        }else if (9 <= month && month <= 11) { //여름 9, 10, 11
+            return Season.AUTUMN;
+        } else return Season.WINTER; //겨울 12, 1, 2
+    }
+
+    public static String getExpression(Season season, int level) {
+        if (season == Season.WINTER) { //겨울
+            return winterExpressions[level - 1].getExpression();
+        } else if (season == Season.SUMMER) { //여름
+            return summerExpressions[level - 1].getExpression();
+        } else { //봄, 가을
+            return springAndAutumnExpressions[level - 1].getExpression();
+        }
     }
 }

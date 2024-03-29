@@ -9,11 +9,9 @@ spring:
   cloud:
     config:
       uri: http://localhost:8888
-      name: database-noti
+      name: database-noti,redis
   kafka:
     bootstrap-servers: "localhost:9092"
-    consumer:
-      group-id: "GroupId"
 
 
 eureka:
