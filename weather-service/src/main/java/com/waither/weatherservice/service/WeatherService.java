@@ -12,7 +12,8 @@ import com.waither.weatherservice.entity.DailyWeather;
 import com.waither.weatherservice.entity.ExpectedWeather;
 import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
 import com.waither.weatherservice.openapi.OpenApiUtil;
-import com.waither.weatherservice.redis.RedisUtil;
+import com.waither.weatherservice.redis.DailyWeatherRepository;
+import com.waither.weatherservice.redis.ExpectedWeatherRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,10 @@ public class WeatherService {
 
 	private final OpenApiUtil openApiUtil;
 
-	private final RedisUtil redisUtil;
+	// private final RedisUtil redisUtil;
+
+	private final DailyWeatherRepository dailyWeatherRepository;
+	private final ExpectedWeatherRepository expectedWeatherRepository;
 
 	public void createExpectedWeather(
 		int nx,
@@ -46,20 +50,17 @@ public class WeatherService {
 		ForeCastOpenApiResponse.Item item = items.get(0);
 		String key = item.getNx() + "_" + item.getNy() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
 
-		redisUtil.saveAsList(key + ":expectedTemp", expectedTempList, 6L, TimeUnit.HOURS);
-		redisUtil.saveAsList(key + ":expectedRain", expectedRainList, 6L, TimeUnit.HOURS);
-		redisUtil.saveAsList(key + ":expectedPty", expectedPtyList, 6L, TimeUnit.HOURS);
-		redisUtil.saveAsList(key + ":expectedSky", expectedSkyList, 6L, TimeUnit.HOURS);
-
-		// TODO 조회 테스트 후 삭제 예정
 		ExpectedWeather expectedWeather = ExpectedWeather.builder()
-			.expectedTemp(redisUtil.getAsList(key + ":expectedTemp"))
-			.expectedRain(redisUtil.getAsList(key + ":expectedRain"))
-			.expectedPty(redisUtil.getAsList(key + ":expectedPty"))
-			.expectedSky(redisUtil.getAsList(key + ":expectedSky"))
+			.key(key)
+			.expectedTemp(expectedTempList)
+			.expectedRain(expectedRainList)
+			.expectedPty(expectedPtyList)
+			.expectedSky(expectedSkyList)
 			.build();
 
-		log.info("ExpectedWeather : {}", expectedWeather);
+		// TODO 조회 테스트 후 삭제 예정
+		ExpectedWeather save = expectedWeatherRepository.save(expectedWeather);
+		log.info("ExpectedWeather : {}", save);
 	}
 
 	public void createDailyWeather(int nx,
@@ -81,24 +82,19 @@ public class WeatherService {
 		ForeCastOpenApiResponse.Item item = items.get(0);
 		String key = item.getNx() + "_" + item.getNy() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
 
-		redisUtil.saveAsValue(key + "pop", pop, 8L, TimeUnit.HOURS);
-		redisUtil.saveAsValue(key + "tmn", tmn, 8L, TimeUnit.HOURS);
-		redisUtil.saveAsValue(key + "tmx", tmx, 8L, TimeUnit.HOURS);
-		redisUtil.saveAsValue(key + "reh", reh, 8L, TimeUnit.HOURS);
-		redisUtil.saveAsValue(key + "vec", vec, 8L, TimeUnit.HOURS);
-		redisUtil.saveAsValue(key + "wsd", wsd, 8L, TimeUnit.HOURS);
-
-		// TODO 조회 테스트 후 삭제 예정
 		DailyWeather dailyWeather = DailyWeather.builder()
-			.pop(redisUtil.getAsValue(key + "pop"))
-			.tempMin(redisUtil.getAsValue(key + "tmn"))
-			.tempMax(redisUtil.getAsValue(key + "tmx"))
-			.humidity(redisUtil.getAsValue(key + "reh"))
-			.windVector(redisUtil.getAsValue(key + "vec"))
-			.windDegree(redisUtil.getAsValue(key + "wsd"))
+			.key(key)
+			.pop(pop)
+			.tempMin(tmn)
+			.tempMax(tmx)
+			.humidity(reh)
+			.windVector(vec)
+			.windDegree(wsd)
 			.build();
 
-		log.info("{} : ", dailyWeather);
+		// TODO 조회 테스트 후 삭제 예정
+		DailyWeather save = dailyWeatherRepository.save(dailyWeather);
+		log.info("{} : ", save);
 
 	}
 

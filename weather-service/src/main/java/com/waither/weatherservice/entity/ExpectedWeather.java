@@ -3,6 +3,9 @@ package com.waither.weatherservice.entity;
 import java.util.List;
 import java.util.StringJoiner;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +14,11 @@ import lombok.NoArgsConstructor;
 
 @Builder
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RedisHash(value = "ExpectedWeather", timeToLive = 21600L)
 public class ExpectedWeather {
+
+	@Id
+	private String key;
 
 	// 예상 기온
 	private List<String> expectedTemp;
