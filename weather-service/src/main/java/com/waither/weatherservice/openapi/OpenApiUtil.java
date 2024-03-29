@@ -117,7 +117,6 @@ public class OpenApiUtil {
 
 		String responseString = webClient.get()
 			.uri(uri)
-			// .accept(MediaType.APPLICATION_JSON)
 			.headers(httpHeaders -> {
 				httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 				httpHeaders.set("Accept", "*/*;q=0.9");

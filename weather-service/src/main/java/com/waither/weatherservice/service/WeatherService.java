@@ -26,8 +26,6 @@ public class WeatherService {
 
 	private final OpenApiUtil openApiUtil;
 
-	// private final RedisUtil redisUtil;
-
 	private final DailyWeatherRepository dailyWeatherRepository;
 	private final ExpectedWeatherRepository expectedWeatherRepository;
 
