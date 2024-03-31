@@ -8,13 +8,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OpenApiResponse {
+public class ForeCastOpenApiResponse {
 	private Response response;
 
 	@Getter
-	@Setter
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class Response {
 		private Header header;
@@ -22,7 +20,6 @@ public class OpenApiResponse {
 	}
 
 	@Getter
-	@Setter
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class Header {
 		private String resultCode;
@@ -30,7 +27,6 @@ public class OpenApiResponse {
 	}
 
 	@Getter
-	@Setter
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class Body {
 		private String dataType;
@@ -41,14 +37,12 @@ public class OpenApiResponse {
 	}
 
 	@Getter
-	@Setter
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class Items {
 		private List<Item> item;
 	}
 
 	@Getter
-	@Setter
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class Item {
 		private String baseDate;
@@ -60,7 +54,6 @@ public class OpenApiResponse {
 		private int nx;
 		private int ny;
 
-		@Override
 		public String toString() {
 			return "Item{" +
 				"baseDate='" + baseDate + '\'' +

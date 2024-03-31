@@ -3,15 +3,12 @@ package com.waither.weatherservice.entity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Builder
 @Getter
-@RedisHash(value = "DailyWeather", timeToLive = 28800L)
+@RedisHash(value = "DailyWeather", timeToLive = 28800L) // 유효시간: 8시간
 public class DailyWeather {
 
 	@Id
@@ -25,7 +22,6 @@ public class DailyWeather {
 	private String windVector;
 	private String windDegree;
 
-	@Override
 	public String toString() {
 		return "DailyWeather{" +
 			"pop='" + pop + '\'' +
