@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-@RedisHash(value = "DailyWeather", timeToLive = 28800L)
+@RedisHash(value = "DailyWeather", timeToLive = 28800L) // 유효시간: 8시간
 public class DailyWeather {
 
 	@Id
@@ -22,7 +22,6 @@ public class DailyWeather {
 	private String windVector;
 	private String windDegree;
 
-	@Override
 	public String toString() {
 		return "DailyWeather{" +
 			"pop='" + pop + '\'' +

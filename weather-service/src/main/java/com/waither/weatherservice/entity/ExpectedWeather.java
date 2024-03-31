@@ -11,7 +11,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-@RedisHash(value = "ExpectedWeather", timeToLive = 21600L)
+@RedisHash(value = "ExpectedWeather", timeToLive = 21600L) // 유효시간: 6시간
 public class ExpectedWeather {
 
 	@Id
@@ -29,7 +29,6 @@ public class ExpectedWeather {
 	// 예상 하늘 상태
 	private List<String> expectedSky;
 
-	@Override
 	public String toString() {
 		return new StringJoiner(", ", ExpectedWeather.class.getSimpleName() + "[", "]")
 			.add("expectedTemp=" + expectedTemp)

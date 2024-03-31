@@ -9,11 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.waither.weatherservice.entity.DailyWeather;
+import com.waither.weatherservice.entity.DisasterMessage;
 import com.waither.weatherservice.entity.ExpectedWeather;
 import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
 import com.waither.weatherservice.openapi.MsgOpenApiResponse;
 import com.waither.weatherservice.openapi.OpenApiUtil;
 import com.waither.weatherservice.redis.DailyWeatherRepository;
+import com.waither.weatherservice.redis.DisasterMessageRepository;
 import com.waither.weatherservice.redis.ExpectedWeatherRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ public class WeatherService {
 
 	private final DailyWeatherRepository dailyWeatherRepository;
 	private final ExpectedWeatherRepository expectedWeatherRepository;
+	private final DisasterMessageRepository disasterMessageRepository;
 
 	public void createExpectedWeather(
 		int nx,
@@ -106,8 +109,14 @@ public class WeatherService {
 		String locationName = row.getLocationName();
 		String msg = row.getMsg();
 
-		log.info(createDate);
-		log.info(locationName);
-		log.info(msg);
+		String key = location + "_" + createDate;
+		DisasterMessage disasterMessage = DisasterMessage.builder()
+			.key(key)
+			.message(msg)
+			.build();
+
+		// TODO 조회 테스트 후 삭제 예정
+		DisasterMessage save = disasterMessageRepository.save(disasterMessage);
+		log.info("{} : ", save);
 	}
 }
