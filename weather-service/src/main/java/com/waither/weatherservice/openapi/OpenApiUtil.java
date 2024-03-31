@@ -56,7 +56,7 @@ public class OpenApiUtil {
 
 		URI uri = new URI(uriString);
 
-		log.info("URI : {}", uri);
+		log.info("[*] 기상청 Api : {}", uri);
 
 		ForeCastOpenApiResponse.Response response = webClient.get()
 			.uri(uri)
@@ -109,7 +109,7 @@ public class OpenApiUtil {
 
 		URI uri = new URI(uriString);
 
-		log.info("URI : {}", uri);
+		log.info("[*] 재난 문자 Api : {}", uri);
 
 		String responseString = webClient.get()
 			.uri(uri)

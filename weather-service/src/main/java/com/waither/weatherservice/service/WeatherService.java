@@ -3,7 +3,6 @@ package com.waither.weatherservice.service;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,7 +61,7 @@ public class WeatherService {
 
 		// TODO 조회 테스트 후 삭제 예정
 		ExpectedWeather save = expectedWeatherRepository.save(expectedWeather);
-		log.info("ExpectedWeather : {}", save);
+		log.info("[*] 예상 기후 : {}", save);
 	}
 
 	public void createDailyWeather(int nx,
@@ -96,7 +95,7 @@ public class WeatherService {
 
 		// TODO 조회 테스트 후 삭제 예정
 		DailyWeather save = dailyWeatherRepository.save(dailyWeather);
-		log.info("{} : ", save);
+		log.info("[*] 하루 온도 : {}", save);
 
 	}
 
@@ -104,9 +103,7 @@ public class WeatherService {
 		List<MsgOpenApiResponse.RowData> rows = openApiUtil.callDisasterMsgApi(location);
 		MsgOpenApiResponse.RowData row = rows.get(0);
 
-
 		String createDate = row.getCreateDate();
-		String locationName = row.getLocationName();
 		String msg = row.getMsg();
 
 		String key = location + "_" + createDate;
@@ -117,6 +114,6 @@ public class WeatherService {
 
 		// TODO 조회 테스트 후 삭제 예정
 		DisasterMessage save = disasterMessageRepository.save(disasterMessage);
-		log.info("{} : ", save);
+		log.info("[*] 재난 문자 : {}", save);
 	}
 }
