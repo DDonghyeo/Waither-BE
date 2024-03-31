@@ -60,7 +60,6 @@ public class ForeCastOpenApiResponse {
 		private int nx;
 		private int ny;
 
-		@Override
 		public String toString() {
 			return "Item{" +
 				"baseDate='" + baseDate + '\'' +

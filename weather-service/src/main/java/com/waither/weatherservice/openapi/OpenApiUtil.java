@@ -1,14 +1,8 @@
 package com.waither.weatherservice.openapi;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Comparator;
 import java.util.List;
@@ -94,12 +88,12 @@ public class OpenApiUtil {
 			.findFirst().orElse(null);
 	}
 
-	public void callDisasterMsgApi(String location) throws
+
+
+	// 재난 문자 Api
+	public String callDisasterMsgApi(String location) throws
 		URISyntaxException,
 		IOException {
-		int pageNo = 1;
-		int numOfRows = 2;
-		String dataType = "JSON";
 
 		WebClient webClient = WebClient.create();
 
@@ -125,10 +119,16 @@ public class OpenApiUtil {
 			.blockOptional()
 			.orElseThrow(() -> new OpenApiException("Response is null"));
 
-		log.info("response string : {}", responseString);
-
 		ObjectMapper objectMapper = new ObjectMapper();
 		MsgOpenApiResponse response = objectMapper.readValue(responseString, MsgOpenApiResponse.class);
-		log.info("response : {}", response.getDisasterMsg2());
+
+		log.info("response code : {}", response.getDisasterMsg().get(0).getHead().get(2).getResultData().getResultCode());
+
+		if (response.getDisasterMsg().get(0).getHead().get(2).getResultData().getResultCode().equals("INFO-0")) {
+			return response.getDisasterMsg().get(1).getRow().get(0).getMsg();
+		} else {
+			String resultMsg = response.getDisasterMsg().get(0).getHead().get(2).getResultData().getResultMsg();
+			throw new OpenApiException(resultMsg);
+		}
 	}
 }
