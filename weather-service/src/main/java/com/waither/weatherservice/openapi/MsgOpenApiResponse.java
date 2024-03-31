@@ -6,10 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MsgOpenApiResponse {
 
@@ -17,7 +15,6 @@ public class MsgOpenApiResponse {
 	private List<MsgData> disasterMsg;
 
 	@Getter
-	@Setter
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class MsgData {
 		@JsonProperty("head")
@@ -27,7 +24,6 @@ public class MsgOpenApiResponse {
 	}
 
 	@Getter
-	@Setter
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class HeadData {
 		@JsonProperty("totalCount")
@@ -43,7 +39,6 @@ public class MsgOpenApiResponse {
 	}
 
 	@Getter
-	@Setter
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class ResultData {
 		@JsonProperty("resultCode")
@@ -53,7 +48,6 @@ public class MsgOpenApiResponse {
 	}
 
 	@Getter
-	@Setter
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class RowData {
 		@JsonProperty("create_date")

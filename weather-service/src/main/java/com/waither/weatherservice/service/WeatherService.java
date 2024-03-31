@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.waither.weatherservice.entity.DailyWeather;
 import com.waither.weatherservice.entity.ExpectedWeather;
 import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
+import com.waither.weatherservice.openapi.MsgOpenApiResponse;
 import com.waither.weatherservice.openapi.OpenApiUtil;
 import com.waither.weatherservice.redis.DailyWeatherRepository;
 import com.waither.weatherservice.redis.ExpectedWeatherRepository;
@@ -97,6 +98,16 @@ public class WeatherService {
 	}
 
 	public void createDisasterMsg(String location) throws URISyntaxException, IOException {
-		openApiUtil.callDisasterMsgApi(location);
+		List<MsgOpenApiResponse.RowData> rows = openApiUtil.callDisasterMsgApi(location);
+		MsgOpenApiResponse.RowData row = rows.get(0);
+
+
+		String createDate = row.getCreateDate();
+		String locationName = row.getLocationName();
+		String msg = row.getMsg();
+
+		log.info(createDate);
+		log.info(locationName);
+		log.info(msg);
 	}
 }

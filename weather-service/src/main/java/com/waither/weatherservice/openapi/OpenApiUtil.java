@@ -26,6 +26,8 @@ public class OpenApiUtil {
 	@Value("${openapi.disasterMsg.key}")
 	private String disasterMsgKey;
 
+	public static final String ENCODING = "UTF-8";
+
 	// TODO 위도, 경도 -> x, y 좌표 변환 메서드 추가
 
 	// 기상청 Api (초단기, 단기)
@@ -91,18 +93,18 @@ public class OpenApiUtil {
 
 
 	// 재난 문자 Api
-	public String callDisasterMsgApi(String location) throws
+	public List<MsgOpenApiResponse.RowData> callDisasterMsgApi(String location) throws
 		URISyntaxException,
 		IOException {
 
 		WebClient webClient = WebClient.create();
 
 		String uriString = "http://apis.data.go.kr/1741000/DisasterMsg4/getDisasterMsg2List" +
-			"?" + URLEncoder.encode("serviceKey","UTF-8") + "=" + disasterMsgKey +
-			"&" + URLEncoder.encode("pageNo","UTF-8") + "=" + URLEncoder.encode("1", "UTF-8") +
-			"&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("10", "UTF-8") +
-			"&" + URLEncoder.encode("type","UTF-8") + "=" + URLEncoder.encode("json", "UTF-8") +
-			"&" + URLEncoder.encode("location_name","UTF-8") + "=" + URLEncoder.encode(location, "UTF-8");
+			"?" + URLEncoder.encode("serviceKey", ENCODING) + "=" + disasterMsgKey +
+			"&" + URLEncoder.encode("pageNo", ENCODING) + "=" + URLEncoder.encode("1", ENCODING) +
+			"&" + URLEncoder.encode("numOfRows", ENCODING) + "=" + URLEncoder.encode("2", ENCODING) +
+			"&" + URLEncoder.encode("type", ENCODING) + "=" + URLEncoder.encode("json", ENCODING) +
+			"&" + URLEncoder.encode("location_name", ENCODING) + "=" + URLEncoder.encode(location, ENCODING);
 
 
 		URI uri = new URI(uriString);
@@ -122,13 +124,13 @@ public class OpenApiUtil {
 		ObjectMapper objectMapper = new ObjectMapper();
 		MsgOpenApiResponse response = objectMapper.readValue(responseString, MsgOpenApiResponse.class);
 
-		log.info("response code : {}", response.getDisasterMsg().get(0).getHead().get(2).getResultData().getResultCode());
-
 		if (response.getDisasterMsg().get(0).getHead().get(2).getResultData().getResultCode().equals("INFO-0")) {
-			return response.getDisasterMsg().get(1).getRow().get(0).getMsg();
+			return response.getDisasterMsg().get(1).getRow();
 		} else {
 			String resultMsg = response.getDisasterMsg().get(0).getHead().get(2).getResultData().getResultMsg();
 			throw new OpenApiException(resultMsg);
 		}
 	}
+
+	// TODO 재난 문자 필터 (날씨 정보만 추출)
 }
