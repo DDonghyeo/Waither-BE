@@ -11,8 +11,8 @@ spring:
   application:
     name: apiGateway-service
 
-management: # Actuator Settings
-  endpoints:
-    web:
-      exposure:
-        include: refresh, health, beans, httptrace
+#management: # Actuator Settings
+#  endpoints:
+#    web:
+#      exposure:
+#        include: refresh, health, beans, httptrace

@@ -23,8 +23,8 @@ eureka:
     service-url:
       defaultZone : http://127.0.0.1:8761/eureka #Eureka Server's address
 
-management: # Actuator
-  endpoints:
-    web:
-      exposure:
-        include: busrefresh
+#management: # Actuator
+#  endpoints:
+#    web:
+#      exposure:
+#        include: busrefresh

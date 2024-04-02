@@ -38,11 +38,11 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-config-client:4.0.3'// Eureka Client
     implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:4.0.3'
 
-    //Spring Boot Actuator
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
-    //Spring Cloud Bus AMQP
-    implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
+//    //Spring Boot Actuator
+//    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+//
+//    //Spring Cloud Bus AMQP
+//    implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
 }
 
 dependencyManagement {
