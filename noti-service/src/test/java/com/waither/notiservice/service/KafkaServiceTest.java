@@ -46,13 +46,11 @@ public class KafkaServiceTest {
 
     private static Instant startInstant;
 
-    @Autowired
-    private EmbeddedKafkaBroker embeddedKafka;
 
 
     @Test
     @DisplayName("Kafka 메세지 발행 테스트")
-    public void messagePublishingTest() throws Exception {
+    public void messagePublishingTest( @Autowired  EmbeddedKafkaBroker embeddedKafka) throws Exception {
 
         //Given
         /**
@@ -118,7 +116,7 @@ public class KafkaServiceTest {
 
     @Test
     @DisplayName("Kafka 성능 테스트")
-    public void messagePerformanceTest() throws Exception {
+    public void messagePerformanceTest(@Autowired  EmbeddedKafkaBroker embeddedKafka) throws Exception {
 
         //Given
         /**
