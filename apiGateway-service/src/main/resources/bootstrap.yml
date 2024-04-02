@@ -1,15 +1,26 @@
 server:
   port: 8000
 
+spring:
+  application:
+    name: apiGateway-service
+  profiles:
+    active: dev
+  cloud:
+    config:
+      uri: http://localhost:8888
+      name: database-apiGateway,redis
+  kafka:
+    bootstrap-servers: "localhost:9092"
+    consumer:
+      group-id: "GroupId"
+
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8761/eureka
-spring:
-  application:
-    name: apiGateway-service
 
 #management: # Actuator Settings
 #  endpoints:

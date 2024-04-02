@@ -23,11 +23,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    // Spring Cloud Gateway -> API gateway 구축
     implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // Jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
@@ -37,6 +38,20 @@ dependencies {
     //Spring Cloud Config client
     implementation 'org.springframework.cloud:spring-cloud-config-client:4.0.3'// Eureka Client
     implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:4.0.3'
+
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // MySQL
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
+
 
 //    //Spring Boot Actuator
 //    implementation 'org.springframework.boot:spring-boot-starter-actuator'
