@@ -118,6 +118,6 @@ public class WeatherService {
 	}
 
 	public void createAeroKorea(String searchTime) throws URISyntaxException {
-		openApiUtil.callAeroKorea(searchTime);
+		openApiUtil.callAirKorea(searchTime);
 	}
 }

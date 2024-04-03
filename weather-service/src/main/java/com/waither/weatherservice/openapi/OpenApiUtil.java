@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -30,6 +31,7 @@ public class OpenApiUtil {
 	private String disasterMsgKey;
 
 	public static final String ENCODING = "UTF-8";
+	public static final String RESPONSE_EXCEPTION_MSG = "Response is null";
 
 	// TODO 위도, 경도 -> x, y 좌표 변환 메서드 추가
 
@@ -65,7 +67,7 @@ public class OpenApiUtil {
 			.uri(uri)
 			.accept(MediaType.APPLICATION_JSON)
 			.retrieve().bodyToMono(ForeCastOpenApiResponse.class)
-			.blockOptional().orElseThrow(() -> new OpenApiException("Response is null")).getResponse();
+			.blockOptional().orElseThrow(() -> new OpenApiException(RESPONSE_EXCEPTION_MSG)).getResponse();
 
 		if (response.getHeader().getResultCode().equals("00")) {
 			return response.getBody().getItems().getItem();
@@ -73,7 +75,6 @@ public class OpenApiUtil {
 			throw new OpenApiException(response.getHeader().getResultMsg());
 		}
 	}
-
 
 	// 기상청 OpenApi 반환값 팔터링 작업 (리스트, 반환받은 날짜 + 시간 기준으로 오름차순)
 	public List<String> apiResponseListFilter(List<ForeCastOpenApiResponse.Item> items, String category) {
@@ -119,7 +120,7 @@ public class OpenApiUtil {
 			})
 			.retrieve().bodyToMono(String.class)
 			.blockOptional()
-			.orElseThrow(() -> new OpenApiException("Response is null"));
+			.orElseThrow(() -> new OpenApiException(RESPONSE_EXCEPTION_MSG));
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		MsgOpenApiResponse response = objectMapper.readValue(responseString, MsgOpenApiResponse.class);
@@ -134,7 +135,7 @@ public class OpenApiUtil {
 
 	// TODO 재난 문자 필터 (날씨 정보만 추출)
 
-	public List<AeroKoreaOpenApiResponse.Items> callAeroKorea(String searchDate) throws URISyntaxException {
+	public List<AirKoreaOpenApiResponse.Items> callAirKorea(String searchDate) throws URISyntaxException {
 		int pageNo = 1;
 		int numOfRows = 10;
 		String dataType = "JSON";
@@ -149,29 +150,38 @@ public class OpenApiUtil {
 
 		URI uri = new URI(uriString);
 
-		log.info("[*] 기상청 Api : {}", uri);
+		log.info("[*] 에어로코리아 Api : {}", uri);
 
-		AeroKoreaOpenApiResponse.Response response = webClient.get()
+		AirKoreaOpenApiResponse.Response response = webClient.get()
 			.uri(uri)
 			.accept(MediaType.APPLICATION_JSON)
-			.retrieve().bodyToMono(AeroKoreaOpenApiResponse.class)
-			.blockOptional().orElseThrow(() -> new OpenApiException("Response is null")).getResponse();
+			.retrieve().bodyToMono(AirKoreaOpenApiResponse.class)
+			.blockOptional().orElseThrow(() -> new OpenApiException(RESPONSE_EXCEPTION_MSG)).getResponse();
 
 		if (response.getHeader().getResultCode().equals("00")) {
-			String data = response.getBody().getItems().get(0).getInformGrade();
-			parseAeroKorea(data);
-			return response.getBody().getItems();
+
+			List<AirKoreaOpenApiResponse.Items> items = response.getBody()
+				.getItems()
+				.stream()
+				.sorted(Comparator.comparing(AirKoreaOpenApiResponse.Items::getInformData).reversed())
+				.toList();
+
+			String data = items.get(0).getInformGrade();
+
+			parseAirKoreaResponseToMap(data);
+
+			return items;
 		} else {
 			throw new OpenApiException(response.getHeader().getResultMsg());
 		}
 	}
 
-	public void parseAeroKorea(String data) {
+	public void parseAirKoreaResponseToMap(String data) {
 		Map<String, String> map = Arrays.stream(data.split(","))
 			.map(s -> s.split(" : "))
 			.collect(HashMap::new, (m, arr) -> m.put(arr[0], arr[1]), HashMap::putAll);
 
-		// 맵 출력
+		// TODO 삭제 예정
 		map.forEach((key, value) -> log.info(key + " -> " + value));
 	}
 }

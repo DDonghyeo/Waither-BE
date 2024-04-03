@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AeroKoreaOpenApiResponse {
+public class AirKoreaOpenApiResponse {
 
 	private Response response;
 
