@@ -116,4 +116,8 @@ public class WeatherService {
 		DisasterMessage save = disasterMessageRepository.save(disasterMessage);
 		log.info("[*] 재난 문자 : {}", save);
 	}
+
+	public void createAeroKorea(String searchTime) throws URISyntaxException {
+		openApiUtil.callAeroKorea(searchTime);
+	}
 }

@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -20,8 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class OpenApiUtil {
 
-	@Value("${openapi.short.key}")
-	private String shortForecastKey;
+	@Value("${openapi.forecast.key}")
+	private String forecastKey;
 
 	@Value("${openapi.disasterMsg.key}")
 	private String disasterMsgKey;
@@ -45,7 +48,7 @@ public class OpenApiUtil {
 
 		WebClient webClient = WebClient.create();
 		String uriString = apiUrl +
-			"?serviceKey=" + shortForecastKey +
+			"?serviceKey=" + forecastKey +
 			"&numOfRows=" + numOfRows +
 			"&pageNo=" + pageNo +
 			"&dataType=" + dataType +
@@ -90,8 +93,6 @@ public class OpenApiUtil {
 			.findFirst().orElse(null);
 	}
 
-
-
 	// 재난 문자 Api
 	public List<MsgOpenApiResponse.RowData> callDisasterMsgApi(String location) throws
 		URISyntaxException,
@@ -105,7 +106,6 @@ public class OpenApiUtil {
 			"&" + URLEncoder.encode("numOfRows", ENCODING) + "=" + URLEncoder.encode("2", ENCODING) +
 			"&" + URLEncoder.encode("type", ENCODING) + "=" + URLEncoder.encode("json", ENCODING) +
 			"&" + URLEncoder.encode("location_name", ENCODING) + "=" + URLEncoder.encode(location, ENCODING);
-
 
 		URI uri = new URI(uriString);
 
@@ -133,4 +133,45 @@ public class OpenApiUtil {
 	}
 
 	// TODO 재난 문자 필터 (날씨 정보만 추출)
+
+	public List<AeroKoreaOpenApiResponse.Items> callAeroKorea(String searchDate) throws URISyntaxException {
+		int pageNo = 1;
+		int numOfRows = 10;
+		String dataType = "JSON";
+
+		WebClient webClient = WebClient.create();
+		String uriString = "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMinuDustFrcstDspth" +
+			"?serviceKey=" + forecastKey +
+			"&numOfRows=" + numOfRows +
+			"&pageNo=" + pageNo +
+			"&returnType=" + dataType +
+			"&searchDate=" + searchDate ;
+
+		URI uri = new URI(uriString);
+
+		log.info("[*] 기상청 Api : {}", uri);
+
+		AeroKoreaOpenApiResponse.Response response = webClient.get()
+			.uri(uri)
+			.accept(MediaType.APPLICATION_JSON)
+			.retrieve().bodyToMono(AeroKoreaOpenApiResponse.class)
+			.blockOptional().orElseThrow(() -> new OpenApiException("Response is null")).getResponse();
+
+		if (response.getHeader().getResultCode().equals("00")) {
+			String data = response.getBody().getItems().get(0).getInformGrade();
+			parseAeroKorea(data);
+			return response.getBody().getItems();
+		} else {
+			throw new OpenApiException(response.getHeader().getResultMsg());
+		}
+	}
+
+	public void parseAeroKorea(String data) {
+		Map<String, String> map = Arrays.stream(data.split(","))
+			.map(s -> s.split(" : "))
+			.collect(HashMap::new, (m, arr) -> m.put(arr[0], arr[1]), HashMap::putAll);
+
+		// 맵 출력
+		map.forEach((key, value) -> log.info(key + " -> " + value));
+	}
 }
