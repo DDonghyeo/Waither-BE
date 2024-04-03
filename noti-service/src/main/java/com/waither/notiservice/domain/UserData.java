@@ -39,5 +39,16 @@ public class UserData {
     // 직장 지역 레포트 알림 받기
     private boolean regionReport;
 
+    public void updateValue(String key, String value) {
+        switch (key) {
+            case "nickName" -> nickName = value;
+            case "climateAlert" -> climateAlert = Boolean.parseBoolean(value);
+            case "userAlert" -> userAlert = Boolean.parseBoolean(value);
+            case "snowAlert" -> snowAlert = Boolean.parseBoolean(value);
+            case "windAlert" -> windAlert = Boolean.parseBoolean(value);
+            case "regionReport" -> regionReport = Boolean.parseBoolean(value);
+            case "windDegree" -> windDegree = Integer.valueOf(value);
 
+        }
+    }
 }
