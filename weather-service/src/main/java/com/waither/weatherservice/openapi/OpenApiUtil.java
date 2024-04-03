@@ -9,7 +9,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -176,12 +175,14 @@ public class OpenApiUtil {
 		}
 	}
 
-	public void parseAirKoreaResponseToMap(String data) {
+	public Map<String, String> parseAirKoreaResponseToMap(String data) {
 		Map<String, String> map = Arrays.stream(data.split(","))
 			.map(s -> s.split(" : "))
 			.collect(HashMap::new, (m, arr) -> m.put(arr[0], arr[1]), HashMap::putAll);
 
 		// TODO 삭제 예정
 		map.forEach((key, value) -> log.info(key + " -> " + value));
+
+		return map;
 	}
 }
