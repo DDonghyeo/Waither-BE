@@ -1,5 +1,6 @@
 package com.waither.notiservice.service;
 
+import com.waither.notiservice.domain.UserData;
 import com.waither.notiservice.domain.UserMedian;
 import com.waither.notiservice.domain.type.Season;
 import com.waither.notiservice.dto.kafka.TokenDto;
@@ -82,7 +83,17 @@ public class KafkaConsumerService {
         log.info("[ Kafka Listener ] Key : --> {}", userSettingsDto.getKey());
         log.info("[ Kafka Listener ] Value : --> {}", userSettingsDto.getValue());
 
-        //TODO : User Setting 변경 정보 저장
+        Optional<UserData> userData = userDataRepository.findById(userSettingsDto.getUserId());
+        if (userData.isPresent()) {
+            userData.get().updateValue(userSettingsDto.getKey(), userSettingsDto.getValue());
+            userDataRepository.save(userData.get());
+        } else {
+            UserData newUserData = UserData.builder()
+                    .userId(userSettingsDto.getUserId())
+                    .build();
+            newUserData.updateValue(userSettingsDto.getKey(), userSettingsDto.getValue());
+            userDataRepository.save(newUserData);
+        }
 
     }
 
@@ -133,7 +144,7 @@ public class KafkaConsumerService {
         List<Long> userIds = new ArrayList<>();
 
         //TODO : 알림 멘트 정리
-        resultMessage += "현재 강수량 " + snow + "m/s 이상입니다. 강풍에 주의하세요.";
+        resultMessage += "현재 강수량 " + snow + "m/s 이상입니다.";
 
         //TODO : 푸시알림 전송
         String finalResultMessage = resultMessage;
