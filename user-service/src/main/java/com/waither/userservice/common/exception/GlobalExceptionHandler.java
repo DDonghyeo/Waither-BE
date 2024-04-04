@@ -35,17 +35,7 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
-    // Custom 예외에 대한 처리
-    @ExceptionHandler({CustomException.class})
-    public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
-        log.warn("[WARNING] Custom Exception : {}", e.getMessage());
-        BaseErrorCode errorCode = e.getErrorCode();
-        return ResponseEntity.
-                status(errorCode.getHttpStatus())
-                .body(errorCode.getErrorResponse());
-    }
-
-    // 데이터 무결성 위반 예외에 대한 처리
+    // User가 이미 있을 때
     @ExceptionHandler({DataIntegrityViolationException.class})
     public ResponseEntity<ApiResponse<Void>> handleIntegrityConstraint(DataIntegrityViolationException e) {
         log.warn(">>>>> Data Integrity Violation Exception : {}", e.getMessage());
@@ -70,6 +60,16 @@ public class GlobalExceptionHandler {
                 ErrorCode.VALIDATION_FAILED.getMessage(),
                 failedValidations);
         return ResponseEntity.status(ex.getStatusCode()).body(errorResponse);
+    }
+
+    // Custom 예외에 대한 처리
+    @ExceptionHandler({CustomException.class})
+    public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
+        log.warn("[WARNING] Custom Exception : {}", e.getMessage());
+        BaseErrorCode errorCode = e.getErrorCode();
+        return ResponseEntity.
+                status(errorCode.getHttpStatus())
+                .body(errorCode.getErrorResponse());
     }
 
 }
