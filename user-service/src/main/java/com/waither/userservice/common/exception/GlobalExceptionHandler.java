@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
-    // 데이터 무결성 위반 예외에 대한 처리
+    // User가 이미 있을 때
     @ExceptionHandler({DataIntegrityViolationException.class})
     public ResponseEntity<ApiResponse<Void>> handleIntegrityConstraint(DataIntegrityViolationException e) {
         log.warn(">>>>> Data Integrity Violation Exception : {}", e.getMessage());
