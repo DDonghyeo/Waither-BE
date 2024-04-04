@@ -22,7 +22,7 @@ public class User extends BaseEntity {
     private Long id;
 
     // 유저 이메일
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     // 유저 비밀번호
