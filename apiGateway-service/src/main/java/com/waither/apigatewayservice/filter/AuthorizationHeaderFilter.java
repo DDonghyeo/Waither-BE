@@ -43,7 +43,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
             // HTTP 요청 헤더에서 Authorization 헤더를 가져옴
             HttpHeaders headers = request.getHeaders();
             if (!headers.containsKey(HttpHeaders.AUTHORIZATION)) {
-                return onError(exchange, "로그아웃된 토큰입니다.", HttpStatus.UNAUTHORIZED);
+                return onError(exchange, "HTTP 요청 헤더에 Authorization 헤더가 포함되어 있지 않습니다.", HttpStatus.UNAUTHORIZED);
             }
 
             String authorizationHeader = Objects.requireNonNull(headers.get(HttpHeaders.AUTHORIZATION)).get(0);
@@ -61,10 +61,10 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
                 return onError(exchange, "로그아웃된 토큰입니다.", HttpStatus.UNAUTHORIZED);
             }
 
-            // JWT 토큰에서 사용자 ID 추출
+            // JWT 토큰에서 사용자 email 추출
             String subject = jwtUtil.getEmail(accessToken);
 
-            // 사용자 ID를 HTTP 요청 헤더에 추가하여 전달
+            // 사용자 email를 HTTP 요청 헤더에 추가하여 전달
             ServerHttpRequest newRequest = request.mutate()
                     .header("email", subject)
                     .build();
