@@ -30,20 +30,13 @@ public class JwtLogoutFilter implements LogoutHandler {
 
             String accessToken = jwtUtil.resolveAccessToken(request);
 
-            redisUtil.save(
-                    accessToken,
-                    "logout",
-                    jwtUtil.getExpTime(accessToken),
-                    TimeUnit.MILLISECONDS
-            );
-
             String email = jwtUtil.getEmail(accessToken);
 
+            // RefreshToken 삭제
             redisUtil.delete(email);
 
 
         } catch (ExpiredJwtException e) {
-            log.warn("[*] case : accessToken expired");
             try {
                 HttpResponseUtil.setErrorResponse(response, HttpStatus.UNAUTHORIZED, "세션이 만료되었습니다. 다시 로그인하세요");
             } catch (IOException ex) {

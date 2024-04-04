@@ -76,23 +76,24 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed)
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                              AuthenticationException failed)
             throws IOException {
 
-        // 실패한 인증에 따라 적절한 오류 메시지 설정
+// 실패한 인증에 따라 적절한 오류 메시지 설정
         String errorMessage;
         if (failed instanceof BadCredentialsException) {
-            errorMessage = "Bad credentials";
+            errorMessage = " 사용자 이름 또는 비밀번호이 유효하지 않습니다.";
         } else if (failed instanceof LockedException) {
-            errorMessage = "Account is locked";
+            errorMessage = "계정이 잠겨 있습니다.";
         } else if (failed instanceof DisabledException) {
-            errorMessage = "Account is disabled";
+            errorMessage = "계정이 비활성화되었습니다.";
         } else if (failed instanceof UsernameNotFoundException) {
-            errorMessage = "Account not found";
+            errorMessage = "계정을 찾을 수 없습니다.";
         } else if (failed instanceof AuthenticationServiceException) {
-            errorMessage = "Error occurred while parsing request body";
+            errorMessage = "요청 본문을 구문 분석하는 중 오류가 발생했습니다.";
         } else {
-            errorMessage = "Authentication failed";
+            errorMessage = "인증 실패";
         }
         log.info("[*] Login Fail - " + errorMessage);
 

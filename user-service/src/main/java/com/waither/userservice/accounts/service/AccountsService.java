@@ -20,6 +20,7 @@ public class AccountsService {
 
     public void signup(RegisterRequestDto requestDto) {
 
+        // Todo : 이메일 인증
         // 비밀번호 인코딩
         String encodedPw = passwordEncoder.encode(requestDto.password());
         User newUser = requestDto.toEntity(encodedPw);

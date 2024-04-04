@@ -87,7 +87,6 @@ public class JwtUtil {
                 .compact();
     }
 
-
     // principalDetails 객체에 대해 새로운 JWT 액세스 토큰을 생성
     public String createJwtAccessToken(PrincipalDetails principalDetails) {
         Instant expiration = Instant.now().plusMillis(accessExpMs);
@@ -150,10 +149,11 @@ public class JwtUtil {
         String email = getEmail(refreshToken);
 
         String redisRefreshToken = redisUtil.get(email).toString();
-        if (!refreshToken.equals(redisRefreshToken) || !validateToken(refreshToken)) {
-            log.warn("[*] case : Invalid refreshToken");
+        if (!refreshToken.equals(redisRefreshToken)) {
+            log.warn("[*] case : redisRefreshToken does not exist");
             throw new NoSuchElementException("Redis에 " + email + "에 해당하는 키가 없습니다.");
         }
+        validateToken(refreshToken);
     }
 
     public boolean validateToken(String token) {

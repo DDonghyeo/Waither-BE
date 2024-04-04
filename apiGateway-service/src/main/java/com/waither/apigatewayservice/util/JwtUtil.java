@@ -59,6 +59,9 @@ public class JwtUtil {
             if (isExpired) {
                 log.info("만료된 JWT 토큰입니다.");
             }
+
+            // Jwt 통과
+            log.info("[*] Token Valid");
             return !isExpired;
         } catch (SecurityException | MalformedJwtException e) {
             log.info("잘못된 JWT 서명입니다.");

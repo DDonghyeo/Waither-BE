@@ -22,9 +22,8 @@ public class AccountsController {
     private final JwtUtil jwtUtil;
 
     @GetMapping("/test")
-    public String customFilter() {
-        log.info("?????????????????/ 실행");
-        return "Custom filter with user-service";
+    public String Test() {
+        return "모든 인가를 마치고, test Controller에 도달했습니다.";
     }
 
     @PostMapping("/signup")
