@@ -37,6 +37,7 @@ public class JwtLogoutFilter implements LogoutHandler {
 
 
         } catch (ExpiredJwtException e) {
+            log.warn("[*] case : accessToken expired");
             try {
                 HttpResponseUtil.setErrorResponse(response, HttpStatus.UNAUTHORIZED, "세션이 만료되었습니다. 다시 로그인하세요");
             } catch (IOException ex) {
