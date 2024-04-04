@@ -6,6 +6,7 @@ import com.waither.userservice.accounts.repository.UserRepository;
 import com.waither.userservice.common.response.ApiResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class AccountsService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     public void signup(RegisterRequestDto requestDto) {
+
         // 비밀번호 인코딩
         String encodedPw = passwordEncoder.encode(requestDto.password());
         User newUser = requestDto.toEntity(encodedPw);

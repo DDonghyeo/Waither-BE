@@ -1,6 +1,8 @@
 package com.waither.userservice.accounts.controller;
 
 import com.waither.userservice.accounts.dto.RegisterRequestDto;
+import com.waither.userservice.accounts.jwt.dto.JwtDto;
+import com.waither.userservice.accounts.jwt.util.JwtUtil;
 import com.waither.userservice.accounts.service.AccountsService;
 import com.waither.userservice.common.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -13,13 +15,15 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/user")
+@RequestMapping(value = "/")
 public class AccountsController {
 
     private final AccountsService accountsService;
+    private final JwtUtil jwtUtil;
 
     @GetMapping("/test")
     public String customFilter() {
+        log.info("?????????????????/ 실행");
         return "Custom filter with user-service";
     }
 
@@ -32,5 +36,10 @@ public class AccountsController {
                 .body(
                         ApiResponse.onSuccess(HttpStatus.CREATED, "회원가입이 성공적으로 완료되었습니다.")
                 );
+    }
+
+    @GetMapping("/reissue")
+    public ApiResponse<JwtDto> reissueToken(@RequestHeader("RefreshToken") String refreshToken) {
+        return ApiResponse.onSuccess(jwtUtil.reissueToken(refreshToken));
     }
 }
