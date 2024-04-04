@@ -72,7 +72,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.info("Access Token: " + jwtDto.accessToken());
         log.info("Refresh Token: " + jwtDto.refreshToken());
 
-        HttpResponseUtil.setSuccessResponse(response, HttpStatus.CREATED, jwtDto);
+        HttpResponseUtil.setSuccessResponse(response, HttpStatus.OK, jwtDto);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                               AuthenticationException failed)
             throws IOException {
 
-// 실패한 인증에 따라 적절한 오류 메시지 설정
+        // 실패한 인증에 따라 적절한 오류 메시지 설정
         String errorMessage;
         if (failed instanceof BadCredentialsException) {
             errorMessage = " 사용자 이름 또는 비밀번호이 유효하지 않습니다.";
