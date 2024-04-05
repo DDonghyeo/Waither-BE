@@ -170,7 +170,28 @@ public class KafkaConsumerTest {
         userDataRepository.deleteById(0L);
     }
 
-    
+    @Test
+    @DisplayName("Alarm Wind Consumer Test")
+    void alarmWindTest() throws InterruptedException {
+        //Given
+        ProducerFactory<Integer, String> pf = new DefaultKafkaProducerFactory<>(jsonProps);
+        KafkaTemplate<Integer, String> template = new KafkaTemplate<>(pf);
+
+        //when
+        CompletableFuture<SendResult<Integer, String>> future = template.send("alarm-wind", "15");
+
+        //then
+        future.whenComplete(((result, throwable) -> {
+            assertThat(throwable).isNotNull();
+            System.out.println("[ Kafka Test ] Publish Complete - alarm-wind");
+            System.out.println("offset : "+ result.getRecordMetadata().offset());
+        }
+        ));
+        Thread.sleep(2000); //2초 대기
+
+
+        //TODO : 서비스 정리
+    }
 
 
 
