@@ -45,8 +45,13 @@ public class KafkaConsumerTest {
         jsonProps.put(ProducerConfig.ACKS_CONFIG, "all");
         jsonProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         jsonProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        stringProps = jsonProps;
         jsonProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+
+
+        stringProps = new HashMap<>();
+        stringProps.put(ProducerConfig.ACKS_CONFIG, "all");
+        stringProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        stringProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         stringProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 
     }
@@ -174,7 +179,7 @@ public class KafkaConsumerTest {
     @DisplayName("Alarm Wind Consumer Test")
     void alarmWindTest() throws InterruptedException {
         //Given
-        ProducerFactory<Integer, String> pf = new DefaultKafkaProducerFactory<>(jsonProps);
+        ProducerFactory<Integer, String> pf = new DefaultKafkaProducerFactory<>(stringProps);
         KafkaTemplate<Integer, String> template = new KafkaTemplate<>(pf);
 
         //when
@@ -197,7 +202,7 @@ public class KafkaConsumerTest {
     @DisplayName("Alarm Snow Consumer Test")
     void alarmSnowTest() throws InterruptedException {
         //Given
-        ProducerFactory<Integer, String> pf = new DefaultKafkaProducerFactory<>(jsonProps);
+        ProducerFactory<Integer, String> pf = new DefaultKafkaProducerFactory<>(stringProps);
         KafkaTemplate<Integer, String> template = new KafkaTemplate<>(pf);
 
         //when
@@ -221,7 +226,7 @@ public class KafkaConsumerTest {
     @DisplayName("Alarm Climate Consumer Test")
     void alarmClimateTest() throws InterruptedException {
         //Given
-        ProducerFactory<Integer, String> pf = new DefaultKafkaProducerFactory<>(jsonProps);
+        ProducerFactory<Integer, String> pf = new DefaultKafkaProducerFactory<>(stringProps);
         KafkaTemplate<Integer, String> template = new KafkaTemplate<>(pf);
 
         //when
