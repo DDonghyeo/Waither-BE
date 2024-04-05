@@ -193,6 +193,29 @@ public class KafkaConsumerTest {
         //TODO : 서비스 정리
     }
 
+    @Test
+    @DisplayName("Alarm Snow Consumer Test")
+    void alarmSnowTest() throws InterruptedException {
+        //Given
+        ProducerFactory<Integer, String> pf = new DefaultKafkaProducerFactory<>(jsonProps);
+        KafkaTemplate<Integer, String> template = new KafkaTemplate<>(pf);
+
+        //when
+        CompletableFuture<SendResult<Integer, String>> future = template.send("alarm-snow", "0.4");
+
+        //then
+        future.whenComplete(((result, throwable) -> {
+            assertThat(throwable).isNotNull();
+            System.out.println("[ Kafka Test ] Publish Complete - snow-wind");
+            System.out.println("offset : "+ result.getRecordMetadata().offset());
+        }
+        ));
+        Thread.sleep(2000); //2초 대기
+
+
+        //TODO : 서비스 정리
+    }
+
 
 
 
