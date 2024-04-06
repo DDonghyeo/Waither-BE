@@ -6,6 +6,7 @@ import com.waither.notiservice.domain.type.Season;
 import com.waither.notiservice.dto.kafka.TokenDto;
 import com.waither.notiservice.dto.kafka.UserMedianDto;
 import com.waither.notiservice.dto.kafka.UserSettingsDto;
+import com.waither.notiservice.redis.FireTokenBaseRepository;
 import com.waither.notiservice.repository.UserDataRepository;
 import com.waither.notiservice.repository.UserMedianRepository;
 import com.waither.notiservice.utils.TemperatureUtils;
@@ -13,7 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +23,14 @@ import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
-@Service
-public class KafkaConsumerService {
+@Component
+@Transactional
+public class KafkaConsumer {
 
     private final UserDataRepository userDataRepository;
     private final UserMedianRepository userMedianRepository;
+
+    private final FireTokenBaseRepository fireBaseTokenRepository;
 
     /**
      * 중앙값 동기화 Listener
@@ -35,12 +40,12 @@ public class KafkaConsumerService {
 
         Season season = TemperatureUtils.getCurrentSeason();
         log.info("[ Kafka Listener ] 사용자 중앙값 데이터 동기화");
+        log.info("[ Kafka Listener ] Season : -- {} ", season.name());
         log.info("[ Kafka Listener ] User Id : --> {}", userMedianDto.getUserId());
         log.info("[ Kafka Listener ] Level : --> {}", userMedianDto.getLevel());
         log.info("[ Kafka Listener ] Temperature : --> {}", userMedianDto.getTemperature());
-        log.info("[ Kafka Listener ] Season : --> {}", season.name());
 
-        Optional<UserMedian> userMedian = userMedianRepository.findById(userMedianDto.userId);
+        Optional<UserMedian> userMedian = userMedianRepository.findById(userMedianDto.getUserId());
         if (userMedian.isPresent()) {
             userMedian.get()
                     .setLevel(userMedianDto.getLevel(), userMedianDto.getTemperature());
@@ -67,7 +72,7 @@ public class KafkaConsumerService {
         log.info("[ Kafka Listener ] User Id : --> {}", tokenDto.getUserId());
         log.info("[ Kafka Listener ] Token : --> {}", tokenDto.getToken());
 
-        //TODO : Redis Token 저장
+        fireBaseTokenRepository.save(tokenDto.toEntity());
 
     }
 
@@ -149,6 +154,8 @@ public class KafkaConsumerService {
         //TODO : 푸시알림 전송
         String finalResultMessage = resultMessage;
         userIds.forEach(id ->{
+            //TODO : 예외처리하기
+            String token = fireBaseTokenRepository.findById(id).orElseThrow().getToken();
             System.out.println("[ 푸시알림 ] 강수량 알림");
             System.out.printf("[ 푸시알림 ] userId ---> {%d}", id);
             System.out.printf("[ 푸시알림 ] message ---> {%s}", finalResultMessage);
