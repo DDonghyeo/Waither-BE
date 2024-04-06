@@ -149,7 +149,7 @@ public class OpenApiUtil {
 
 		URI uri = new URI(uriString);
 
-		log.info("[*] 에어로코리아 Api : {}", uri);
+		log.info("[*] 에어코리아 Api : {}", uri);
 
 		AirKoreaOpenApiResponse.Response response = webClient.get()
 			.uri(uri)
