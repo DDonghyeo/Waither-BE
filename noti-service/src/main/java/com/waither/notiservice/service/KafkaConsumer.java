@@ -180,6 +180,7 @@ public class KafkaConsumer {
         //TODO : 푸시알림 전송
         String finalResultMessage = resultMessage;
         userIds.forEach(id ->{
+            String token = fireBaseTokenRepository.findById(id).orElseThrow().getToken();
             System.out.println("[ 푸시알림 ] 기상 특보 알림");
             System.out.printf("[ 푸시알림 ] userId ---> {%d}", id);
             System.out.printf("[ 푸시알림 ] message ---> {%s}", finalResultMessage);
