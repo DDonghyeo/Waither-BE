@@ -23,14 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class OpenApiUtil {
 
-	@Value("${openapi.forecast.key}")
-	private String forecastKey;
-
-	@Value("${openapi.disasterMsg.key}")
-	private String disasterMsgKey;
-
 	public static final String ENCODING = "UTF-8";
 	public static final String RESPONSE_EXCEPTION_MSG = "Response is null";
+	@Value("${openapi.forecast.key}")
+	private String forecastKey;
+	@Value("${openapi.disasterMsg.key}")
+	private String disasterMsgKey;
 
 	// TODO 위도, 경도 -> x, y 좌표 변환 메서드 추가
 
@@ -66,7 +64,10 @@ public class OpenApiUtil {
 			.uri(uri)
 			.accept(MediaType.APPLICATION_JSON)
 			.retrieve().bodyToMono(ForeCastOpenApiResponse.class)
-			.blockOptional().orElseThrow(() -> new OpenApiException(RESPONSE_EXCEPTION_MSG)).getResponse();
+			.onErrorResume(throwable -> {
+				throw new OpenApiException(RESPONSE_EXCEPTION_MSG);
+			})
+			.block().getResponse();
 
 		if (response.getHeader().getResultCode().equals("00")) {
 			return response.getBody().getItems().getItem();
@@ -118,8 +119,10 @@ public class OpenApiUtil {
 				httpHeaders.set("Accept", "*/*;q=0.9");
 			})
 			.retrieve().bodyToMono(String.class)
-			.blockOptional()
-			.orElseThrow(() -> new OpenApiException(RESPONSE_EXCEPTION_MSG));
+			.onErrorResume(throwable -> {
+				throw new OpenApiException(RESPONSE_EXCEPTION_MSG);
+			})
+			.block();
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		MsgOpenApiResponse response = objectMapper.readValue(responseString, MsgOpenApiResponse.class);
@@ -145,7 +148,7 @@ public class OpenApiUtil {
 			"&numOfRows=" + numOfRows +
 			"&pageNo=" + pageNo +
 			"&returnType=" + dataType +
-			"&searchDate=" + searchDate ;
+			"&searchDate=" + searchDate;
 
 		URI uri = new URI(uriString);
 
