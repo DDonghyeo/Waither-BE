@@ -17,10 +17,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class OpenApiUtil {
 
 	public static final String ENCODING = "UTF-8";
@@ -29,8 +31,6 @@ public class OpenApiUtil {
 	private String forecastKey;
 	@Value("${openapi.disasterMsg.key}")
 	private String disasterMsgKey;
-
-	// TODO 위도, 경도 -> x, y 좌표 변환 메서드 추가
 
 	// 기상청 Api (초단기, 단기)
 	public List<ForeCastOpenApiResponse.Item> callForeCastApi(
