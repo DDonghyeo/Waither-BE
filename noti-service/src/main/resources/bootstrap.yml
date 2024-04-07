@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: app-service  # micro service unique ID
+    name: noti-service  # micro service unique ID
   profiles:
     active: dev
   cloud:

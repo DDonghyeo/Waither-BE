@@ -15,7 +15,6 @@ import org.hibernate.annotations.DynamicInsert;
 public class UserMedian {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
     private Double medianOf1And2;
     private Double medianOf2And3;
