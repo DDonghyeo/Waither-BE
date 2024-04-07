@@ -117,7 +117,7 @@ public class WeatherService {
 		log.info("[*] 재난 문자 : {}", save);
 	}
 
-	public void createAeroKorea(String searchTime) throws URISyntaxException {
+	public void createAirKorea(String searchTime) throws URISyntaxException {
 		openApiUtil.callAirKorea(searchTime);
 	}
 }

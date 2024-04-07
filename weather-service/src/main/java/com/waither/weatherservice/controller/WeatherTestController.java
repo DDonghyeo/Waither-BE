@@ -38,7 +38,7 @@ public class WeatherTestController {
 	}
 
 	@PostMapping("/air")
-	public void aeroKoreaTest(@RequestBody AirTestRequest request) throws URISyntaxException, IOException {
-		weatherService.createAeroKorea(request.searchDate());
+	public void airKoreaTest(@RequestBody AirTestRequest request) throws URISyntaxException, IOException {
+		weatherService.createAirKorea(request.searchDate());
 	}
 }
