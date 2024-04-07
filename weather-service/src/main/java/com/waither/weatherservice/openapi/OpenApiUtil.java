@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -20,13 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class OpenApiUtil {
 
-	@Value("${openapi.short.key}")
-	private String shortForecastKey;
-
+	public static final String ENCODING = "UTF-8";
+	public static final String RESPONSE_EXCEPTION_MSG = "Response is null";
+	@Value("${openapi.forecast.key}")
+	private String forecastKey;
 	@Value("${openapi.disasterMsg.key}")
 	private String disasterMsgKey;
-
-	public static final String ENCODING = "UTF-8";
 
 	// TODO 위도, 경도 -> x, y 좌표 변환 메서드 추가
 
@@ -45,7 +47,7 @@ public class OpenApiUtil {
 
 		WebClient webClient = WebClient.create();
 		String uriString = apiUrl +
-			"?serviceKey=" + shortForecastKey +
+			"?serviceKey=" + forecastKey +
 			"&numOfRows=" + numOfRows +
 			"&pageNo=" + pageNo +
 			"&dataType=" + dataType +
@@ -62,7 +64,10 @@ public class OpenApiUtil {
 			.uri(uri)
 			.accept(MediaType.APPLICATION_JSON)
 			.retrieve().bodyToMono(ForeCastOpenApiResponse.class)
-			.blockOptional().orElseThrow(() -> new OpenApiException("Response is null")).getResponse();
+			.onErrorResume(throwable -> {
+				throw new OpenApiException(RESPONSE_EXCEPTION_MSG);
+			})
+			.block().getResponse();
 
 		if (response.getHeader().getResultCode().equals("00")) {
 			return response.getBody().getItems().getItem();
@@ -70,7 +75,6 @@ public class OpenApiUtil {
 			throw new OpenApiException(response.getHeader().getResultMsg());
 		}
 	}
-
 
 	// 기상청 OpenApi 반환값 팔터링 작업 (리스트, 반환받은 날짜 + 시간 기준으로 오름차순)
 	public List<String> apiResponseListFilter(List<ForeCastOpenApiResponse.Item> items, String category) {
@@ -90,8 +94,6 @@ public class OpenApiUtil {
 			.findFirst().orElse(null);
 	}
 
-
-
 	// 재난 문자 Api
 	public List<MsgOpenApiResponse.RowData> callDisasterMsgApi(String location) throws
 		URISyntaxException,
@@ -106,7 +108,6 @@ public class OpenApiUtil {
 			"&" + URLEncoder.encode("type", ENCODING) + "=" + URLEncoder.encode("json", ENCODING) +
 			"&" + URLEncoder.encode("location_name", ENCODING) + "=" + URLEncoder.encode(location, ENCODING);
 
-
 		URI uri = new URI(uriString);
 
 		log.info("[*] 재난 문자 Api : {}", uri);
@@ -118,8 +119,10 @@ public class OpenApiUtil {
 				httpHeaders.set("Accept", "*/*;q=0.9");
 			})
 			.retrieve().bodyToMono(String.class)
-			.blockOptional()
-			.orElseThrow(() -> new OpenApiException("Response is null"));
+			.onErrorResume(throwable -> {
+				throw new OpenApiException(RESPONSE_EXCEPTION_MSG);
+			})
+			.block();
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		MsgOpenApiResponse response = objectMapper.readValue(responseString, MsgOpenApiResponse.class);
@@ -133,4 +136,56 @@ public class OpenApiUtil {
 	}
 
 	// TODO 재난 문자 필터 (날씨 정보만 추출)
+
+	public List<AirKoreaOpenApiResponse.Items> callAirKorea(String searchDate) throws URISyntaxException {
+		int pageNo = 1;
+		int numOfRows = 10;
+		String dataType = "JSON";
+
+		WebClient webClient = WebClient.create();
+		String uriString = "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMinuDustFrcstDspth" +
+			"?serviceKey=" + forecastKey +
+			"&numOfRows=" + numOfRows +
+			"&pageNo=" + pageNo +
+			"&returnType=" + dataType +
+			"&searchDate=" + searchDate;
+
+		URI uri = new URI(uriString);
+
+		log.info("[*] 에어코리아 Api : {}", uri);
+
+		AirKoreaOpenApiResponse.Response response = webClient.get()
+			.uri(uri)
+			.accept(MediaType.APPLICATION_JSON)
+			.retrieve().bodyToMono(AirKoreaOpenApiResponse.class)
+			.blockOptional().orElseThrow(() -> new OpenApiException(RESPONSE_EXCEPTION_MSG)).getResponse();
+
+		if (response.getHeader().getResultCode().equals("00")) {
+
+			List<AirKoreaOpenApiResponse.Items> items = response.getBody()
+				.getItems()
+				.stream()
+				.sorted(Comparator.comparing(AirKoreaOpenApiResponse.Items::getInformData).reversed())
+				.toList();
+
+			String data = items.get(0).getInformGrade();
+
+			parseAirKoreaResponseToMap(data);
+
+			return items;
+		} else {
+			throw new OpenApiException(response.getHeader().getResultMsg());
+		}
+	}
+
+	public Map<String, String> parseAirKoreaResponseToMap(String data) {
+		Map<String, String> map = Arrays.stream(data.split(","))
+			.map(s -> s.split(" : "))
+			.collect(HashMap::new, (m, arr) -> m.put(arr[0], arr[1]), HashMap::putAll);
+
+		// TODO 삭제 예정
+		map.forEach((key, value) -> log.info(key + " -> " + value));
+
+		return map;
+	}
 }
