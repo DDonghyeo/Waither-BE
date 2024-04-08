@@ -40,6 +40,7 @@ class GpsTransferTest {
 
 		// then
 		assertEquals(expected, latXLngY);
+		System.out.println("[*] 테스트 : " + latXLngY);
 	}
 
 	@Test
@@ -54,5 +55,6 @@ class GpsTransferTest {
 
 		// then
 		assertEquals(expected, latXLngY);
+		System.out.println("[*] 테스트 : " + latXLngY);
 	}
 }
