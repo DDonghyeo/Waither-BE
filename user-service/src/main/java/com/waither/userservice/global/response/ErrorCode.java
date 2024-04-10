@@ -33,10 +33,13 @@ public enum ErrorCode implements BaseErrorCode {
     // 이메일 관련 에러
     INVALID_CODE(HttpStatus.BAD_REQUEST, "EMAIL400_0", "인증번호가 일치하지 않아요. 다시 한 번 확인해주세요."),
     INVALID_Account(HttpStatus.BAD_REQUEST, "EMAIL400_1", "인증되지 않은 이메일입니다."),
+    AUTH_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL400_1", "인증 번호의 유효기간이 경과하였습니다. 다시 인증 번호를 요청해주세요."),
+    VERIFIED_CHECK_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL400_1", "인증 완료 후 유효기간이 경과하였습니다. 다시 인증 번호를 요청해주세요."),
+
     UNABLE_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL500_0", "이메일을 전송할 수 없습니다."),
     NO_SUCH_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL500_1", "이메일 인증 코드를 생성할 수 없습니다."),
 
-    // 멤버 관련 에러
+    DATA_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER404_0", "해당 데이터를 찾을 수 없습니다."),
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER404_1", "사용자가 없습니다."),
     EMAIL_NOT_EXIST(HttpStatus.BAD_REQUEST, "USER400_2", "이메일은 필수 입니다."),
     PASSWORD_NOT_EQUAL(HttpStatus.BAD_REQUEST, "USER400_3", "비밀번호가 일치하지 않습니다."),

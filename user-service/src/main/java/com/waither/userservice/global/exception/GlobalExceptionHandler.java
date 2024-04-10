@@ -5,6 +5,7 @@ import com.waither.userservice.global.response.status.BaseErrorCode;
 import com.waither.userservice.global.response.ErrorCode;
 import com.waither.userservice.jwt.execption.SecurityCustomException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -39,7 +40,7 @@ public class GlobalExceptionHandler {
     // Custom 예외에 대한 처리
     @ExceptionHandler({CustomException.class})
     public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
-        log.warn("[WARNING] Custom Exception : {}", e.getMessage());
+        log.warn("[WARNING] Custom Exception : {}", e.getErrorCode());
         BaseErrorCode errorCode = e.getErrorCode();
         return ResponseEntity.
                 status(errorCode.getHttpStatus())
