@@ -45,27 +45,17 @@ public class AccountsController {
 
     @GetMapping("/reissue")
     public ApiResponse<JwtDto> reissueToken(@RequestHeader("RefreshToken") String refreshToken) {
-        try {
-            jwtUtil.isRefreshToken(refreshToken);
-            return ApiResponse.onSuccess(jwtUtil.reissueToken(refreshToken));
-        } catch (ExpiredJwtException eje) {
-            throw new SecurityCustomException(SecurityErrorCode.TOKEN_EXPIRED, eje);
-        } catch (IllegalArgumentException iae) {
-            throw new SecurityCustomException(SecurityErrorCode.INVALID_TOKEN, iae);
-        }
+        JwtDto jwtDto = accountsService.reissueToken(refreshToken);
+        return ApiResponse.onSuccess(jwtDto);
+
     }
 
     // 이메일에 인증번호 보내기
     @GetMapping("/emails/submit-authcode")
     public ApiResponse<String> submitAuthCode(@RequestParam String email) {
-        try {
             accountsService.sendAuthCodeToEmail(email);
             return ApiResponse.onSuccess("인증번호 전송에 성공했습니다.");
-        } catch (CustomException e) {
-            throw e; // 이미 CustomException이 발생한 경우에는 다시 던지기만 하면 됨
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.UNABLE_TO_SEND_EMAIL);
-        }
+
     }
 
     // 이메일 인증하기

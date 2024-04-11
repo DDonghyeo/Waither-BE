@@ -25,24 +25,29 @@ public class EmailService {
     private final JavaMailSender emailSender;
 
     // 인증 번호 발송 폼 생성
-    private MimeMessage createAuthMessage(String Email, String title, String auth) throws Exception{
+    private MimeMessage createAuthMessage(String Email, String title, String auth) {
         MimeMessage message = emailSender.createMimeMessage();
 
-        message.addRecipients(MimeMessage.RecipientType.TO, Email); //보내는 대상
-        message.setSubject(title);//제목
+        try {
+            message.addRecipients(MimeMessage.RecipientType.TO, Email); //보내는 대상
+            message.setSubject(title); //제목
 
-        String msgg = "<div style='background-color:#f7f7f7; padding:20px;'>";
-        msgg += "<h1 style='color:#333; font-family: Arial, sans-serif; margin-bottom:20px;'>안녕하세요, 임시 비밀번호 안내입니다.</h1>";
-        msgg += "<p style='font-size: 16px; color:#666; margin-bottom:20px;'>아래 인증번호를 입력해주세요.</p>";
-        msgg += "<div style='background-color:#fff; border:1px solid #ccc; padding: 20px; text-align: center; font-family:Verdana, Geneva, sans-serif;'>";
-        msgg += "<h3 style='color:#5189F6; font-size: 24px; margin-bottom: 20px;'>인증 번호</h3>";
-        msgg += "<div style='font-size:20px;'><strong>CODE: " + auth + "</strong></div>";
-        msgg += "</div></div>";
+            String msgg = "<div style='background-color:#f7f7f7; padding:20px;'>";
+            msgg += "<h1 style='color:#333; font-family: Arial, sans-serif; margin-bottom:20px;'>안녕하세요, 인증번호 안내입니다.</h1>";
+            msgg += "<p style='font-size: 16px; color:#666; margin-bottom:20px;'>아래 인증번호를 입력해주세요.</p>";
+            msgg += "<div style='background-color:#fff; border:1px solid #ccc; padding: 20px; text-align: center; font-family:Verdana, Geneva, sans-serif;'>";
+            msgg += "<h3 style='color:#5189F6; font-size: 24px; margin-bottom: 20px;'>인증 번호</h3>";
+            msgg += "<div style='font-size:20px;'><strong>CODE: " + auth + "</strong></div>";
+            msgg += "</div></div>";
 
-        message.setText(msgg, "utf-8", "html");//내용
-        message.setFrom(new InternetAddress("Weither","Weither"));//보내는 사람
+            message.setText(msgg, "utf-8", "html");//내용
+            message.setFrom(new InternetAddress("Weither","Weither"));//보내는 사람
 
-        return message;
+            // 이메일 보내기
+            return message;
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            throw new CustomException(ErrorCode.NO_SUCH_ALGORITHM);
+        }
     }
 
     // 임시 비밀번호 발송 폼 생성
@@ -71,7 +76,7 @@ public class EmailService {
     }
 
     // 이메일 전송 메소드
-    public void sendAuthEmail(String email, String title, String Auth) throws Exception {
+    public void sendAuthEmail(String email, String title, String Auth) {
         try {
             MimeMessage message = createAuthMessage(email, title, Auth);
             emailSender.send(message);

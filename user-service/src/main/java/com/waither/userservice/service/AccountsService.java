@@ -2,6 +2,8 @@ package com.waither.userservice.service;
 
 import com.waither.userservice.dto.RegisterRequestDto;
 import com.waither.userservice.entity.User;
+import com.waither.userservice.jwt.dto.JwtDto;
+import com.waither.userservice.jwt.util.JwtUtil;
 import com.waither.userservice.util.RedisUtil;
 import com.waither.userservice.repository.UserRepository;
 import com.waither.userservice.global.exception.CustomException;
@@ -33,9 +35,12 @@ public class AccountsService {
 
     private final EmailService emailService;
     private final RedisUtil redisUtil;
+    private final JwtUtil jwtUtil;
+
     @Value("${spring.mail.auth-code-expiration-millis}")
     private long authCodeExpirationMillis;
 
+    // 회원가입
     public void signup(RegisterRequestDto requestDto) {
         if (!verifiedAccounts(requestDto.email())) {
             throw new CustomException(ErrorCode.INVALID_Account);
@@ -47,8 +52,14 @@ public class AccountsService {
         userRepository.save(newUser);
     }
 
+    // 재발급
+    public JwtDto reissueToken(String refreshToken) {
+        jwtUtil.isRefreshToken(refreshToken);
+        return jwtUtil.reissueToken(refreshToken);
+    }
+
     // 인증 번호 전송
-    public void sendAuthCodeToEmail(String email) throws Exception {
+    public void sendAuthCodeToEmail(String email) {
         this.checkDuplicatedEmail(email);
 
         String authCode = this.createAuthCode();

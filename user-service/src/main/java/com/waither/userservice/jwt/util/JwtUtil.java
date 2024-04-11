@@ -169,14 +169,10 @@ public class JwtUtil {
             if (isExpired) {
                 log.info("만료된 JWT 토큰입니다.");
             }
-        } catch (SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
+        } catch (SecurityException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+            throw new SecurityCustomException(SecurityErrorCode.INVALID_TOKEN, e);
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
-        } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰입니다.");
-        } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
+            throw new SecurityCustomException(SecurityErrorCode.TOKEN_EXPIRED, e);
         }
     }
 }
