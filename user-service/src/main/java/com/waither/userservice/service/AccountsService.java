@@ -61,7 +61,7 @@ public class AccountsService {
     }
 
     // 임시 비밀번호 보내고, 변경
-    public String sendTempPassword(String email) throws Exception {
+    public String sendTempPassword(String email) {
         // 전송
         String tempPassword = this.createTemporaryPassword();
         String title = "[☀️Waither] 임시 비밀번호 : {" + tempPassword + "}";

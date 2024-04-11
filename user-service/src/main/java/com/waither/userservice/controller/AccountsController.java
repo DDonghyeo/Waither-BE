@@ -72,24 +72,16 @@ public class AccountsController {
     @PostMapping("/emails/verifications")
     public ApiResponse<String> verificationEmail(@RequestBody EmailVerificationDto verificationDto) {
         accountsService.verifyCode(verificationDto.email(), verificationDto.authCode());
-
         return ApiResponse.onSuccess("이메일 인증에 성공했습니다.");
     }
 
     // 임시 비밀번호 발급
     @GetMapping("/emails/temporary-password")
     public ApiResponse<String> submitTemporaryPassword(@RequestParam String email) {
-        try {
             accountsService.checkUserExists(email);
             String tempPassword = accountsService.sendTempPassword(email);
             accountsService.changeToTempPassword(email, tempPassword);
             return ApiResponse.onSuccess("인증번호 전송에 성공했습니다.");
-        } catch (CustomException e) {
-            throw e; // 내부에서 일어난 exception
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.UNABLE_TO_SEND_EMAIL);
-        }
-
     }
 
 }

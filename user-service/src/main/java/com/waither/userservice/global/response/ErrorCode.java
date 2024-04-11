@@ -36,7 +36,7 @@ public enum ErrorCode implements BaseErrorCode {
     AUTH_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL400_1", "인증 번호의 유효기간이 경과하였습니다. 다시 인증 번호를 요청해주세요."),
     VERIFIED_CHECK_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL400_1", "인증 완료 후 유효기간이 경과하였습니다. 다시 인증 번호를 요청해주세요."),
 
-    UNABLE_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL500_0", "이메일을 전송할 수 없습니다."),
+    UNABLE_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL500_0", "이메일을 전송하는 도중, 에러가 발생했습니다."),
     NO_SUCH_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL500_1", "이메일 인증 코드를 생성할 수 없습니다."),
 
     DATA_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER404_0", "해당 데이터를 찾을 수 없습니다."),
