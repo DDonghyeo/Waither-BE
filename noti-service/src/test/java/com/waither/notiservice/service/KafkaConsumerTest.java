@@ -4,9 +4,9 @@ import com.waither.notiservice.domain.UserData;
 import com.waither.notiservice.dto.kafka.TokenDto;
 import com.waither.notiservice.dto.kafka.UserMedianDto;
 import com.waither.notiservice.dto.kafka.UserSettingsDto;
-import com.waither.notiservice.redis.FireTokenBaseRepository;
 import com.waither.notiservice.repository.UserDataRepository;
 import com.waither.notiservice.repository.UserMedianRepository;
+import com.waither.notiservice.utils.RedisUtils;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.BeforeAll;
@@ -65,7 +65,7 @@ public class KafkaConsumerTest {
     private UserMedianRepository userMedianRepository;
 
     @Autowired
-    private FireTokenBaseRepository fireTokenBaseRepository;
+    private RedisUtils redisUtils;
 
     @Autowired
     private UserDataRepository userDataRepository;
@@ -132,10 +132,10 @@ public class KafkaConsumerTest {
         Thread.sleep(2000); //2초 대기
 
 
-        assertThat(fireTokenBaseRepository.findById(0L).get().getToken()).isEqualTo("test token");
+        assertThat(String.valueOf(redisUtils.get("0"))).isEqualTo("test token");
 
         //끝나고 삭제 -> Rollback 일어나지 않아서
-        fireTokenBaseRepository.deleteById(0L);
+        redisUtils.delete("0");
     }
 
     @Test
