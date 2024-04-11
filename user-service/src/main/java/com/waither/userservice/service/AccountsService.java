@@ -63,20 +63,20 @@ public class AccountsService {
         this.checkDuplicatedEmail(email);
 
         String authCode = this.createAuthCode();
-        String title = "[☀️Waither] 이메일 인증 번호 : {" + authCode + "}";
-        emailService.sendAuthEmail(email, title, authCode);
+        String title = "[☀️Waither☀️] 이메일 인증 번호 : {" + authCode + "}";
+        emailService.sendEmail(email, title, "authEmail", authCode);
 
         // 이메일 인증 요청 시 인증 번호 Redis에 저장 ( key = "AuthCode " + Email / value = AuthCode )
         redisUtil.save(AUTH_CODE_PREFIX + email,
                 authCode, authCodeExpirationMillis, TimeUnit.MILLISECONDS);
     }
 
-    // 임시 비밀번호 보내고, 변경
+    // 임시 비밀번호 보내기
     public String sendTempPassword(String email) {
         // 전송
         String tempPassword = this.createTemporaryPassword();
-        String title = "[☀️Waither] 임시 비밀번호 : {" + tempPassword + "}";
-        emailService.sendTempPasswordEmail(email, title, tempPassword);
+        String title = "[☀️Waither☀️] 임시 비밀번호 : {" + tempPassword + "}";
+        emailService.sendEmail(email, title, "tempPasswordEmail", tempPassword);
 
         return tempPassword;
     }
@@ -154,8 +154,6 @@ public class AccountsService {
         // hasKey(VERIFIED_PREFIX + email) 만 통과 하면 -> 인증 완료한 것
         return true;
     }
-
-
 
     // 임시 비밀번호로 비밀번호를 변경
     public void changeToTempPassword(String email, String tempPassword) {
