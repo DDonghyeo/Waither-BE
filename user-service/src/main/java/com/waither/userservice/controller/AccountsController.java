@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 public class AccountsController {
 
     private final AccountsService accountsService;
-    private final JwtUtil jwtUtil;
 
     @GetMapping("/test")
     public String Test() {
