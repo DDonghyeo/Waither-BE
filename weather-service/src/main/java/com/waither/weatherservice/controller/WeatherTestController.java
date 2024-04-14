@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.waither.weatherservice.dto.AccuweatherTestRequest;
 import com.waither.weatherservice.dto.AirTestRequest;
 import com.waither.weatherservice.dto.ForeCastTestRequest;
 import com.waither.weatherservice.dto.MsgTestRequest;
@@ -38,7 +39,12 @@ public class WeatherTestController {
 	}
 
 	@PostMapping("/air")
-	public void airKoreaTest(@RequestBody AirTestRequest request) throws URISyntaxException, IOException {
+	public void airKoreaTest(@RequestBody AirTestRequest request) throws URISyntaxException {
 		weatherService.createAirKorea(request.searchDate());
+	}
+
+	@PostMapping("/accuweather")
+	public void accuweatherTest(@RequestBody AccuweatherTestRequest request) throws URISyntaxException, IOException {
+		weatherService.convertLocation(request.latitude(), request.longitude());
 	}
 }

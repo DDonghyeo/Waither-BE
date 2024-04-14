@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,9 @@ public class OpenApiUtil {
 	private String forecastKey;
 	@Value("${openapi.disasterMsg.key}")
 	private String disasterMsgKey;
+
+	@Value("${openapi.accuweather.key}")
+	private String accuweatherKey;
 
 	// 기상청 Api (초단기, 단기)
 	public List<ForeCastOpenApiResponse.Item> callForeCastApi(
@@ -187,5 +191,39 @@ public class OpenApiUtil {
 		map.forEach((key, value) -> log.info(key + " -> " + value));
 
 		return map;
+	}
+
+	// Accuweather Api 호출
+	public String callAccuweatherLocationApi(double latitude, double longitude) throws
+		URISyntaxException,
+		JsonProcessingException {
+
+		WebClient webClient = WebClient.create();
+		String uriString = "http://dataservice.accuweather.com/locations/v1/cities/geoposition/search" +
+			"?apikey=" + accuweatherKey +
+			"&q=" + latitude + "," + longitude +
+			"&language=" + "ko-kr" +
+			"&details=" + "false" +
+			"&toplevel=" + "false";
+
+		URI uri = new URI(uriString);
+
+		log.info("[*] Accuweather Location Api : {}", uri);
+
+		String jsonString = webClient.get()
+			.uri(uri)
+			.accept(MediaType.APPLICATION_JSON)
+			.retrieve().bodyToMono(String.class)
+			.onErrorResume(throwable -> {
+				throw new OpenApiException(RESPONSE_EXCEPTION_MSG);
+			})
+			.block();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		AccuweatherLocationApiResponse response = objectMapper.readValue(jsonString,
+			AccuweatherLocationApiResponse.class);
+
+		log.info("[*] 위도, 경도 -> 지역명 : {}", response.getAdministrativeArea().getLocalizedName());
+		return response.getAdministrativeArea().getLocalizedName();
 	}
 }

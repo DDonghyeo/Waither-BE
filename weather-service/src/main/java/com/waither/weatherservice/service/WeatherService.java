@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.waither.weatherservice.entity.DailyWeather;
 import com.waither.weatherservice.entity.DisasterMessage;
 import com.waither.weatherservice.entity.ExpectedWeather;
@@ -27,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 public class WeatherService {
 
 	private final OpenApiUtil openApiUtil;
-
 	private final DailyWeatherRepository dailyWeatherRepository;
 	private final ExpectedWeatherRepository expectedWeatherRepository;
 	private final DisasterMessageRepository disasterMessageRepository;
@@ -119,5 +119,9 @@ public class WeatherService {
 
 	public void createAirKorea(String searchTime) throws URISyntaxException {
 		openApiUtil.callAirKorea(searchTime);
+	}
+
+	public void convertLocation(double latitude, double longitude) throws URISyntaxException, JsonProcessingException {
+		openApiUtil.callAccuweatherLocationApi(latitude, longitude);
 	}
 }
