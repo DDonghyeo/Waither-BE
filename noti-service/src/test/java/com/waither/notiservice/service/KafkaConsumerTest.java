@@ -148,7 +148,7 @@ public class KafkaConsumerTest {
 
         //when
         userDataRepository.save(UserData.builder()
-                .windDegree(10)
+                .windDegree(11)
                 .userId(0L)
                 .build());
         UserSettingsDto userSettingsDto = UserSettingsDto.builder()
