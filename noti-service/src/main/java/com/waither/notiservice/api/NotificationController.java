@@ -1,6 +1,7 @@
 package com.waither.notiservice.api;
 
 import com.waither.notiservice.api.response.NotificationResponse;
+import com.waither.notiservice.dto.LocationDto;
 import com.waither.notiservice.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -42,5 +43,10 @@ public class NotificationController {
     @PostMapping("/goOut")
     public void sendGoOutAlarm(Long userId) {
         notificationService.sendGoOutAlarm(userId);
+    }
+
+    @PostMapping("/")
+    public void checkCurrentAlarm(@RequestBody LocationDto locationDto) {
+        notificationService.checkCurrentAlarm(locationDto);
     }
 }

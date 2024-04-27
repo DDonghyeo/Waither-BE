@@ -6,9 +6,9 @@ import com.waither.notiservice.domain.type.Season;
 import com.waither.notiservice.dto.kafka.TokenDto;
 import com.waither.notiservice.dto.kafka.UserMedianDto;
 import com.waither.notiservice.dto.kafka.UserSettingsDto;
-import com.waither.notiservice.redis.FireTokenBaseRepository;
 import com.waither.notiservice.repository.UserDataRepository;
 import com.waither.notiservice.repository.UserMedianRepository;
+import com.waither.notiservice.utils.RedisUtils;
 import com.waither.notiservice.utils.TemperatureUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +30,7 @@ public class KafkaConsumer {
     private final UserDataRepository userDataRepository;
     private final UserMedianRepository userMedianRepository;
 
-    private final FireTokenBaseRepository fireBaseTokenRepository;
+    private final RedisUtils redisUtils;
 
     /**
      * 중앙값 동기화 Listener
@@ -72,8 +72,8 @@ public class KafkaConsumer {
         log.info("[ Kafka Listener ] User Id : --> {}", tokenDto.getUserId());
         log.info("[ Kafka Listener ] Token : --> {}", tokenDto.getToken());
 
-        fireBaseTokenRepository.save(tokenDto.toEntity());
-
+        //토큰 Redis 저장
+        redisUtils.save(String.valueOf(tokenDto.getUserId()), tokenDto.getToken());
     }
 
 
@@ -126,6 +126,7 @@ public class KafkaConsumer {
         //TODO : 푸시알림 전송
         String finalResultMessage = resultMessage;
         userIds.forEach(id ->{
+            String token = String.valueOf(redisUtils.get(String.valueOf(id)));
             System.out.println("[ 푸시알림 ] 바람 세기 알림");
             System.out.printf("[ 푸시알림 ] userId ---> {%d}", id);
             System.out.printf("[ 푸시알림 ] message ---> {%s}", finalResultMessage);
@@ -155,7 +156,7 @@ public class KafkaConsumer {
         String finalResultMessage = resultMessage;
         userIds.forEach(id ->{
             //TODO : 예외처리하기
-            String token = fireBaseTokenRepository.findById(id).orElseThrow().getToken();
+            String token = String.valueOf(redisUtils.get(String.valueOf(id)));
             System.out.println("[ 푸시알림 ] 강수량 알림");
             System.out.printf("[ 푸시알림 ] userId ---> {%d}", id);
             System.out.printf("[ 푸시알림 ] message ---> {%s}", finalResultMessage);
@@ -180,7 +181,7 @@ public class KafkaConsumer {
         //TODO : 푸시알림 전송
         String finalResultMessage = resultMessage;
         userIds.forEach(id ->{
-            String token = fireBaseTokenRepository.findById(id).orElseThrow().getToken();
+            String token = String.valueOf(redisUtils.get(String.valueOf(id)));
             System.out.println("[ 푸시알림 ] 기상 특보 알림");
             System.out.printf("[ 푸시알림 ] userId ---> {%d}", id);
             System.out.printf("[ 푸시알림 ] message ---> {%s}", finalResultMessage);

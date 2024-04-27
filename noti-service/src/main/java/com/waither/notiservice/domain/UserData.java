@@ -16,7 +16,6 @@ import org.hibernate.annotations.DynamicInsert;
 public class UserData {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
     private String nickName;

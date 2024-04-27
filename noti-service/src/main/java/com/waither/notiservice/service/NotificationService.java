@@ -3,6 +3,7 @@ package com.waither.notiservice.service;
 import com.waither.notiservice.api.response.NotificationResponse;
 import com.waither.notiservice.domain.UserData;
 import com.waither.notiservice.domain.UserMedian;
+import com.waither.notiservice.dto.LocationDto;
 import com.waither.notiservice.repository.NotificationRepository;
 import com.waither.notiservice.repository.UserDataRepository;
 import com.waither.notiservice.repository.UserMedianRepository;
@@ -81,5 +82,15 @@ public class NotificationService {
         log.info("[ Notification Service ] Final Message ---> {}", finalMessage);
 
         return finalMessage;
+    }
+
+    //현재 위치 공유 -> 상시 알림 검사
+    public void checkCurrentAlarm(LocationDto locationDto) {
+
+        //TODO : 현재 지역에 강수량 정보가 있는지?
+
+        //TODO : 현재 지역에 바람 세기 정보는 있는지?
+
+        //TODO : 만약 알림 내용이 있다면 전송하기
     }
 }
