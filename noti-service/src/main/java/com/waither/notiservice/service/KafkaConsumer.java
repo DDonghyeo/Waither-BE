@@ -47,9 +47,11 @@ public class KafkaConsumer {
 
         Optional<UserMedian> userMedian = userMedianRepository.findById(userMedianDto.getUserId());
         if (userMedian.isPresent()) {
+            //User Median 이미 있을 경우
             userMedian.get()
                     .setLevel(userMedianDto.getLevel(), userMedianDto.getTemperature());
         } else {
+            //User Median 없을 경우 (생성)
             UserMedian newUserMedian = UserMedian.builder()
                     .userId(userMedianDto.getUserId())
                     .build();
