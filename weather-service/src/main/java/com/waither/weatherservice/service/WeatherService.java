@@ -99,9 +99,8 @@ public class WeatherService {
 		DailyWeatherKafkaMessage kafkaMessage = DailyWeatherKafkaMessage.from(dailyWeather);
 		producer.dailyWeatherProduceMessage(kafkaMessage);
 
-		// TODO 조회 테스트 후 삭제 예정
-		DailyWeather save = dailyWeatherRepository.save(dailyWeather);
-		log.info("[*] 하루 온도 : {}", save);
+		// DailyWeather save = dailyWeatherRepository.save(dailyWeather);
+		log.info("[*] 하루 온도 : {}", dailyWeather);
 
 	}
 
