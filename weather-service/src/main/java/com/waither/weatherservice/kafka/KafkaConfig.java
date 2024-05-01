@@ -35,7 +35,7 @@ public class KafkaConfig {
 	private String groupId;
 
 	@Bean
-	public ProducerFactory<String, DailyWeatherKafkaMessage> dailyWeatherProducerFactory() {
+	public ProducerFactory<String, String> producerFactory() {
 		Map<String, Object> config = new HashMap<>();
 		config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
 		config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -45,23 +45,23 @@ public class KafkaConfig {
 	}
 
 	@Bean
-	public KafkaTemplate<String, DailyWeatherKafkaMessage> dailyWeatherKafkaTemplate() {
-		return new KafkaTemplate<>(dailyWeatherProducerFactory());
+	public KafkaTemplate<String, String> kafkaTemplate() {
+		return new KafkaTemplate<>(producerFactory());
 	}
 
 	@Bean
-	public ConsumerFactory<String, DailyWeatherKafkaMessage> dailyWeatherConsumerFactory() {
+	public ConsumerFactory<String, String> consumerFactory() {
 		HashMap<String, Object> config = new HashMap<>();
 		config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
 		config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 		return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(),
-			new JsonDeserializer<>(DailyWeatherKafkaMessage.class));
+			new JsonDeserializer<>(String.class));
 	}
 
 	@Bean
-	public ConcurrentKafkaListenerContainerFactory<String, DailyWeatherKafkaMessage> DailyWeatherKafkaMessageConcurrentKafkaListenerContainerFactory() {
-		ConcurrentKafkaListenerContainerFactory<String, DailyWeatherKafkaMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
-		factory.setConsumerFactory(dailyWeatherConsumerFactory());
+	public ConcurrentKafkaListenerContainerFactory<String, String> concurrentKafkaListenerContainerFactory() {
+		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+		factory.setConsumerFactory(consumerFactory());
 		factory.setConcurrency(3);
 		factory.setBatchListener(true);
 		factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
