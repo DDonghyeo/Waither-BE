@@ -47,6 +47,15 @@ public class GlobalExceptionHandler {
                 .body(errorCode.getErrorResponse());
     }
 
+    @ExceptionHandler({SecurityCustomException.class})
+    public ResponseEntity<ApiResponse<Void>> handleSecurityCustomException(SecurityCustomException e) {
+        log.warn("[WARNING] Security Custom Exception : {}", e.getErrorCode());
+        BaseErrorCode errorCode = e.getErrorCode();
+        return ResponseEntity.
+                status(errorCode.getHttpStatus())
+                .body(errorCode.getErrorResponse());
+    }
+
     // 그 외의 정의되지 않은 모든 예외 처리
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ApiResponse<String>> handleAllException(Exception e) {

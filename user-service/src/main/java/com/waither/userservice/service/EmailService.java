@@ -35,7 +35,7 @@ public class EmailService {
     private MimeMessage createEmailForm(String email, String title, String mailType, String code) {
         MimeMessage message = emailSender.createMimeMessage();
         try {
-            message.setFrom(new InternetAddress("Weither","Weither"));//보내는 사람
+            message.setFrom(new InternetAddress("Waither","Waither"));//보내는 사람
             //email-config에 설정한 자신의 이메일 주소(보내는 사람)
             message.addRecipients(MimeMessage.RecipientType.TO, email); //보낼 이메일 설정
 

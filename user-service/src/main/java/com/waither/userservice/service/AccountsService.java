@@ -30,8 +30,8 @@ public class AccountsService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private static final String AUTH_CODE_PREFIX = "AuthCode ";
-    private static final String VERIFIED_PREFIX = "Verified ";
+    private static final String AUTH_CODE_PREFIX = "AuthCode_";
+    private static final String VERIFIED_PREFIX = "Verified_";
 
     private final EmailService emailService;
     private final RedisUtil redisUtil;
@@ -66,6 +66,7 @@ public class AccountsService {
         String title = "[☀️Waither☀️] 이메일 인증 번호 : {" + authCode + "}";
         emailService.sendEmail(email, title, "authEmail", authCode);
 
+        log.info(email);
         // 이메일 인증 요청 시 인증 번호 Redis에 저장 ( key = "AuthCode " + Email / value = AuthCode )
         redisUtil.save(AUTH_CODE_PREFIX + email,
                 authCode, authCodeExpirationMillis, TimeUnit.MILLISECONDS);
