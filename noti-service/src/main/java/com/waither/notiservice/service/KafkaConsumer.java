@@ -6,6 +6,8 @@ import com.waither.notiservice.domain.type.Season;
 import com.waither.notiservice.dto.kafka.TokenDto;
 import com.waither.notiservice.dto.kafka.UserMedianDto;
 import com.waither.notiservice.dto.kafka.UserSettingsDto;
+import com.waither.notiservice.global.exception.CustomException;
+import com.waither.notiservice.global.response.ErrorCode;
 import com.waither.notiservice.repository.UserDataRepository;
 import com.waither.notiservice.repository.UserMedianRepository;
 import com.waither.notiservice.utils.RedisUtils;
@@ -125,15 +127,8 @@ public class KafkaConsumer {
         //TODO : 바람 세기 알림 멘트 정리
         resultMessage += "현재 바람 세기가 " + windStrength + "m/s 이상입니다. 강풍에 주의하세요.";
 
-        //TODO : 푸시알림 전송
-        String finalResultMessage = resultMessage;
-        userIds.forEach(id ->{
-            String token = String.valueOf(redisUtils.get(String.valueOf(id)));
-            System.out.println("[ 푸시알림 ] 바람 세기 알림");
-            System.out.printf("[ 푸시알림 ] userId ---> {%d}", id);
-            System.out.printf("[ 푸시알림 ] message ---> {%s}", finalResultMessage);
-        });
-
+        System.out.println("[ 푸시알림 ] 바람 세기 알림");
+        sendAlarms(userIds, resultMessage);
     }
 
 
@@ -154,16 +149,8 @@ public class KafkaConsumer {
         //TODO : 알림 멘트 정리
         resultMessage += "현재 강수량 " + snow + "m/s 이상입니다.";
 
-        //TODO : 푸시알림 전송
-        String finalResultMessage = resultMessage;
-        userIds.forEach(id ->{
-            //TODO : 예외처리하기
-            String token = String.valueOf(redisUtils.get(String.valueOf(id)));
-            System.out.println("[ 푸시알림 ] 강수량 알림");
-            System.out.printf("[ 푸시알림 ] userId ---> {%d}", id);
-            System.out.printf("[ 푸시알림 ] message ---> {%s}", finalResultMessage);
-        });
-
+        System.out.println("[ 푸시알림 ] 강수량 알림");
+        sendAlarms(userIds, resultMessage);
     }
 
     /**
@@ -181,13 +168,21 @@ public class KafkaConsumer {
         resultMessage += "[기상청 기상 특보] " + message;
 
         //TODO : 푸시알림 전송
-        String finalResultMessage = resultMessage;
+        System.out.println("[ 푸시알림 ] 기상 특보 알림");
+        sendAlarms(userIds, resultMessage);
+    }
+
+
+    private void sendAlarms(List<Long> userIds, String message) {
         userIds.forEach(id ->{
             String token = String.valueOf(redisUtils.get(String.valueOf(id)));
-            System.out.println("[ 푸시알림 ] 기상 특보 알림");
-            System.out.printf("[ 푸시알림 ] userId ---> {%d}", id);
-            System.out.printf("[ 푸시알림 ] message ---> {%s}", finalResultMessage);
-        });
+            if (token == null) { //token을 찾지 못했을 경우
+                throw new CustomException(ErrorCode.FIREBASE_TOKEN_NOT_FOUND);
+            }
 
+
+            System.out.printf("[ 푸시알림 ] userId ---> {%d}", id);
+            System.out.printf("[ 푸시알림 ] message ---> {%s}", message);
+        });
     }
 }
