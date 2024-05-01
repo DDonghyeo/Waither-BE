@@ -100,6 +100,9 @@ public class NotificationService {
     //현재 위치 공유 -> 상시 알림 검사
     public void checkCurrentAlarm(LocationDto locationDto) {
 
+        log.info("[ Notification Service ]  현재 위치 공유 위도 (x) ---> {}", locationDto.getX());
+        log.info("[ Notification Service ]  현재 위치 공유 위도 (y) ---> {}", locationDto.getY());
+
         //TODO : 현재 지역에 강수량 정보가 있는지?
 
         //TODO : 현재 지역에 바람 세기 정보는 있는지?

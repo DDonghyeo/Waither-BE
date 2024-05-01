@@ -5,6 +5,7 @@ import com.waither.notiservice.api.request.LocationDto;
 import com.waither.notiservice.global.response.ApiResponse;
 import com.waither.notiservice.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class NotificationController {
 
     @Operation(summary = "Delete notification", description = "알림 삭제하기")
     @DeleteMapping("")
-    public ApiResponse<?> delteNotification(@RequestParam("id") String notificationId) {
+    public ApiResponse<?> deleteNotification(@RequestParam("id") String notificationId) {
         notificationService.deleteNotification(notificationId);
         return ApiResponse.onSuccess(HttpStatus.OK);
     }
@@ -37,9 +38,9 @@ public class NotificationController {
         notificationService.sendGoOutAlarm(userId);
     }
 
-    @Operation(summary = "Send Go Out Alarm", description = "외출 알림 전송하기")
-    @PostMapping("/")
-    public void checkCurrentAlarm(@RequestBody LocationDto locationDto) {
+    @Operation(summary = "Current Location", description = "현재 위치 전송")
+    @PostMapping("/location")
+    public void checkCurrentAlarm(@RequestBody @Valid LocationDto locationDto) {
         notificationService.checkCurrentAlarm(locationDto);
     }
 }
