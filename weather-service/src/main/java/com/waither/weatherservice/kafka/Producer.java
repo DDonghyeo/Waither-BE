@@ -12,14 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class Producer {
 
-	private final KafkaTemplate<String, String> kafkaTemplate;
+	private final KafkaTemplate<String, DailyWeatherKafkaMessage> DailyWeatherKafkaTemplate;
 
 	@Value("${spring.kafka.template.default-topic}")
 	private String topic;
 
-	public void produceMessage(String message) {
+	public void dailyWeatherProduceMessage(DailyWeatherKafkaMessage message) {
 		log.info("=================== Topic : {} ===================", topic);
 		log.info("[*] Producer Message : {}", message);
-		kafkaTemplate.send(topic, message);
+		DailyWeatherKafkaTemplate.send(topic, message);
 	}
 }

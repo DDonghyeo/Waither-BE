@@ -35,7 +35,7 @@ public class KafkaConfig {
 	private String groupId;
 
 	@Bean
-	public ProducerFactory<String, String> producerFactory() {
+	public ProducerFactory<String, DailyWeatherKafkaMessage> dailyWeatherProducerFactory() {
 		Map<String, Object> config = new HashMap<>();
 		config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
 		config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -45,23 +45,23 @@ public class KafkaConfig {
 	}
 
 	@Bean
-	public KafkaTemplate<String, String> kafkaTemplate() {
-		return new KafkaTemplate<>(producerFactory());
+	public KafkaTemplate<String, DailyWeatherKafkaMessage> dailyWeatherKafkaTemplate() {
+		return new KafkaTemplate<>(dailyWeatherProducerFactory());
 	}
 
 	@Bean
-	public ConsumerFactory<String, String> consumerFactory() {
+	public ConsumerFactory<String, DailyWeatherKafkaMessage> dailyWeatherConsumerFactory() {
 		HashMap<String, Object> config = new HashMap<>();
 		config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
 		config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 		return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(),
-			new JsonDeserializer<>(String.class));
+			new JsonDeserializer<>(DailyWeatherKafkaMessage.class));
 	}
 
 	@Bean
-	public ConcurrentKafkaListenerContainerFactory<String, String> concurrentKafkaListenerContainerFactory() {
-		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-		factory.setConsumerFactory(consumerFactory());
+	public ConcurrentKafkaListenerContainerFactory<String, DailyWeatherKafkaMessage> dailyWeatherConcurrentKafkaListenerContainerFactory() {
+		ConcurrentKafkaListenerContainerFactory<String, DailyWeatherKafkaMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+		factory.setConsumerFactory(dailyWeatherConsumerFactory());
 		factory.setConcurrency(3);
 		factory.setBatchListener(true);
 		factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);

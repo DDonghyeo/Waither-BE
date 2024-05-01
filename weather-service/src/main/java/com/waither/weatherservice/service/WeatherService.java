@@ -13,7 +13,6 @@ import com.waither.weatherservice.entity.DisasterMessage;
 import com.waither.weatherservice.entity.ExpectedWeather;
 import com.waither.weatherservice.kafka.DailyWeatherKafkaMessage;
 import com.waither.weatherservice.kafka.Producer;
-import com.waither.weatherservice.kafka.Serializer;
 import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
 import com.waither.weatherservice.openapi.MsgOpenApiResponse;
 import com.waither.weatherservice.openapi.OpenApiUtil;
@@ -35,7 +34,6 @@ public class WeatherService {
 	private final ExpectedWeatherRepository expectedWeatherRepository;
 	private final DisasterMessageRepository disasterMessageRepository;
 	private final Producer producer;
-	private final Serializer serializer;
 
 	public void createExpectedWeather(
 		int nx,
@@ -100,8 +98,7 @@ public class WeatherService {
 
 		DailyWeatherKafkaMessage kafkaMessage = DailyWeatherKafkaMessage.from(dailyWeather);
 
-		String kafkaStringMessage = Serializer.serializeDailyWeather(kafkaMessage);
-		producer.produceMessage(kafkaStringMessage);
+		producer.dailyWeatherProduceMessage(kafkaMessage);
 
 		// DailyWeather save = dailyWeatherRepository.save(dailyWeather);
 		log.info("[*] 하루 온도 : {}", dailyWeather);
