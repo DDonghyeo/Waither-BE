@@ -37,6 +37,7 @@ dependencies {
     //Kafka
     implementation 'org.springframework.kafka:spring-kafka'
 
+    // Jackson 라이브러리
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 
     //Swagger
