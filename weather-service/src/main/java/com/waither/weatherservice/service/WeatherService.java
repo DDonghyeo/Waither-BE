@@ -11,6 +11,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.waither.weatherservice.entity.DailyWeather;
 import com.waither.weatherservice.entity.DisasterMessage;
 import com.waither.weatherservice.entity.ExpectedWeather;
+import com.waither.weatherservice.kafka.DailyWeatherKafkaMessage;
+import com.waither.weatherservice.kafka.Producer;
 import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
 import com.waither.weatherservice.openapi.MsgOpenApiResponse;
 import com.waither.weatherservice.openapi.OpenApiUtil;
@@ -31,6 +33,7 @@ public class WeatherService {
 	private final DailyWeatherRepository dailyWeatherRepository;
 	private final ExpectedWeatherRepository expectedWeatherRepository;
 	private final DisasterMessageRepository disasterMessageRepository;
+	private final Producer producer;
 
 	public void createExpectedWeather(
 		int nx,
@@ -92,6 +95,9 @@ public class WeatherService {
 			.windVector(vec)
 			.windDegree(wsd)
 			.build();
+
+		DailyWeatherKafkaMessage kafkaMessage = DailyWeatherKafkaMessage.from(dailyWeather);
+		producer.dailyWeatherProduceMessage(kafkaMessage);
 
 		// TODO 조회 테스트 후 삭제 예정
 		DailyWeather save = dailyWeatherRepository.save(dailyWeather);
