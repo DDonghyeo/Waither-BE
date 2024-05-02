@@ -65,5 +65,4 @@ public class Settings {
     @JoinColumn(name = "user_id")
     private User user;
 
-
 }

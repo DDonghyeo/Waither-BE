@@ -1,15 +1,9 @@
 package com.waither.userservice.controller;
 
-import com.waither.userservice.dto.request.UserReqDto;
-import com.waither.userservice.global.exception.CustomException;
-import com.waither.userservice.global.response.ErrorCode;
+import com.waither.userservice.dto.request.AccountReqDto;
 import com.waither.userservice.jwt.dto.JwtDto;
-import com.waither.userservice.jwt.execption.SecurityCustomException;
-import com.waither.userservice.jwt.execption.SecurityErrorCode;
-import com.waither.userservice.jwt.util.JwtUtil;
 import com.waither.userservice.service.AccountsService;
 import com.waither.userservice.global.response.ApiResponse;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +25,7 @@ public class AccountsController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody UserReqDto.RegisterRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody AccountReqDto.RegisterRequestDto requestDto) {
         accountsService.signup(requestDto);
         // SignUp 때만 201 Created 사용
         return ResponseEntity
@@ -57,7 +51,7 @@ public class AccountsController {
 
     // 이메일 인증하기
     @PostMapping("/emails/verifications")
-    public ApiResponse<String> verificationEmail(@RequestBody UserReqDto.EmailVerificationDto verificationDto) {
+    public ApiResponse<String> verificationEmail(@RequestBody AccountReqDto.EmailVerificationDto verificationDto) {
         accountsService.verifyCode(verificationDto.email(), verificationDto.authCode());
         return ApiResponse.onSuccess("이메일 인증에 성공했습니다.");
     }
