@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.waither.weatherservice.dto.AccuweatherTestRequest;
 import com.waither.weatherservice.dto.AirTestRequest;
 import com.waither.weatherservice.dto.ForeCastTestRequest;
@@ -29,7 +30,9 @@ public class WeatherTestController {
 	}
 
 	@PostMapping("/daily")
-	public void createDailyWeatherTest(@RequestBody ForeCastTestRequest request) throws URISyntaxException {
+	public void createDailyWeatherTest(@RequestBody ForeCastTestRequest request) throws
+		URISyntaxException,
+		JsonProcessingException {
 		weatherService.createDailyWeather(request.nx(), request.ny(), request.baseDate(), request.baseTime());
 	}
 

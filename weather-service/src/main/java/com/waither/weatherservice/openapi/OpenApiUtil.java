@@ -223,7 +223,8 @@ public class OpenApiUtil {
 		AccuweatherLocationApiResponse response = objectMapper.readValue(jsonString,
 			AccuweatherLocationApiResponse.class);
 
-		log.info("[*] 위도, 경도 -> 지역명 : {}", response.getAdministrativeArea().getLocalizedName());
+		log.info("[*] 위도: " + latitude + " 경도: " + longitude + " -> 지역명 : {}",
+			response.getAdministrativeArea().getLocalizedName());
 		return response.getAdministrativeArea().getLocalizedName();
 	}
 }

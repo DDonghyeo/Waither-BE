@@ -11,6 +11,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.waither.weatherservice.entity.DailyWeather;
 import com.waither.weatherservice.entity.DisasterMessage;
 import com.waither.weatherservice.entity.ExpectedWeather;
+import com.waither.weatherservice.kafka.DailyWeatherKafkaMessage;
+import com.waither.weatherservice.kafka.Producer;
 import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
 import com.waither.weatherservice.openapi.MsgOpenApiResponse;
 import com.waither.weatherservice.openapi.OpenApiUtil;
@@ -31,6 +33,7 @@ public class WeatherService {
 	private final DailyWeatherRepository dailyWeatherRepository;
 	private final ExpectedWeatherRepository expectedWeatherRepository;
 	private final DisasterMessageRepository disasterMessageRepository;
+	private final Producer producer;
 
 	public void createExpectedWeather(
 		int nx,
@@ -67,7 +70,7 @@ public class WeatherService {
 	public void createDailyWeather(int nx,
 		int ny,
 		String baseDate,
-		String baseTime) throws URISyntaxException {
+		String baseTime) throws URISyntaxException, JsonProcessingException {
 
 		// Base_time : 0200, 0500, 0800, 1100, 1400, 1700, 2000, 2300 업데이트 (1일 8회)
 		List<ForeCastOpenApiResponse.Item> items = openApiUtil.callForeCastApi(nx, ny, baseDate, baseTime, 350,
@@ -93,9 +96,12 @@ public class WeatherService {
 			.windDegree(wsd)
 			.build();
 
-		// TODO 조회 테스트 후 삭제 예정
-		DailyWeather save = dailyWeatherRepository.save(dailyWeather);
-		log.info("[*] 하루 온도 : {}", save);
+		DailyWeatherKafkaMessage kafkaMessage = DailyWeatherKafkaMessage.from(dailyWeather);
+
+		producer.dailyWeatherProduceMessage(kafkaMessage);
+
+		// DailyWeather save = dailyWeatherRepository.save(dailyWeather);
+		log.info("[*] 하루 온도 : {}", dailyWeather);
 
 	}
 
