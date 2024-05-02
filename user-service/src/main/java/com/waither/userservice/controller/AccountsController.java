@@ -1,7 +1,6 @@
 package com.waither.userservice.controller;
 
-import com.waither.userservice.dto.EmailVerificationDto;
-import com.waither.userservice.dto.RegisterRequestDto;
+import com.waither.userservice.dto.request.UserReqDto;
 import com.waither.userservice.global.exception.CustomException;
 import com.waither.userservice.global.response.ErrorCode;
 import com.waither.userservice.jwt.dto.JwtDto;
@@ -32,7 +31,7 @@ public class AccountsController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody RegisterRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody UserReqDto.RegisterRequestDto requestDto) {
         accountsService.signup(requestDto);
         // SignUp 때만 201 Created 사용
         return ResponseEntity
@@ -51,15 +50,14 @@ public class AccountsController {
 
     // 이메일에 인증번호 보내기
     @GetMapping("/emails/submit-authcode")
-    public ApiResponse<String> submitAuthCode(@RequestParam String email) {
+    public ApiResponse<String> submitAuthCode(@RequestBody String email) {
             accountsService.sendAuthCodeToEmail(email);
             return ApiResponse.onSuccess("인증번호 전송에 성공했습니다.");
-
     }
 
     // 이메일 인증하기
     @PostMapping("/emails/verifications")
-    public ApiResponse<String> verificationEmail(@RequestBody EmailVerificationDto verificationDto) {
+    public ApiResponse<String> verificationEmail(@RequestBody UserReqDto.EmailVerificationDto verificationDto) {
         accountsService.verifyCode(verificationDto.email(), verificationDto.authCode());
         return ApiResponse.onSuccess("이메일 인증에 성공했습니다.");
     }

@@ -1,6 +1,7 @@
 package com.waither.userservice.service;
 
-import com.waither.userservice.dto.RegisterRequestDto;
+import com.waither.userservice.dto.converter.UserConverter;
+import com.waither.userservice.dto.request.UserReqDto;
 import com.waither.userservice.entity.User;
 import com.waither.userservice.jwt.dto.JwtDto;
 import com.waither.userservice.jwt.util.JwtUtil;
@@ -41,14 +42,14 @@ public class AccountsService {
     private long authCodeExpirationMillis;
 
     // 회원가입
-    public void signup(RegisterRequestDto requestDto) {
+    public void signup(UserReqDto.RegisterRequestDto requestDto) {
         if (!verifiedAccounts(requestDto.email())) {
             throw new CustomException(ErrorCode.INVALID_Account);
         }
 
         // 비밀번호 인코딩
         String encodedPw = passwordEncoder.encode(requestDto.password());
-        User newUser = requestDto.toEntity(encodedPw);
+        User newUser = UserConverter.toCreateNewUser(requestDto, encodedPw);
         userRepository.save(newUser);
     }
 
