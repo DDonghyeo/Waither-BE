@@ -1,7 +1,7 @@
 package com.waither.userservice.dto.converter;
 
 import com.waither.userservice.dto.request.AccountReqDto;
-import com.waither.userservice.entity.Settings;
+import com.waither.userservice.entity.Setting;
 import com.waither.userservice.entity.User;
 import com.waither.userservice.entity.type.UserStatus;
 
@@ -18,8 +18,8 @@ public class AccountConverter {
                 .build();
     }
 
-    public static Settings toCreateSetting(User newUser) {
-        return Settings.builder()
+    public static Setting toCreateSetting(User newUser) {
+        return Setting.builder()
                 .user(newUser)
                 .build();
     }

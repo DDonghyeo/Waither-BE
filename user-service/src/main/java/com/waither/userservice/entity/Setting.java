@@ -1,7 +1,8 @@
 package com.waither.userservice.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.ColumnDefault;
@@ -11,31 +12,32 @@ import org.hibernate.annotations.DynamicUpdate;
 
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "settings")
 @Entity
 @DynamicInsert
 @DynamicUpdate
-public class Settings {
+public class Setting {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     // 사용자 맞춤 서비스 제공
-    @Column(name = "custom_service")
+    @Column(name = "custom")
     @ColumnDefault("true")
-    private boolean custom_service;
-
-    // 외출 시간
-    @Column(name = "outTime")
-    private LocalDateTime outTime;
+    private boolean custom;
 
     // 외출 알림
     @Column(name = "outAlert")
     @ColumnDefault("false")
     private boolean outAlert;
+
+    // 외출 시간
+    @Column(name = "outTime")
+    private LocalTime outTime;
 
     // 월 ~ 금 알림
     @Column(name = "sun")
@@ -79,7 +81,6 @@ public class Settings {
     @Column(name = "windAlert")
     @ColumnDefault("true")
     private boolean windAlert;
-
     // 바람세기 정도
     @Column(name = "windDegree")
     @ColumnDefault("10")
@@ -109,8 +110,8 @@ public class Settings {
     @JoinColumn(name = "user_id", unique = true)
     private User user;
 
-    public void setUser(User user) {
-        this.user = user;
+    // Id에 Setter 쓰지 않기 위해, 명시적으로 지정
+    public void setId(Long id) {
     }
 
 }

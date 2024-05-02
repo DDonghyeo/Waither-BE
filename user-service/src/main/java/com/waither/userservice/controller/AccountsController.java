@@ -1,6 +1,8 @@
 package com.waither.userservice.controller;
 
 import com.waither.userservice.dto.request.AccountReqDto;
+import com.waither.userservice.entity.User;
+import com.waither.userservice.global.annotation.AuthUser;
 import com.waither.userservice.jwt.dto.JwtDto;
 import com.waither.userservice.service.AccountsService;
 import com.waither.userservice.global.response.ApiResponse;
@@ -19,11 +21,7 @@ public class AccountsController {
 
     private final AccountsService accountsService;
 
-    @GetMapping("/test")
-    public String Test() {
-        return "모든 인가를 마치고, test Controller에 도달했습니다.";
-    }
-
+    // 회원가입
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody AccountReqDto.RegisterRequestDto requestDto) {
         accountsService.signup(requestDto);
@@ -35,6 +33,7 @@ public class AccountsController {
                 );
     }
 
+    // Jwt 토큰 재발급
     @GetMapping("/reissue")
     public ApiResponse<JwtDto> reissueToken(@RequestHeader("RefreshToken") String refreshToken) {
         JwtDto jwtDto = accountsService.reissueToken(refreshToken);
@@ -65,7 +64,32 @@ public class AccountsController {
             return ApiResponse.onSuccess("인증번호 전송에 성공했습니다.");
     }
 
-    // Todo : 삭제 다시 ;
+    // 닉네임 변경
+    @PatchMapping("/update-nickname")
+    public ApiResponse<String> updateNickname(@AuthUser User user,
+                                              @RequestBody AccountReqDto.NicknameDto nicknameDto) {
+        accountsService.updateNickname(user, nicknameDto.nickname());
+        return ApiResponse.onSuccess("닉네임이 " + nicknameDto.nickname() + "로 바뀌었습니다.");
+    }
+
+    // 비밀번호 확인
+    @PostMapping("/password-check")
+    public ApiResponse<String> passwordCheckEmail(@AuthUser User user,
+                                                  @RequestBody AccountReqDto.PasswordCheckDto passwordCheckDto) {
+            accountsService.checkPassword(user, passwordCheckDto.password());
+        return ApiResponse.onSuccess("비밀번호가 확인되었습니다.");
+    }
+
+    // 비밀번호 변경
+    @PatchMapping("/update-password")
+    public ApiResponse<String> updatePassword(@AuthUser User user,
+                                              @Valid @RequestBody AccountReqDto.UpdatePasswordDto updatePasswordDto) {
+        accountsService.updatePassword(user, updatePasswordDto.password());
+        return ApiResponse.onSuccess("비밀번호가 변경되었습니다.");
+    }
+
+
+    // Todo : 삭제 다시 ; soft delete로 변경 예정
     @GetMapping("/emails/delete")
     public void deleteUser(@RequestParam Long userId) {
         accountsService.deleteUser(userId);

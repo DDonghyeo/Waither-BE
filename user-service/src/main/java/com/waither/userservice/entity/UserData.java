@@ -23,6 +23,8 @@ public class UserData {
     private Double level4;
     private Double level5;
 
+    // 사용자 데이터 가중치
+    private Double weight;
 
     // 계절
     @Enumerated(EnumType.STRING)

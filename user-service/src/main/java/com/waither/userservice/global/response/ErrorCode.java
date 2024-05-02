@@ -44,8 +44,11 @@ public enum ErrorCode implements BaseErrorCode {
     EMAIL_NOT_EXIST(HttpStatus.BAD_REQUEST, "USER400_2", "이메일은 필수 입니다."),
     PASSWORD_NOT_EQUAL(HttpStatus.BAD_REQUEST, "USER400_3", "비밀번호가 일치하지 않습니다."),
     CURRENT_PASSWORD_NOT_EQUAL(HttpStatus.BAD_REQUEST, "USER400_4", "현재 비밀번호가 일치하지 않습니다."),
-    USER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "USER400_5", "사용자가 이미 존재합니다.");
+    CURRENT_PASSWORD_EQUAL(HttpStatus.BAD_REQUEST, "USER400_5", "변경하려는 비밀번호가 현재 비밀번호와 일치합니다."),
+    USER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "USER400_6", "사용자가 이미 존재합니다."),
 
+    // 세팅 관련 에러
+    UNSUPPORTED_SETTING_TYPE(HttpStatus.BAD_REQUEST, "SETTING400_1", "body에 사용할 수 없는 setting key가 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

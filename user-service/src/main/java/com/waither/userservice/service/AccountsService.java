@@ -2,7 +2,7 @@ package com.waither.userservice.service;
 
 import com.waither.userservice.dto.converter.AccountConverter;
 import com.waither.userservice.dto.request.AccountReqDto;
-import com.waither.userservice.entity.Settings;
+import com.waither.userservice.entity.Setting;
 import com.waither.userservice.entity.User;
 import com.waither.userservice.jwt.dto.JwtDto;
 import com.waither.userservice.jwt.util.JwtUtil;
@@ -54,8 +54,8 @@ public class AccountsService {
         User newUser = AccountConverter.toCreateUser(requestDto, encodedPw);
         userRepository.save(newUser);
 
-        Settings settings = AccountConverter.toCreateSetting(newUser);
-        settingRepository.save(settings);
+        Setting setting = AccountConverter.toCreateSetting(newUser);
+        settingRepository.save(setting);
     }
 
     // 재발급
@@ -168,21 +168,26 @@ public class AccountsService {
         userRepository.findByEmail(email).get().setPassword(passwordEncoder.encode(tempPassword));
     }
 
-    // 비밀번호 변경
-    public void changePassword(String email, String currentPassword, String newPassword) {
-        // 이메일로 사용자 조회
-        Optional<User> userEntity = userRepository.findByEmail(email);
-        if (userEntity.isEmpty()) {
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        }
-        User user = userEntity.get();
-
+    // 현재 비밀번호 체크
+    public void checkPassword(User user, String currentPassword) {
         // 현재 비밀번호가 일치하는지 확인
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new CustomException(ErrorCode.CURRENT_PASSWORD_NOT_EQUAL);
         }
+    }
 
+    // 비밀번호 변경
+    public void updatePassword(User user, String newPassword) {
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new CustomException(ErrorCode.CURRENT_PASSWORD_EQUAL);
+        }
         user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    // 닉네임 변경
+    public void updateNickname(User user, String nickanme) {
+        user.setNickname(nickanme);
         userRepository.save(user);
     }
 
