@@ -65,4 +65,9 @@ public class AccountsController {
             return ApiResponse.onSuccess("인증번호 전송에 성공했습니다.");
     }
 
+    // Todo : 삭제 다시 ;
+    @GetMapping("/emails/delete")
+    public void deleteUser(@RequestParam Long userId) {
+        accountsService.deleteUser(userId);
+    }
 }

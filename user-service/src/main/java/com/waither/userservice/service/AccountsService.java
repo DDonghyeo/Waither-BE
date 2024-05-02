@@ -2,9 +2,11 @@ package com.waither.userservice.service;
 
 import com.waither.userservice.dto.converter.AccountConverter;
 import com.waither.userservice.dto.request.AccountReqDto;
+import com.waither.userservice.entity.Settings;
 import com.waither.userservice.entity.User;
 import com.waither.userservice.jwt.dto.JwtDto;
 import com.waither.userservice.jwt.util.JwtUtil;
+import com.waither.userservice.repository.SettingRepository;
 import com.waither.userservice.util.RedisUtil;
 import com.waither.userservice.repository.UserRepository;
 import com.waither.userservice.global.exception.CustomException;
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
 public class AccountsService {
 
     private final UserRepository userRepository;
+    private final SettingRepository settingRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private static final String AUTH_CODE_PREFIX = "AuthCode_";
     private static final String VERIFIED_PREFIX = "Verified_";
@@ -46,11 +49,13 @@ public class AccountsService {
         if (!verifiedAccounts(requestDto.email())) {
             throw new CustomException(ErrorCode.INVALID_Account);
         }
-
         // 비밀번호 인코딩
         String encodedPw = passwordEncoder.encode(requestDto.password());
-        User newUser = AccountConverter.toCreateNewUser(requestDto, encodedPw);
+        User newUser = AccountConverter.toCreateUser(requestDto, encodedPw);
         userRepository.save(newUser);
+
+        Settings settings = AccountConverter.toCreateSetting(newUser);
+        settingRepository.save(settings);
     }
 
     // 재발급
@@ -181,4 +186,8 @@ public class AccountsService {
         userRepository.save(user);
     }
 
+    public void deleteUser(Long userId){
+        User userEntity = userRepository.findById(userId);
+        userRepository.delete(userEntity);
+    }
 }

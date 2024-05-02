@@ -5,12 +5,12 @@ import com.waither.userservice.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Entity
+@Table(name = "user")
 @Builder
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "user")
-@Entity
 public class User extends BaseEntity {
 
     @Id
@@ -46,6 +46,9 @@ public class User extends BaseEntity {
     @Column(name = "custom", nullable = false)
     private boolean custom;
 
+    // UserDetail 엔티티 참조
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Settings settings;
 
     // 비밀번호 변경
     public void setPassword(String password) {
