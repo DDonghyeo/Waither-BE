@@ -48,6 +48,7 @@ public class JwtUtil {
 
     // JWT 토큰을 입력으로 받아 토큰의 subject에서 사용자 이메일(email)을 추출
     public String getEmail(String token) throws SignatureException {
+        validateToken(token);
         return Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
@@ -58,6 +59,7 @@ public class JwtUtil {
 
     // JWT 토큰을 입력으로 받아 토큰의 claim에서 사용자 이름(roll)을 추출
     public String getRoles(String token) throws SignatureException{
+        validateToken(token);
         return Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
@@ -149,7 +151,6 @@ public class JwtUtil {
             log.warn("[*] case : redisRefreshToken does not exist");
             throw new SecurityCustomException(SecurityErrorCode.NO_TOKEN_IN_REDIS);
         }
-        validateToken(refreshToken);
     }
 
     public void validateToken(String token) {
@@ -167,7 +168,7 @@ public class JwtUtil {
                     .getExpiration()
                     .before(new Date());
             if (isExpired) {
-                log.info("만료된 JWT 토큰입니다.");
+                throw new SecurityCustomException(SecurityErrorCode.TOKEN_EXPIRED);
             }
         } catch (SecurityException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
             throw new SecurityCustomException(SecurityErrorCode.INVALID_TOKEN, e);

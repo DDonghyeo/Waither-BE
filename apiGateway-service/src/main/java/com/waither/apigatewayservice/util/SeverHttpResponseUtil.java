@@ -59,6 +59,7 @@ public class SeverHttpResponseUtil {
             return Mono.error(e);
         }
 
-        return response.writeWith(Mono.just(response.bufferFactory().wrap(responseBodyString.getBytes(StandardCharsets.UTF_8))));
+        return response.writeWith(Mono.just(response.bufferFactory().
+                wrap(responseBodyString.getBytes(StandardCharsets.UTF_8))));
     }
 }

@@ -1,9 +1,12 @@
 package com.waither.userservice.service;
 
-import com.waither.userservice.dto.RegisterRequestDto;
+import com.waither.userservice.dto.converter.AccountConverter;
+import com.waither.userservice.dto.request.AccountReqDto;
+import com.waither.userservice.entity.Setting;
 import com.waither.userservice.entity.User;
 import com.waither.userservice.jwt.dto.JwtDto;
 import com.waither.userservice.jwt.util.JwtUtil;
+import com.waither.userservice.repository.SettingRepository;
 import com.waither.userservice.util.RedisUtil;
 import com.waither.userservice.repository.UserRepository;
 import com.waither.userservice.global.exception.CustomException;
@@ -29,9 +32,10 @@ import java.util.stream.Collectors;
 public class AccountsService {
 
     private final UserRepository userRepository;
+    private final SettingRepository settingRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private static final String AUTH_CODE_PREFIX = "AuthCode ";
-    private static final String VERIFIED_PREFIX = "Verified ";
+    private static final String AUTH_CODE_PREFIX = "AuthCode_";
+    private static final String VERIFIED_PREFIX = "Verified_";
 
     private final EmailService emailService;
     private final RedisUtil redisUtil;
@@ -41,14 +45,13 @@ public class AccountsService {
     private long authCodeExpirationMillis;
 
     // 회원가입
-    public void signup(RegisterRequestDto requestDto) {
-        if (!verifiedAccounts(requestDto.email())) {
-            throw new CustomException(ErrorCode.INVALID_Account);
-        }
-
+    public void signup(AccountReqDto.RegisterRequestDto requestDto) {
+//        if (!verifiedAccounts(requestDto.email())) {
+//            throw new CustomException(ErrorCode.INVALID_Account);
+//        }
         // 비밀번호 인코딩
         String encodedPw = passwordEncoder.encode(requestDto.password());
-        User newUser = requestDto.toEntity(encodedPw);
+        User newUser = AccountConverter.toCreateUser(requestDto, encodedPw);
         userRepository.save(newUser);
     }
 
@@ -66,6 +69,7 @@ public class AccountsService {
         String title = "[☀️Waither☀️] 이메일 인증 번호 : {" + authCode + "}";
         emailService.sendEmail(email, title, "authEmail", authCode);
 
+        log.info(email);
         // 이메일 인증 요청 시 인증 번호 Redis에 저장 ( key = "AuthCode " + Email / value = AuthCode )
         redisUtil.save(AUTH_CODE_PREFIX + email,
                 authCode, authCodeExpirationMillis, TimeUnit.MILLISECONDS);
@@ -161,22 +165,31 @@ public class AccountsService {
         userRepository.findByEmail(email).get().setPassword(passwordEncoder.encode(tempPassword));
     }
 
-    // 비밀번호 변경
-    public void changePassword(String email, String currentPassword, String newPassword) {
-        // 이메일로 사용자 조회
-        Optional<User> userEntity = userRepository.findByEmail(email);
-        if (userEntity.isEmpty()) {
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        }
-        User user = userEntity.get();
-
+    // 현재 비밀번호 체크
+    public void checkPassword(User user, String currentPassword) {
         // 현재 비밀번호가 일치하는지 확인
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new CustomException(ErrorCode.CURRENT_PASSWORD_NOT_EQUAL);
         }
+    }
 
+    // 비밀번호 변경
+    public void updatePassword(User user, String newPassword) {
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new CustomException(ErrorCode.CURRENT_PASSWORD_EQUAL);
+        }
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
 
+    // 닉네임 변경
+    public void updateNickname(User user, String nickanme) {
+        user.setNickname(nickanme);
+        userRepository.save(user);
+    }
+
+    public void deleteUser(Long userId){
+        User userEntity = userRepository.findById(userId);
+        userRepository.delete(userEntity);
+    }
 }

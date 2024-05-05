@@ -33,7 +33,7 @@ public enum ErrorCode implements BaseErrorCode {
     // 이메일 관련 에러
     INVALID_CODE(HttpStatus.BAD_REQUEST, "EMAIL400_0", "인증번호가 일치하지 않아요. 다시 한 번 확인해주세요."),
     INVALID_Account(HttpStatus.BAD_REQUEST, "EMAIL400_1", "인증되지 않은 이메일입니다."),
-    AUTH_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL400_1", "인증 번호의 유효기간이 경과하였습니다. 다시 인증 번호를 요청해주세요."),
+    AUTH_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL400_1", "다시 인증 번호를 요청해주세요."),
     VERIFIED_CHECK_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL400_1", "인증 완료 후 유효기간이 경과하였습니다. 다시 인증 번호를 요청해주세요."),
 
     UNABLE_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL500_0", "이메일을 전송하는 도중, 에러가 발생했습니다."),
@@ -44,8 +44,11 @@ public enum ErrorCode implements BaseErrorCode {
     EMAIL_NOT_EXIST(HttpStatus.BAD_REQUEST, "USER400_2", "이메일은 필수 입니다."),
     PASSWORD_NOT_EQUAL(HttpStatus.BAD_REQUEST, "USER400_3", "비밀번호가 일치하지 않습니다."),
     CURRENT_PASSWORD_NOT_EQUAL(HttpStatus.BAD_REQUEST, "USER400_4", "현재 비밀번호가 일치하지 않습니다."),
-    USER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "USER400_5", "사용자가 이미 존재합니다.");
+    CURRENT_PASSWORD_EQUAL(HttpStatus.BAD_REQUEST, "USER400_5", "변경하려는 비밀번호가 현재 비밀번호와 일치합니다."),
+    USER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "USER400_6", "사용자가 이미 존재합니다."),
 
+    // 세팅 관련 에러
+    UNSUPPORTED_SETTING_TYPE(HttpStatus.BAD_REQUEST, "SETTING400_1", "body에 사용할 수 없는 setting key가 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

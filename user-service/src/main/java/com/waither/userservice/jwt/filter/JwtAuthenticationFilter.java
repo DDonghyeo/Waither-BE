@@ -1,7 +1,7 @@
 package com.waither.userservice.jwt.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.waither.userservice.dto.LoginRequestDto;
+import com.waither.userservice.dto.request.AccountReqDto;
 import com.waither.userservice.global.response.ApiResponse;
 import com.waither.userservice.jwt.dto.JwtDto;
 import com.waither.userservice.jwt.util.HttpResponseUtil;
@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -37,9 +36,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         // request에 있는 username과 password를 파싱해서 자바 Object로 받기
         ObjectMapper om = new ObjectMapper();
-        LoginRequestDto loginRequestDto;
+        AccountReqDto.LoginRequestDto loginRequestDto;
         try {
-            loginRequestDto = om.readValue(request.getInputStream(), LoginRequestDto.class);
+            loginRequestDto = om.readValue(request.getInputStream(), AccountReqDto.LoginRequestDto.class);
         } catch (IOException e) {
             throw new AuthenticationServiceException("Error of request body.");
         }
