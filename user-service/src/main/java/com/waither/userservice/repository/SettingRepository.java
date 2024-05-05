@@ -8,5 +8,4 @@ import java.util.Optional;
 
 public interface SettingRepository extends JpaRepository<Setting, Integer> {
 
-    Optional<Setting> findByUser(User user);
 }

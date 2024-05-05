@@ -88,7 +88,7 @@ public class Setting {
 
     // 직장 지역 레포트 알림 받기
     @Column(name = "regionReport")
-    @ColumnDefault("ture")
+    @ColumnDefault("true")
     private boolean regionReport;
 
     // 강수량 보기
@@ -105,10 +105,6 @@ public class Setting {
     @Column(name = "dust")
     @ColumnDefault("true")
     private boolean dust;
-
-    @OneToOne
-    @JoinColumn(name = "user_id", unique = true)
-    private User user;
 
     // Id에 Setter 쓰지 않기 위해, 명시적으로 지정
     public void setId(Long id) {

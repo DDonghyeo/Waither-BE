@@ -26,11 +26,7 @@ public class SettingService {
     private final SettingRepository settingRepository;
 
     public Setting getUserSetting(User user) {
-        Optional<Setting> settingEntity = settingRepository.findByUser(user);
-        if (settingEntity.isEmpty()) {
-            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
-        }
-        return settingEntity.get();
+        return user.getSetting();
     }
 
     // 토글 설정 변경

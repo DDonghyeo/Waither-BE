@@ -56,14 +56,14 @@ public class User extends BaseEntity {
         this.nickname = nickname;
     }
 
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "setting_id", unique = true)
     private Setting setting;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Setting UserData;
+    private UserData UserData;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Setting UserMedian;
+    private UserMedian UserMedian;
 
 }

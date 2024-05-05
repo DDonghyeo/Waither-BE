@@ -46,16 +46,13 @@ public class AccountsService {
 
     // 회원가입
     public void signup(AccountReqDto.RegisterRequestDto requestDto) {
-        if (!verifiedAccounts(requestDto.email())) {
-            throw new CustomException(ErrorCode.INVALID_Account);
-        }
+//        if (!verifiedAccounts(requestDto.email())) {
+//            throw new CustomException(ErrorCode.INVALID_Account);
+//        }
         // 비밀번호 인코딩
         String encodedPw = passwordEncoder.encode(requestDto.password());
         User newUser = AccountConverter.toCreateUser(requestDto, encodedPw);
         userRepository.save(newUser);
-
-        Setting setting = AccountConverter.toCreateSetting(newUser);
-        settingRepository.save(setting);
     }
 
     // 재발급

@@ -15,12 +15,7 @@ public class AccountConverter {
                 .status(UserStatus.ACTIVE)
                 .role("ROLE_USER")
                 .custom(true)
-                .build();
-    }
-
-    public static Setting toCreateSetting(User newUser) {
-        return Setting.builder()
-                .user(newUser)
+                .setting(Setting.builder().build())
                 .build();
     }
 }
