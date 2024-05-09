@@ -1,5 +1,7 @@
 package com.waither.userservice.dto.request;
 
+import com.waither.userservice.entity.User;
+import com.waither.userservice.entity.type.UserStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
