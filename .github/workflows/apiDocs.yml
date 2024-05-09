@@ -23,7 +23,7 @@ jobs:
       - name: redoc-cli-github-action
         uses: seeebiii/redoc-cli-github-action@v9
         with:
-          args: 'bundle ./noti.json --output ./noti.yaml --ext yaml'
+          args: 'bundle ./noti-service/docs/noti.json --output ./noti-service/docs/noti.yaml --ext yaml'
 
       - name: Rename Yaml Title & Desc
         run: |
