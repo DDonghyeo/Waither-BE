@@ -43,9 +43,8 @@ jobs:
         
 
       - name: Commit and push build artifacts
-        run: |
-          git config --global user.email "gsu9045000@gmail.com"
-          git config --global user.name "DDonghyeo"
+        run: |        
+          git config --global user.name "WaitherTeam"
           git add .
           git commit -m "📝docs : Generate API Docs"
           git push ${{ secrets.REPOSITORY_URL }} HEAD:apiDocs
