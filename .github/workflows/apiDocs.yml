@@ -16,9 +16,9 @@ jobs:
         with:
           ref: 'docs/#44'
 
-      - name: move to docs directory
-        run: |
-          cd ./noti-service/docs
+      # - name: move to docs directory
+      #   run: |
+      #     cd ./noti-service/docs
 
       - name: redoc-cli-github-action
         uses: seeebiii/redoc-cli-github-action@v9
@@ -27,19 +27,18 @@ jobs:
 
       - name: Rename Yaml Title & Desc
         run: |
-          yq -i '.info.title = "PetStore Backend API Document for FrontEnd"' ./noti.yaml
-          yq -i '.info.description = "Please contact Petstore backend if there are any issues with API"' ./noti.yaml
+          yq -i '.info.title = "PetStore Backend API Document for FrontEnd"' ./noti-service/docs/noti.yaml
+          yq -i '.info.description = "Please contact Petstore backend if there are any issues with API"' ./noti-service/docs/noti.yaml
 
       - name: redoc-cli-github-action
         uses: seeebiii/redoc-cli-github-action@v9
         with:
-          args: 'build-docs ./noti.yaml --output ./api-docs.html'
+          args: 'build-docs ./noti-serivce/docs/noti.yaml --output ./api-docs.html'
 
       - name: save build result to tmp dir
         run: |
-          cd ../..
           mkdir -p docs
-          mv ./noti-service/api-docs.html .
+          mv ./api-docs.html ./docs
         
 
       - name: Commit and push build artifacts
