@@ -17,6 +17,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.waither.weatherservice.exception.WeatherExceptionHandler;
+import com.waither.weatherservice.response.WeatherErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,14 +71,14 @@ public class OpenApiUtil {
 			.accept(MediaType.APPLICATION_JSON)
 			.retrieve().bodyToMono(ForeCastOpenApiResponse.class)
 			.onErrorResume(throwable -> {
-				throw new OpenApiException(RESPONSE_EXCEPTION_MSG);
+				throw new WeatherExceptionHandler(WeatherErrorCode.WEATHER_OPENAPI_ERROR);
 			})
 			.block().getResponse();
 
 		if (response.getHeader().getResultCode().equals("00")) {
 			return response.getBody().getItems().getItem();
 		} else {
-			throw new OpenApiException(response.getHeader().getResultMsg());
+			throw new WeatherExceptionHandler(WeatherErrorCode.WEATHER_OPENAPI_ERROR);
 		}
 	}
 
@@ -124,7 +126,7 @@ public class OpenApiUtil {
 			})
 			.retrieve().bodyToMono(String.class)
 			.onErrorResume(throwable -> {
-				throw new OpenApiException(RESPONSE_EXCEPTION_MSG);
+				throw new WeatherExceptionHandler(WeatherErrorCode.WEATHER_OPENAPI_ERROR);
 			})
 			.block();
 
@@ -135,7 +137,8 @@ public class OpenApiUtil {
 			return response.getDisasterMsg().get(1).getRow();
 		} else {
 			String resultMsg = response.getDisasterMsg().get(0).getHead().get(2).getResultData().getResultMsg();
-			throw new OpenApiException(resultMsg);
+			log.info("[*] OpenApi Error : {}", resultMsg);
+			throw new WeatherExceptionHandler(WeatherErrorCode.WEATHER_OPENAPI_ERROR);
 		}
 	}
 
@@ -161,8 +164,11 @@ public class OpenApiUtil {
 		AirKoreaOpenApiResponse.Response response = webClient.get()
 			.uri(uri)
 			.accept(MediaType.APPLICATION_JSON)
-			.retrieve().bodyToMono(AirKoreaOpenApiResponse.class)
-			.blockOptional().orElseThrow(() -> new OpenApiException(RESPONSE_EXCEPTION_MSG)).getResponse();
+			.retrieve()
+			.bodyToMono(AirKoreaOpenApiResponse.class)
+			.blockOptional()
+			.orElseThrow(() -> new WeatherExceptionHandler(WeatherErrorCode.WEATHER_OPENAPI_ERROR))
+			.getResponse();
 
 		if (response.getHeader().getResultCode().equals("00")) {
 
@@ -178,7 +184,8 @@ public class OpenApiUtil {
 
 			return items;
 		} else {
-			throw new OpenApiException(response.getHeader().getResultMsg());
+			log.info("[*] OpenApi Error : {}", response.getHeader().getResultMsg());
+			throw new WeatherExceptionHandler(WeatherErrorCode.WEATHER_OPENAPI_ERROR);
 		}
 	}
 
@@ -215,7 +222,7 @@ public class OpenApiUtil {
 			.accept(MediaType.APPLICATION_JSON)
 			.retrieve().bodyToMono(String.class)
 			.onErrorResume(throwable -> {
-				throw new OpenApiException(RESPONSE_EXCEPTION_MSG);
+				throw new WeatherExceptionHandler(WeatherErrorCode.WEATHER_OPENAPI_ERROR);
 			})
 			.block();
 

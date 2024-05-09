@@ -1,4 +1,4 @@
-package com.waither.weatherservice.dto;
+package com.waither.weatherservice.dto.request;
 
 public record AccuweatherTestRequest(
 	double latitude,
