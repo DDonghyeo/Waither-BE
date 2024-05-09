@@ -27,6 +27,7 @@ jobs:
 
       - name: Rename Yaml Title & Desc
         run: |
+          cat ./noti-service/docs/noti.yaml
           yq -i '.info.title = "PetStore Backend API Document for FrontEnd"' ./noti-service/docs/noti.yaml
           yq -i '.info.description = "Please contact Petstore backend if there are any issues with API"' ./noti-service/docs/noti.yaml
 
