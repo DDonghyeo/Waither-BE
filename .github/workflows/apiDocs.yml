@@ -23,7 +23,7 @@ jobs:
       - name: redoc-cli-github-action
         uses: seeebiii/redoc-cli-github-action@v9
         with:
-          args: 'bundle ./noti-service/docs/noti.json --output ./noti-service/docs/noti.yaml --ext yaml'
+          args: 'bundle ./noti-service/docs/noti.json --output ./noti-service/docs/api-docs.html --ext html'
 
       # - name: Rename Yaml Title & Desc
       #   run: |
@@ -31,10 +31,10 @@ jobs:
       #     yq -i '.info.title = "PetStore Backend API Document for FrontEnd"' ./noti-service/docs/noti.yaml
       #     yq -i '.info.description = "Please contact Petstore backend if there are any issues with API"' ./noti-service/docs/noti.yaml
 
-      - name: redoc-cli-github-action
-        uses: seeebiii/redoc-cli-github-action@v9
-        with:
-          args: 'build-docs ./noti-serivce/docs/noti.yaml --output ./noti-serivce/docs/api-docs.html'
+      # - name: redoc-cli-github-action
+      #   uses: seeebiii/redoc-cli-github-action@v9
+      #   with:
+      #     args: 'build-docs ./noti-serivce/docs/noti.yaml --output ./noti-serivce/docs/api-docs.html'
 
       - name: save build result to tmp dir
         run: |
