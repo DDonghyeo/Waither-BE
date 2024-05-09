@@ -41,7 +41,14 @@ public class SettingReqDto {
             boolean dust
     ) {}
 
-    public record regionReportDto(
+    public record RegionDto(
+            String regionName,
+            double longitude,
+            double latitude
+
+    ) { }
+
+    public record RegionReportDto(
             boolean regionReport
     ) { }
 

@@ -1,12 +1,14 @@
 package com.waither.userservice.service;
 
 import com.waither.userservice.dto.request.SettingReqDto;
+import com.waither.userservice.entity.Region;
 import com.waither.userservice.entity.Setting;
 import com.waither.userservice.entity.User;
 import com.waither.userservice.global.exception.CustomException;
 import com.waither.userservice.global.response.ErrorCode;
+import com.waither.userservice.repository.RegionRepository;
 import com.waither.userservice.repository.SettingRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,8 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,18 +25,15 @@ import java.util.Set;
 public class SettingService {
 
     private final SettingRepository settingRepository;
-
-    public Setting getUserSetting(User user) {
-        return user.getSetting();
-    }
+    private final RegionRepository regionRepository;
 
     // 토글 설정 변경
     public void updateBooleanSetting(User user, String settingType, Boolean value) {
-        Setting setting = getUserSetting(user);
+        Setting setting = user.getSetting();
         switch (settingType) {
             // 사용자 맞춤 서비스 제공 설정 변경
             case "CUSTOM":
-                setting.setCustom(value);
+                user.setCustom(value);
                 break;
             // 외출 알림 설정 변경
             case "OUT_ALERT":
@@ -65,7 +63,7 @@ public class SettingService {
 
     // 바람 세기 알림 설정 변경
     public void updateWind(User user, SettingReqDto.WindDto windDto) {
-        Setting setting = getUserSetting(user);
+        Setting setting = user.getSetting();
 
         setting.setWindAlert(windDto.windAlert());
         setting.setWindDegree(windDto.windDegree());
@@ -74,7 +72,7 @@ public class SettingService {
 
     // 메인 화면 날씨 상세 정보 변경
     public void updateDisplay(User user, SettingReqDto.DisplayDto displayDto) {
-        Setting setting = getUserSetting(user);
+        Setting setting = user.getSetting();
 
         setting.setPrecipitation(displayDto.precipitation());
         setting.setWind(displayDto.wind());
@@ -82,9 +80,16 @@ public class SettingService {
         settingRepository.save(setting);
     }
 
+    // 직장 지역 설정
+    public void updateRegion(User user, SettingReqDto.RegionDto regionDto) {
+        Region region = user.getSetting().getRegion();
+        region.update(regionDto.regionName(), regionDto.longitude(), regionDto.latitude());
+        regionRepository.save(region);
+    }
+
     // 알림 설정 변경 (요일 & 시간)
     public void updateOutAlertSet(User user, SettingReqDto.OutAlertSetDto outAlertSetDto) {
-        Setting setting = getUserSetting(user);
+        Setting setting = user.getSetting();
 
         // 요일 설정
         updateDays(setting, outAlertSetDto.days());
@@ -98,22 +103,17 @@ public class SettingService {
 
     // 요일 설정 업데이트
     private void updateDays(Setting setting, List<String> days) {
-        boolean[] dayOfWeekFlags = new boolean[7]; // 요일 개수에 해당하는 배열 생성
+        EnumSet<DayOfWeek> selectedDays = days.stream()
+                .map(day -> DayOfWeek.valueOf(day.toUpperCase()))
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(DayOfWeek.class)));
 
-        // 선택된 요일만 true로 설정
-        days.forEach(day -> {
-            DayOfWeek dayOfWeek = DayOfWeek.valueOf(day.toUpperCase());
-            dayOfWeekFlags[dayOfWeek.ordinal()] = true;
-        });
-
-        // 각 요일에 대해 해당하는 필드를 설정
-        setting.setSun(dayOfWeekFlags[DayOfWeek.SUNDAY.ordinal()]);
-        setting.setMon(dayOfWeekFlags[DayOfWeek.MONDAY.ordinal()]);
-        setting.setTue(dayOfWeekFlags[DayOfWeek.TUESDAY.ordinal()]);
-        setting.setWed(dayOfWeekFlags[DayOfWeek.WEDNESDAY.ordinal()]);
-        setting.setThu(dayOfWeekFlags[DayOfWeek.THURSDAY.ordinal()]);
-        setting.setFri(dayOfWeekFlags[DayOfWeek.FRIDAY.ordinal()]);
-        setting.setSat(dayOfWeekFlags[DayOfWeek.SATURDAY.ordinal()]);
+        setting.setSun(selectedDays.contains(DayOfWeek.SUNDAY));
+        setting.setMon(selectedDays.contains(DayOfWeek.MONDAY));
+        setting.setTue(selectedDays.contains(DayOfWeek.TUESDAY));
+        setting.setWed(selectedDays.contains(DayOfWeek.WEDNESDAY));
+        setting.setThu(selectedDays.contains(DayOfWeek.THURSDAY));
+        setting.setFri(selectedDays.contains(DayOfWeek.FRIDAY));
+        setting.setSat(selectedDays.contains(DayOfWeek.SATURDAY));
         settingRepository.save(setting);
     }
 

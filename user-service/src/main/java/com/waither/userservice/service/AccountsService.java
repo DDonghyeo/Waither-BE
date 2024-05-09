@@ -2,6 +2,7 @@ package com.waither.userservice.service;
 
 import com.waither.userservice.dto.converter.AccountConverter;
 import com.waither.userservice.dto.request.AccountReqDto;
+import com.waither.userservice.entity.Region;
 import com.waither.userservice.entity.Setting;
 import com.waither.userservice.entity.User;
 import com.waither.userservice.jwt.dto.JwtDto;
@@ -11,7 +12,7 @@ import com.waither.userservice.util.RedisUtil;
 import com.waither.userservice.repository.UserRepository;
 import com.waither.userservice.global.exception.CustomException;
 import com.waither.userservice.global.response.ErrorCode;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +52,31 @@ public class AccountsService {
 //        }
         // 비밀번호 인코딩
         String encodedPw = passwordEncoder.encode(requestDto.password());
-        User newUser = AccountConverter.toCreateUser(requestDto, encodedPw);
+        User newUser = AccountConverter.toUser(requestDto, encodedPw);
+
+        // Setting을 기본값으로 설정
+        Setting defaultSetting = Setting.builder()
+                .climateAlert(true)
+                .userAlert(true)
+                .snowAlert(true)
+                .windAlert(true)
+                .windDegree(10)
+                .regionReport(true)
+                .precipitation(true)
+                .wind(true)
+                .dust(true)
+                .weight(0.0)
+                .build();
+
+        // Region 기본값으로 설정
+        Region defaultRegion = Region.builder()
+                .regionName("서울시")
+                .longitude(37.5665)
+                .latitude(126.9780)
+                .build();
+
+        defaultSetting.setRegion(defaultRegion);
+        newUser.setSetting(defaultSetting);
         userRepository.save(newUser);
     }
 
@@ -188,8 +213,8 @@ public class AccountsService {
         userRepository.save(user);
     }
 
-    public void deleteUser(Long userId){
-        User userEntity = userRepository.findById(userId);
-        userRepository.delete(userEntity);
+    // 회원 삭제
+    public void deleteUser(User user){
+        userRepository.delete(user);
     }
 }

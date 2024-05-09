@@ -46,16 +46,7 @@ public class User extends BaseEntity {
     @Column(name = "custom", nullable = false)
     private boolean custom;
 
-    // 비밀번호 변경
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    // 닉네임 변경
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
+    // Mapping
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "setting_id", unique = true)
     private Setting setting;
@@ -66,4 +57,30 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserMedian UserMedian;
 
+    // 비밀번호 변경
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    // 닉네임 변경
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setCustom(boolean custom) {
+        this.custom = custom;
+    }
+
+    // 연관관계 설정
+    public void setSetting(Setting setSetting) {
+        setting = setSetting;
+    }
+
+    public void setUserData(UserData setUserData) {
+        UserData = setUserData;
+    }
+
+    public void setUserMedian(UserMedian setUserMedian) {
+        UserMedian = setUserMedian;
+    }
 }

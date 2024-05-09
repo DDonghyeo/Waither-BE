@@ -89,9 +89,10 @@ public class AccountsController {
     }
 
 
-    // Todo : 삭제 다시 ; soft delete로 변경 예정
-    @GetMapping("/emails/delete")
-    public void deleteUser(@RequestParam Long userId) {
-        accountsService.deleteUser(userId);
+    // Todo : soft delete로 변경 고려
+    @GetMapping("/delete")
+    public ApiResponse<String> deleteUser(@AuthUser User user) {
+        accountsService.deleteUser(user);
+        return ApiResponse.onSuccess("로그아웃이 성공적으로 완료되었습니다.");
     }
 }
