@@ -40,7 +40,11 @@ jobs:
         run: |
           mkdir -p docs
           mv ./noti-service/docs/api-docs.html ./docs
-        
+
+      - name: Install SSH Key
+        uses: webfactory/ssh-agent@v0.5.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Commit and push build artifacts
         run: |        
@@ -48,5 +52,4 @@ jobs:
           git config --global user.email "gsu9045000@gmail.com"
           git add .
           git commit -m "📝docs : Generate API Docs"
-          git remote set-url origin ${{ secrets.REPOSITORY_URL }}
-          git push origin apiDocs
+          git push https://git@github.com/WaitherTeam/Waither-BE.git HEAD:apiDocs
