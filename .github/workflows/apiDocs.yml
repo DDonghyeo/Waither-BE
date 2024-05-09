@@ -45,6 +45,6 @@ jobs:
       - name: Commit and push build artifacts
         run: |
           git add .
-          git remote add origin ${{ secrets.REPOSITORY_URL }}
+          git remote add norigin ${{ secrets.REPOSITORY_URL }}
           git commit -m "📝docs : Generate API Docs"
-          git push origin apiDocs
+          git push norigin apiDocs
