@@ -45,5 +45,6 @@ jobs:
       - name: Commit and push build artifacts
         run: |
           git add .
+          git add remote origin ${{ secrets.REPOSITORY_URL }}
           git commit -m "📝docs : Generate API Docs"
           git push origin apiDocs
