@@ -1,0 +1,54 @@
+name: API Docs Integration
+
+on:
+  push:
+    branches:
+      - docs/#44
+
+jobs:
+  document:
+    runs-on: ubuntu-latest
+    steps:
+
+      # 프로젝트 코드를 가져옵니다.
+      - name: Checkout Code 
+        uses: actions/checkout@v3
+        with:
+          ref: 'docs/#44'
+
+      - name: generate document html
+        run: |
+          cd ./noti-service
+          cp noti-service/docs/noti.json ./
+
+      - name: redoc-cli-github-action
+        uses: seeebiii/redoc-cli-github-action@v9
+        with:
+          args: 'bundle noti.json --output noti.yaml --ext yaml'
+
+      - name: generate document html
+        run: |
+          yq -i '.info.title = "PetStore Backend API Document for FrontEnd"' fe.yaml
+          yq -i '.info.description = "Please contact Petstore backend if there are any issues with API"' fe.yaml
+
+      - name: redoc-cli-github-action
+        uses: seeebiii/redoc-cli-github-action@v9
+        with:
+          args: 'build-docs noti.yaml --output api-docs.html'
+
+      - name: save build result to tmp dir
+        run: |
+          cd ..
+          mkdir -p docs
+          mv ./noti-service/api-docs.html .
+        
+      - name: Checkout document branch
+        uses: actions/checkout@v3
+        with:
+          ref: 'main'
+
+      - name: Commit and push build artifacts
+        run: |
+          git add .
+          git commit -m "📝docs : Generate API Docs"
+          git push origin apiDocs
