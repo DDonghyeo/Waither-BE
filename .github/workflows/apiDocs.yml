@@ -16,10 +16,7 @@ jobs:
         with:
           ref: 'docs/#44'
 
-      # - name: move to docs directory
-      #   run: |
-      #     cd ./noti-service/docs
-
+      # Redoc : json 파일을 가져와 bundle
       - name: redoc-cli-github-action
         uses: seeebiii/redoc-cli-github-action@v9
         with:
@@ -36,24 +33,13 @@ jobs:
       #   with:
       #     args: 'build-docs ./noti-serivce/docs/noti.yaml --output ./noti-serivce/docs/api-docs.html'
 
+      # 완성된 html 파일을 docs 디렉토리에 놓습니다.
       - name: save build result to tmp dir
         run: |
           mkdir -p docs
           mv ./noti-service/docs/index.html ./docs
 
-      - name: Install SSH Key
-        uses: webfactory/ssh-agent@v0.5.0
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-
-      # - name: Commit and push build artifacts
-      #   run: |        
-      #     git config --global user.name "DDonghyeo"
-      #     git config --global user.email "gsu9045000@gmail.com"
-      #     git add .
-      #     git commit -m "📝docs : Generate API Docs"
-      #     git push https://git@github.com/WaitherTeam/Waither-BE.git HEAD:apiDocs
-
+      # 웹페이지 Repository에 Push 합니다.
       - name: Install SSH Key
         uses: leigholiver/commit-with-deploy-key@v1.0.4
         with:
