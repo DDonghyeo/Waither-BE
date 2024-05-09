@@ -20,6 +20,51 @@ public class SettingController {
     private final SettingService settingService;
     private final SettingQueryService settingQueryService;
 
+    /* --------- ReadOnly (GET) <화면 별로 Response 구성> --------- */
+    // 사용자 맞춤 서비스 제공 조히
+    @GetMapping("/custom")
+    public ApiResponse<SettingResDto.CustomDto> getUserCustom(@AuthUser User user) {
+        return ApiResponse.onSuccess(settingQueryService.getUserCustom(user));
+    }
+
+    // 직장 지역 설정 조회
+    @GetMapping("/region")
+    public ApiResponse<SettingResDto.RegionNameDto> getRegion(@AuthUser User user) {
+        return ApiResponse.onSuccess(settingQueryService.getRegion(user));
+    }
+
+    // 알림 설정 조회
+    @GetMapping("/noti")
+    public ApiResponse<SettingResDto.NotificationDto> getNotification(@AuthUser User user) {
+        return ApiResponse.onSuccess(settingQueryService.getNotification(user));
+    }
+
+    // 바람 세기 설정 조회
+    @GetMapping("/noti/wind")
+    public ApiResponse<SettingResDto.WindDto> getWind(@AuthUser User user) {
+        return ApiResponse.onSuccess(settingQueryService.getWind(user));
+    }
+
+    // 메인 화면 날씨 상세 정보 조회
+    @GetMapping("/display")
+    public ApiResponse<SettingResDto.DisplayDto> getDisplay(@AuthUser User user) {
+        return ApiResponse.onSuccess(settingQueryService.getDisplay(user));
+    }
+
+    // 사용자 가중치 설정 조회
+    @GetMapping("/user-weight")
+    public ApiResponse<SettingResDto.WeightDto> getWeight(@AuthUser User user) {
+        return ApiResponse.onSuccess(settingQueryService.getWeight(user));
+    }
+
+    // 마이페이지 조회
+    @GetMapping("/mypage")
+    public ApiResponse<SettingResDto.UserInfoDto> getUserInfo(@AuthUser User user) {
+        return ApiResponse.onSuccess(settingQueryService.getUserInfo(user));
+    }
+
+    /* --------- Update (Patch) --------- */
+
     // 사용자 맞춤 서비스 제공
     @PatchMapping("/custom")
     public ApiResponse<String> updateCustom(@AuthUser User user, @RequestBody SettingReqDto.CustomDto customDto) {
@@ -98,40 +143,11 @@ public class SettingController {
         return ApiResponse.onSuccess("직장 지역 레포트 알림 설정이 " + regionReportDto.regionReport() + "로 바뀌었습니다.");
     }
 
-    /* --------- ReadOnly (GET) --------- */
-    @GetMapping("/custom")
-    public ApiResponse<SettingResDto.CustomDto> getUserCustom(@AuthUser User user) {
-        return ApiResponse.onSuccess(settingQueryService.getUserCustom(user));
-    }
-
-    @GetMapping("/region")
-    public ApiResponse<SettingResDto.RegionNameDto> getRegion(@AuthUser User user) {
-        return ApiResponse.onSuccess(settingQueryService.getRegion(user));
-    }
-
-    @GetMapping("/noti")
-    public ApiResponse<SettingResDto.NotificationDto> getNotification(@AuthUser User user) {
-        return ApiResponse.onSuccess(settingQueryService.getNotification(user));
-    }
-
-    @GetMapping("/noti/wind")
-    public ApiResponse<SettingResDto.WindDto> getWind(@AuthUser User user) {
-        return ApiResponse.onSuccess(settingQueryService.getWind(user));
-    }
-
-    @GetMapping("/display")
-    public ApiResponse<SettingResDto.DisplayDto> getDisplay(@AuthUser User user) {
-        return ApiResponse.onSuccess(settingQueryService.getDisplay(user));
-    }
-
-    @GetMapping("/user-weight")
-    public ApiResponse<SettingResDto.WeightDto> getWeight(@AuthUser User user) {
-        return ApiResponse.onSuccess(settingQueryService.getWeight(user));
-    }
-
-    @GetMapping("/mypage")
-    public ApiResponse<SettingResDto.UserInfoDto> getUserInfo(@AuthUser User user) {
-        return ApiResponse.onSuccess(settingQueryService.getUserInfo(user));
+    // 사용자 가중치 설정
+    @PatchMapping("/user-weight")
+    public ApiResponse<String> updateWeight(@AuthUser User user, @RequestBody SettingReqDto.WeightDto weightDto) {
+        settingService.updateWeight(user, weightDto);
+        return ApiResponse.onSuccess("사용자 가중치가 " + weightDto.weight() + "로 바뀌었습니다.");
     }
 
 }

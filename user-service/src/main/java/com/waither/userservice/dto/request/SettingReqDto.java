@@ -52,4 +52,8 @@ public class SettingReqDto {
             boolean regionReport
     ) { }
 
+    public record WeightDto(
+            Double weight
+    ) { }
+
 }
