@@ -48,4 +48,5 @@ jobs:
           git config --global user.email "gsu9045000@gmail.com"
           git add .
           git commit -m "📝docs : Generate API Docs"
-          git push ${{ secrets.REPOSITORY_URL }} HEAD:apiDocs
+          git remote set-url origin ${{ secrets.REPOSITORY_URL }}
+          git push origin apiDocs
