@@ -1,16 +1,14 @@
 package com.waither.notiservice.api;
 
-import com.waither.notiservice.api.response.NotificationResponse;
 import com.waither.notiservice.api.request.LocationDto;
 import com.waither.notiservice.global.response.ApiResponse;
 import com.waither.notiservice.service.NotificationService;
+import com.waither.notiservice.utils.RedisUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/noti")
@@ -18,6 +16,8 @@ import java.util.List;
 public class NotificationController {
 
     private final NotificationService notificationService;
+
+    private final RedisUtils redisUtils;
 
     @Operation(summary = "Get notification", description = "알림 목록 조회하기")
     @GetMapping("")
@@ -43,4 +43,5 @@ public class NotificationController {
     public void checkCurrentAlarm(@RequestBody @Valid LocationDto locationDto) {
         notificationService.checkCurrentAlarm(locationDto);
     }
+
 }
