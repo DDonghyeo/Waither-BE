@@ -98,7 +98,7 @@ public class SettingController {
         return ApiResponse.onSuccess("직장 지역 레포트 알림 설정이 " + regionReportDto.regionReport() + "로 바뀌었습니다.");
     }
 
-    // ReadOnly (GET)
+    /* --------- ReadOnly (GET) --------- */
     @GetMapping("/custom")
     public ApiResponse<SettingResDto.CustomDto> getUserCustom(@AuthUser User user) {
         return ApiResponse.onSuccess(settingQueryService.getUserCustom(user));
