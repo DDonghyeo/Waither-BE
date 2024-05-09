@@ -90,9 +90,9 @@ public class AccountsController {
 
 
     // Todo : soft delete로 변경 고려
-    @GetMapping("/delete")
+    @DeleteMapping("/delete")
     public ApiResponse<String> deleteUser(@AuthUser User user) {
         accountsService.deleteUser(user);
-        return ApiResponse.onSuccess("로그아웃이 성공적으로 완료되었습니다.");
+        return ApiResponse.onSuccess(user.getEmail() + "님의 계정이 성공적으로 탈퇴되었습니다.");
     }
 }
