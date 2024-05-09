@@ -23,7 +23,7 @@ jobs:
       - name: redoc-cli-github-action
         uses: seeebiii/redoc-cli-github-action@v9
         with:
-          args: 'bundle ./noti-service/docs/noti.json --output ./noti-service/docs/api-docs.html --ext html'
+          args: 'bundle ./noti-service/docs/noti.json --output ./noti-service/docs/index.html --ext html'
 
       # - name: Rename Yaml Title & Desc
       #   run: |
@@ -39,7 +39,7 @@ jobs:
       - name: save build result to tmp dir
         run: |
           mkdir -p docs
-          mv ./noti-service/docs/api-docs.html ./docs
+          mv ./noti-service/docs/index.html ./docs
 
       - name: Install SSH Key
         uses: webfactory/ssh-agent@v0.5.0
@@ -57,8 +57,8 @@ jobs:
       - name: Install SSH Key
         uses: leigholiver/commit-with-deploy-key@v1.0.4
         with:
-          source: ./docs/api-docs.html
+          source: ./docs/index.html
           destination_folder: docs
-          destination_repo: WaitherTeam/Waither-BE
-          destination_branch: apiDocs
+          destination_repo: WaitherTeam/api-docs.io
+          destination_branch: main
           deploy_key: ${{ secrets.DEPLOY_KEY }}
