@@ -29,12 +29,14 @@ public enum ErrorCode implements BaseErrorCode {
             HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()),
 
     // 유효성 검사
-    VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "VALID400_0", "입력값에 대한 검증에 실패했습니다."),
+    VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "VALID400_0", "잘못된 파라미터 입니다."),
 
-    // 이메일 관련 에러
+    // 데이터 관련 에러
     NO_USER_MEDIAN_REGISTERED(HttpStatus.NOT_FOUND, "USER404_0", "사용자 설정값이 존재하지 않습니다."),
     NO_USER_DATA_REGISTERED(HttpStatus.NOT_FOUND, "USER404_1", "사용자 데이터 값이 존재하지 않습니다."),
     FIREBASE_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "TOKEN404", "푸시알림 토큰이 존재하지 않습니다."),
+
+    //통신 과정 에러
     COMMUNICATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500_1", "통신 과정에서 문제가 발생했습니다.")
 
     ;
