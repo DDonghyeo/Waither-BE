@@ -3,16 +3,21 @@ package com.waither.weatherservice.entity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @RedisHash(value = "DailyWeather", timeToLive = 28800L) // 유효시간: 8시간
 public class DailyWeather {
 
 	@Id
-	private String key;
+	private String id;
 
 	// 강수확률 (%)
 	private String pop;
