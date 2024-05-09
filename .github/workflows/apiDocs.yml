@@ -38,6 +38,9 @@ jobs:
 
       - name: save build result to tmp dir
         run: |
+          ls -all
+          pwd
+          ls ./noti-service/docs
           mkdir -p docs
           mv ./noti-serivce/docs/api-docs.html ./docs
         
