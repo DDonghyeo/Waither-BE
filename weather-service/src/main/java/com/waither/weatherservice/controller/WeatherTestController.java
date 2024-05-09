@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/weather")
+@RequestMapping("/api/v1/weather-test")
 public class WeatherTestController {
 
 	private final WeatherService weatherService;
