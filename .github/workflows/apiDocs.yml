@@ -25,11 +25,11 @@ jobs:
         with:
           args: 'bundle ./noti-service/docs/noti.json --output ./noti-service/docs/noti.yaml --ext yaml'
 
-      - name: Rename Yaml Title & Desc
-        run: |
-          cat ./noti-service/docs/noti.yaml
-          yq -i '.info.title = "PetStore Backend API Document for FrontEnd"' ./noti-service/docs/noti.yaml
-          yq -i '.info.description = "Please contact Petstore backend if there are any issues with API"' ./noti-service/docs/noti.yaml
+      # - name: Rename Yaml Title & Desc
+      #   run: |
+      #     cat ./noti-service/docs/noti.yaml
+      #     yq -i '.info.title = "PetStore Backend API Document for FrontEnd"' ./noti-service/docs/noti.yaml
+      #     yq -i '.info.description = "Please contact Petstore backend if there are any issues with API"' ./noti-service/docs/noti.yaml
 
       - name: redoc-cli-github-action
         uses: seeebiii/redoc-cli-github-action@v9
