@@ -47,6 +47,7 @@ jobs:
           git config --global user.email "gsu9045000@gmail.com"
           git config --global user.name "DDonghyeo"
           git add .
+          git checkout apiDocs
           git remote add norigin ${{ secrets.REPOSITORY_URL }}
           git commit -m "📝docs : Generate API Docs"
           git push norigin apiDocs
