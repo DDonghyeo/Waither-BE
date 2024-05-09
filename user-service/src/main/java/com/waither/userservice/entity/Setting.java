@@ -26,7 +26,7 @@ public class Setting {
     private Long id;
 
     // 외출 알림
-    @Column(name = "outAlert")
+    @Column(name = "outAlert", nullable = false)
     private boolean outAlert;
 
     // 외출 시간
@@ -34,58 +34,58 @@ public class Setting {
     private LocalTime outTime;
 
     // 월 ~ 금 알림
-    @Column(name = "sun")
+    @Column(name = "sun", nullable = false)
     private boolean sun;
-    @Column(name = "mon")
+    @Column(name = "mon", nullable = false)
     private boolean mon;
-    @Column(name = "tue")
+    @Column(name = "tue", nullable = false)
     private boolean tue;
-    @Column(name = "wed")
+    @Column(name = "wed", nullable = false)
     private boolean wed;
-    @Column(name = "thu")
+    @Column(name = "thu", nullable = false)
     private boolean thu;
-    @Column(name = "fri")
+    @Column(name = "fri", nullable = false)
     private boolean fri;
-    @Column(name = "sat")
+    @Column(name = "sat", nullable = false)
     private boolean sat;
 
     // 기상 특보 알림
-    @Column(name = "climateAlert")
+    @Column(name = "climateAlert", nullable = false)
     private boolean climateAlert;
 
     // 사용자 맞춤 예보 받기
-    @Column(name = "userAlert")
+    @Column(name = "userAlert", nullable = false)
     private boolean userAlert;
 
     // 강설 정보 알림
-    @Column(name = "snowAlert")
+    @Column(name = "snowAlert", nullable = false)
     private boolean snowAlert;
 
     // 바람 세기 알림
-    @Column(name = "windAlert")
+    @Column(name = "windAlert", nullable = false)
     private boolean windAlert;
     // 바람세기 정도
-    @Column(name = "windDegree")
+    @Column(name = "windDegree", nullable = false)
     private Integer windDegree;
 
     // 직장 지역 레포트 알림 받기
-    @Column(name = "regionReport")
+    @Column(name = "regionReport", nullable = false)
     private boolean regionReport;
 
     // 강수량 보기
-    @Column(name = "precipitation")
+    @Column(name = "precipitation", nullable = false)
     private boolean precipitation;
 
     // 풍량/풍속 보기
-    @Column(name = "wind")
+    @Column(name = "wind", nullable = false)
     private boolean wind;
 
     // 미세먼지 보기
-    @Column(name = "dust")
+    @Column(name = "dust", nullable = false)
     private boolean dust;
 
     // 사용자 가중치
-    @Column(name = "weight")
+    @Column(name = "weight", nullable = false)
     private Double weight;
 
     // Mapping
