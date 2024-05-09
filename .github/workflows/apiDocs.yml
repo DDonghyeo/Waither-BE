@@ -34,12 +34,12 @@ jobs:
       - name: redoc-cli-github-action
         uses: seeebiii/redoc-cli-github-action@v9
         with:
-          args: 'build-docs ./noti-serivce/docs/noti.yaml --output ./api-docs.html'
+          args: 'build-docs ./noti-serivce/docs/noti.yaml --output ./noti-serivce/docs/api-docs.html'
 
       - name: save build result to tmp dir
         run: |
           mkdir -p docs
-          mv ./api-docs.html ./docs
+          mv ./noti-serivce/docs/api-docs.html ./docs
         
 
       - name: Commit and push build artifacts
