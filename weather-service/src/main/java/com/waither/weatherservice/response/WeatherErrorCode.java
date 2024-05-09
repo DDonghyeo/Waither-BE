@@ -11,7 +11,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum WeatherErrorCode implements BaseErrorCode {
 
-	WEATHER_ERROR_EXAMPLE(HttpStatus.BAD_REQUEST, "WEAT4000", "날씨 에러입니다.");
+	WEATHER_EXAMPLE_ERROR(HttpStatus.BAD_REQUEST, "WEAT4000", "날씨 에러입니다."),
+	WEATHER_OPENAPI_ERROR(HttpStatus.BAD_REQUEST, "WEAT4001", "OpenApi 관련 오류입니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;
