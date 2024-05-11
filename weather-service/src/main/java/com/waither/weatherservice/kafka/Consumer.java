@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class Consumer {
 
-	@KafkaListener(topics = "${spring.kafka.template.default-topic}", groupId = "${spring.kafka.consumer.group-id}", containerFactory = "dailyWeatherConcurrentKafkaListenerContainerFactory")
-	public void dailyWeatherConsume(DailyWeatherKafkaMessage message) {
+	@KafkaListener(topics = "${spring.kafka.template.topic}", groupId = "${spring.kafka.consumer.group-id}")
+	public void dailyWeatherConsume(String message) {
 
 		log.info("Consumer Test ========================== ");
 		log.info("[*] Consumer Message {} ", message);

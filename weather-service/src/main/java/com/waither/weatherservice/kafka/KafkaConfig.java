@@ -11,15 +11,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
-import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,36 +32,37 @@ public class KafkaConfig {
 	private String groupId;
 
 	@Bean
-	public ProducerFactory<String, DailyWeatherKafkaMessage> dailyWeatherProducerFactory() {
+	public ProducerFactory<String, String> producerFactory() {
 		Map<String, Object> config = new HashMap<>();
 		config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
 		config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-		config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+		config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 
 		return new DefaultKafkaProducerFactory<>(config);
 	}
 
 	@Bean
-	public KafkaTemplate<String, DailyWeatherKafkaMessage> dailyWeatherKafkaTemplate() {
-		return new KafkaTemplate<>(dailyWeatherProducerFactory());
+	public KafkaTemplate<String, String> kafkaTemplate() {
+		return new KafkaTemplate<>(producerFactory());
 	}
 
 	@Bean
-	public ConsumerFactory<String, DailyWeatherKafkaMessage> dailyWeatherConsumerFactory() {
+	public ConsumerFactory<String, String> consumerStringFactory() {
 		HashMap<String, Object> config = new HashMap<>();
 		config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+		// Consumer Group
 		config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 		return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(),
-			new JsonDeserializer<>(DailyWeatherKafkaMessage.class));
+			new JsonDeserializer<>(String.class));
 	}
 
-	@Bean
-	public ConcurrentKafkaListenerContainerFactory<String, DailyWeatherKafkaMessage> dailyWeatherConcurrentKafkaListenerContainerFactory() {
-		ConcurrentKafkaListenerContainerFactory<String, DailyWeatherKafkaMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
-		factory.setConsumerFactory(dailyWeatherConsumerFactory());
-		factory.setConcurrency(3);
-		factory.setBatchListener(true);
-		factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
-		return factory;
-	}
+	// @Bean
+	// public ConcurrentKafkaListenerContainerFactory<String, DailyWeatherKafkaMessage> kafkaListenerContainerFactory() {
+	// 	ConcurrentKafkaListenerContainerFactory<String, DailyWeatherKafkaMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+	// 	factory.setConsumerFactory(dailyWeatherConsumerFactory());
+	// 	factory.setConcurrency(3);
+	// 	factory.setBatchListener(true);
+	// 	factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
+	// 	return factory;
+	// }
 }

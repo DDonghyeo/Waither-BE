@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.waither.weatherservice.entity.DailyWeather;
 import com.waither.weatherservice.entity.DisasterMessage;
 import com.waither.weatherservice.entity.ExpectedWeather;
-import com.waither.weatherservice.kafka.DailyWeatherKafkaMessage;
 import com.waither.weatherservice.kafka.Producer;
 import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
 import com.waither.weatherservice.openapi.MsgOpenApiResponse;
@@ -96,9 +95,9 @@ public class WeatherService {
 			.windDegree(wsd)
 			.build();
 
-		DailyWeatherKafkaMessage kafkaMessage = DailyWeatherKafkaMessage.from(dailyWeather);
+		// DailyWeatherKafkaMessage kafkaMessage = DailyWeatherKafkaMessage.from(dailyWeather);
 
-		producer.dailyWeatherProduceMessage(kafkaMessage);
+		producer.dailyWeatherProduceMessage(wsd);
 
 		// DailyWeather save = dailyWeatherRepository.save(dailyWeather);
 		log.info("[*] 하루 온도 : {}", dailyWeather);
