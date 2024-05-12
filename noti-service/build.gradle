@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.3'
     id 'io.spring.dependency-management' version '1.1.4'
+    id "org.springdoc.openapi-gradle-plugin" version '1.8.0'
 }
 
 group = 'com.waither'
@@ -48,12 +49,24 @@ dependencies {
     //Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    //Swagger
+    //Springdoc
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+    //implementation 'org.springdoc:springdoc-openapi-gradle-plugin:1.8.0'
 
     //JUnit + AssertJ
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     testImplementation 'org.assertj:assertj-core:3.23.1'
+}
+
+openApi {
+    apiDocsUrl.set("http://localhost:80") // Document URL
+    outputDir.set(file("$rootDir/build/docs")) // Build Result Path
+    outputFileName.set("noti.json") // Build Result File Name
+    groupedApiMappings.set(Map.of("http://localhost:8082/noti/api-docs", "noti.json"))
+    waitTimeInSeconds.set(60) // Timeout
+    customBootRun {
+        args.add("--spring.profiles.active=dev")
+    }
 }
 
 dependencyManagement {
@@ -65,3 +78,4 @@ dependencyManagement {
 tasks.named('test') {
     useJUnitPlatform()
 }
+

@@ -1,0 +1,50 @@
+name: API Docs Integration
+
+on:
+  push:
+    branches:
+      - docs/#44
+
+jobs:
+  document:
+    runs-on: ubuntu-latest
+    steps:
+
+      # 프로젝트 코드를 가져옵니다.
+      - name: Checkout Code 
+        uses: actions/checkout@v3
+        with:
+          ref: 'docs/#44'
+
+      # Redoc : json 파일을 가져와 bundle
+      - name: redoc-cli-github-action
+        uses: seeebiii/redoc-cli-github-action@v9
+        with:
+          args: 'bundle ./noti-service/docs/noti.json --output ./noti-service/docs/index.html --ext html'
+
+      # - name: Rename Yaml Title & Desc
+      #   run: |
+      #     cat ./noti-service/docs/noti.yaml
+      #     yq -i '.info.title = "PetStore Backend API Document for FrontEnd"' ./noti-service/docs/noti.yaml
+      #     yq -i '.info.description = "Please contact Petstore backend if there are any issues with API"' ./noti-service/docs/noti.yaml
+
+      # - name: redoc-cli-github-action
+      #   uses: seeebiii/redoc-cli-github-action@v9
+      #   with:
+      #     args: 'build-docs ./noti-serivce/docs/noti.yaml --output ./noti-serivce/docs/api-docs.html'
+
+      # 완성된 html 파일을 docs 디렉토리에 놓습니다.
+      - name: save build result to tmp dir
+        run: |
+          mkdir -p docs
+          mv ./noti-service/docs/index.html ./docs
+
+      # 웹페이지 Repository에 Push 합니다.
+      - name: Install SSH Key
+        uses: leigholiver/commit-with-deploy-key@v1.0.4
+        with:
+          source: ./docs/index.html
+          destination_folder: docs
+          destination_repo: WaitherTeam/WaitherTeam.github.io
+          destination_branch: main
+          deploy_key: ${{ secrets.DEPLOY_KEY }}
