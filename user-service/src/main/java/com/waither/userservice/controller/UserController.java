@@ -6,6 +6,7 @@ import com.waither.userservice.global.annotation.AuthUser;
 import com.waither.userservice.jwt.dto.JwtDto;
 import com.waither.userservice.service.UserService;
 import com.waither.userservice.global.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ public class UserController {
     private final UserService userService;
 
     // 회원가입
+    @Operation(summary = "Sign Up", description = "회원가입")
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody UserReqDto.SignUpRequestDto requestDto) {
         userService.signup(requestDto);
@@ -38,7 +40,6 @@ public class UserController {
     public ApiResponse<JwtDto> reissueToken(@RequestHeader("RefreshToken") String refreshToken) {
         JwtDto jwtDto = userService.reissueToken(refreshToken);
         return ApiResponse.onSuccess(jwtDto);
-
     }
 
     // 이메일에 인증번호 보내기
