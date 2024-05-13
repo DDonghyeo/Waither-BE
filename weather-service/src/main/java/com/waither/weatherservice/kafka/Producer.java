@@ -17,7 +17,7 @@ public class Producer {
 	@Value("${spring.kafka.template.topic}")
 	private String topic;
 
-	public void dailyWeatherProduceMessage(String message) {
+	public void produceMessage(String message) {
 		log.info("[*] Producer Message : {}", message);
 		kafkaTemplate.send(topic, message);
 	}
