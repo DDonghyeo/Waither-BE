@@ -1,13 +1,12 @@
 package com.waither.userservice.dto.converter;
 
 import com.waither.userservice.dto.request.AccountReqDto;
-import com.waither.userservice.entity.Setting;
 import com.waither.userservice.entity.User;
 import com.waither.userservice.entity.type.UserStatus;
 
 public class AccountConverter {
 
-    public static User toCreateUser(AccountReqDto.RegisterRequestDto requestDto, String encodedPw) {
+    public static User toUser(AccountReqDto.RegisterRequestDto requestDto, String encodedPw) {
         return User.builder()
                 .email(requestDto.email())
                 .password(encodedPw)
@@ -15,7 +14,8 @@ public class AccountConverter {
                 .status(UserStatus.ACTIVE)
                 .role("ROLE_USER")
                 .custom(true)
-                .setting(Setting.builder().build())
                 .build();
     }
+
+
 }

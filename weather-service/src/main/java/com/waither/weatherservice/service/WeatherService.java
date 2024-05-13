@@ -17,7 +17,6 @@ import com.waither.weatherservice.entity.ExpectedWeather;
 import com.waither.weatherservice.exception.WeatherExceptionHandler;
 import com.waither.weatherservice.gps.GpsTransfer;
 import com.waither.weatherservice.gps.LatXLngY;
-import com.waither.weatherservice.kafka.DailyWeatherKafkaMessage;
 import com.waither.weatherservice.kafka.Producer;
 import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
 import com.waither.weatherservice.openapi.MsgOpenApiResponse;
@@ -103,9 +102,10 @@ public class WeatherService {
 			.windDegree(wsd)
 			.build();
 
-		DailyWeatherKafkaMessage kafkaMessage = DailyWeatherKafkaMessage.from(dailyWeather);
+		// DailyWeatherKafkaMessage kafkaMessage = DailyWeatherKafkaMessage.from(dailyWeather);
 
-		producer.dailyWeatherProduceMessage(kafkaMessage);
+		// 바람 세기 Kafka 전송
+		producer.produceMessage(wsd);
 
 		DailyWeather save = dailyWeatherRepository.save(dailyWeather);
 		log.info("[*] 하루 온도 : {}", save);

@@ -1,0 +1,182 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8081",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/api/v1/weather/short": {
+      "post": {
+        "tags": [
+          "weather-test-controller"
+        ],
+        "operationId": "createExpectedWeatherTest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForeCastTestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/weather/msg": {
+      "post": {
+        "tags": [
+          "weather-test-controller"
+        ],
+        "operationId": "createDisasterMsgTest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MsgTestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/weather/daily": {
+      "post": {
+        "tags": [
+          "weather-test-controller"
+        ],
+        "operationId": "createDailyWeatherTest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForeCastTestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/weather/air": {
+      "post": {
+        "tags": [
+          "weather-test-controller"
+        ],
+        "operationId": "airKoreaTest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AirTestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/weather/accuweather": {
+      "post": {
+        "tags": [
+          "weather-test-controller"
+        ],
+        "operationId": "accuweatherTest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccuweatherTestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ForeCastTestRequest": {
+        "type": "object",
+        "properties": {
+          "nx": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ny": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "baseDate": {
+            "type": "string"
+          },
+          "baseTime": {
+            "type": "string"
+          }
+        }
+      },
+      "MsgTestRequest": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string"
+          }
+        }
+      },
+      "AirTestRequest": {
+        "type": "object",
+        "properties": {
+          "searchDate": {
+            "type": "string"
+          }
+        }
+      },
+      "AccuweatherTestRequest": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      }
+    }
+  }
+}

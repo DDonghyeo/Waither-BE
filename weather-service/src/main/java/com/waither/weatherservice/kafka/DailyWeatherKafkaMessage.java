@@ -4,6 +4,7 @@ import com.waither.weatherservice.entity.DailyWeather;
 
 import lombok.Builder;
 
+// 우선 문자열로 바람 세기만. 추후 변경 가능성
 @Builder
 public record DailyWeatherKafkaMessage(
 	String pop,
