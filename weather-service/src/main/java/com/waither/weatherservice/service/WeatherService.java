@@ -2,15 +2,21 @@ package com.waither.weatherservice.service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.waither.weatherservice.dto.response.MainWeatherResponse;
 import com.waither.weatherservice.entity.DailyWeather;
 import com.waither.weatherservice.entity.DisasterMessage;
 import com.waither.weatherservice.entity.ExpectedWeather;
+import com.waither.weatherservice.exception.WeatherExceptionHandler;
+import com.waither.weatherservice.gps.GpsTransfer;
+import com.waither.weatherservice.gps.LatXLngY;
 import com.waither.weatherservice.kafka.Producer;
 import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
 import com.waither.weatherservice.openapi.MsgOpenApiResponse;
@@ -18,6 +24,7 @@ import com.waither.weatherservice.openapi.OpenApiUtil;
 import com.waither.weatherservice.redis.DailyWeatherRepository;
 import com.waither.weatherservice.redis.DisasterMessageRepository;
 import com.waither.weatherservice.redis.ExpectedWeatherRepository;
+import com.waither.weatherservice.response.WeatherErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +40,7 @@ public class WeatherService {
 	private final ExpectedWeatherRepository expectedWeatherRepository;
 	private final DisasterMessageRepository disasterMessageRepository;
 	private final Producer producer;
+	private final GpsTransfer gpsTransfer;
 
 	public void createExpectedWeather(
 		int nx,
@@ -54,7 +62,7 @@ public class WeatherService {
 		String key = item.getNx() + "_" + item.getNy() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
 
 		ExpectedWeather expectedWeather = ExpectedWeather.builder()
-			.key(key)
+			.id(key)
 			.expectedTemp(expectedTempList)
 			.expectedRain(expectedRainList)
 			.expectedPty(expectedPtyList)
@@ -85,7 +93,7 @@ public class WeatherService {
 		String key = item.getNx() + "_" + item.getNy() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
 
 		DailyWeather dailyWeather = DailyWeather.builder()
-			.key(key)
+			.id(key)
 			.pop(pop)
 			.tempMin(tmn)
 			.tempMax(tmx)
@@ -99,8 +107,8 @@ public class WeatherService {
 		// 바람 세기 Kafka 전송
 		producer.produceMessage(wsd);
 
-		// DailyWeather save = dailyWeatherRepository.save(dailyWeather);
-		log.info("[*] 하루 온도 : {}", dailyWeather);
+		DailyWeather save = dailyWeatherRepository.save(dailyWeather);
+		log.info("[*] 하루 온도 : {}", save);
 
 	}
 
@@ -113,7 +121,7 @@ public class WeatherService {
 
 		String key = location + "_" + createDate;
 		DisasterMessage disasterMessage = DisasterMessage.builder()
-			.key(key)
+			.id(key)
 			.message(msg)
 			.build();
 
@@ -127,5 +135,45 @@ public class WeatherService {
 
 	public void convertLocation(double latitude, double longitude) throws URISyntaxException, JsonProcessingException {
 		openApiUtil.callAccuweatherLocationApi(latitude, longitude);
+	}
+
+	public MainWeatherResponse getMainWeather(double latitude, double longitude) {
+		LatXLngY latXLngY = gpsTransfer.convertGpsToGrid(latitude, longitude);
+
+		LocalDateTime now = LocalDateTime.now();
+		String key = (int)latXLngY.x() + "_" + (int)latXLngY.y() + "_" + convertLocalDateTimeToString(now);
+
+		// 테스트 키 : "55_127_20240508_1500"
+
+		DailyWeather dailyWeather = dailyWeatherRepository.findById(key)
+			.orElseThrow(() -> new WeatherExceptionHandler(WeatherErrorCode.WEATHER_MAIN_ERROR));
+
+		ExpectedWeather expectedWeather = expectedWeatherRepository.findById(key)
+			.orElseThrow(() -> new WeatherExceptionHandler(WeatherErrorCode.WEATHER_MAIN_ERROR));
+
+		MainWeatherResponse weatherMainResponse = MainWeatherResponse.from(
+			dailyWeather.getPop(), dailyWeather.getTempMin(),
+			dailyWeather.getTempMax(), dailyWeather.getHumidity(),
+			dailyWeather.getWindVector(), dailyWeather.getWindDegree(),
+			expectedWeather.getExpectedTemp(),
+			expectedWeather.getExpectedRain(), expectedWeather.getExpectedPty(),
+			expectedWeather.getExpectedSky()
+		);
+		log.info("{}", weatherMainResponse);
+
+		return weatherMainResponse;
+	}
+
+	public String convertLocalDateTimeToString(LocalDateTime time) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		String formattedDateTime = time.format(formatter);
+
+		String[] lst = formattedDateTime.split(" ");
+		String baseDate = lst[0].replace("-", "");
+
+		String[] temp = lst[1].split(":");
+		String baseTime = temp[0] + "00";
+
+		return baseDate + "_" + baseTime;
 	}
 }

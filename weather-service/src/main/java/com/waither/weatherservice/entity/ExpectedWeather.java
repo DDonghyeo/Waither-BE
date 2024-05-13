@@ -6,16 +6,21 @@ import java.util.StringJoiner;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @RedisHash(value = "ExpectedWeather", timeToLive = 21600L) // 유효시간: 6시간
 public class ExpectedWeather {
 
 	@Id
-	private String key;
+	private String id;
 
 	// 예상 기온
 	private List<String> expectedTemp;
