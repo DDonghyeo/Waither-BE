@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.waither.weatherservice.entity.DailyWeather;
 import com.waither.weatherservice.entity.DisasterMessage;
 import com.waither.weatherservice.entity.ExpectedWeather;
-import com.waither.weatherservice.kafka.DailyWeatherKafkaMessage;
 import com.waither.weatherservice.kafka.Producer;
 import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
 import com.waither.weatherservice.openapi.MsgOpenApiResponse;
@@ -62,7 +61,6 @@ public class WeatherService {
 			.expectedSky(expectedSkyList)
 			.build();
 
-		// TODO 조회 테스트 후 삭제 예정
 		ExpectedWeather save = expectedWeatherRepository.save(expectedWeather);
 		log.info("[*] 예상 기후 : {}", save);
 	}
@@ -96,9 +94,10 @@ public class WeatherService {
 			.windDegree(wsd)
 			.build();
 
-		DailyWeatherKafkaMessage kafkaMessage = DailyWeatherKafkaMessage.from(dailyWeather);
+		// DailyWeatherKafkaMessage kafkaMessage = DailyWeatherKafkaMessage.from(dailyWeather);
 
-		producer.dailyWeatherProduceMessage(kafkaMessage);
+		// 바람 세기 Kafka 전송
+		producer.produceMessage(wsd);
 
 		// DailyWeather save = dailyWeatherRepository.save(dailyWeather);
 		log.info("[*] 하루 온도 : {}", dailyWeather);
@@ -118,7 +117,6 @@ public class WeatherService {
 			.message(msg)
 			.build();
 
-		// TODO 조회 테스트 후 삭제 예정
 		DisasterMessage save = disasterMessageRepository.save(disasterMessage);
 		log.info("[*] 재난 문자 : {}", save);
 	}

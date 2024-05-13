@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.3'
     id 'io.spring.dependency-management' version '1.1.4'
+    id "org.springdoc.openapi-gradle-plugin" version '1.8.0'
 }
 
 group = 'com.waither'
@@ -45,6 +46,20 @@ dependencies {
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    //Springdoc
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+}
+
+openApi {
+    apiDocsUrl.set("http://localhost:3000") // Document URL
+    outputDir.set(file("$rootDir/docs")) // Build Result Path
+    outputFileName.set("weather.json") // Build Result File Name
+    groupedApiMappings.set(Map.of("http://localhost:8081/weather/api-docs", "weather.json"))
+    waitTimeInSeconds.set(60) // Timeout
+    customBootRun {
+        args.add("--spring.profiles.active=dev")
+    }
 }
 
 dependencyManagement {
