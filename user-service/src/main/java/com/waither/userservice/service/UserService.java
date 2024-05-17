@@ -1,7 +1,7 @@
 package com.waither.userservice.service;
 
-import com.waither.userservice.dto.converter.AccountConverter;
-import com.waither.userservice.dto.request.AccountReqDto;
+import com.waither.userservice.dto.converter.UserConverter;
+import com.waither.userservice.dto.request.UserReqDto;
 import com.waither.userservice.entity.Region;
 import com.waither.userservice.entity.Setting;
 import com.waither.userservice.entity.User;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 @Service
-public class AccountsService {
+public class UserService {
 
     private final UserRepository userRepository;
     private final SettingRepository settingRepository;
@@ -46,13 +46,13 @@ public class AccountsService {
     private long authCodeExpirationMillis;
 
     // 회원가입
-    public void signup(AccountReqDto.RegisterRequestDto requestDto) {
+    public void signup(UserReqDto.SignUpRequestDto requestDto) {
 //        if (!verifiedAccounts(requestDto.email())) {
 //            throw new CustomException(ErrorCode.INVALID_Account);
 //        }
         // 비밀번호 인코딩
         String encodedPw = passwordEncoder.encode(requestDto.password());
-        User newUser = AccountConverter.toUser(requestDto, encodedPw);
+        User newUser = UserConverter.toUser(requestDto, encodedPw);
 
         // Setting을 기본값으로 설정
         Setting defaultSetting = Setting.builder()

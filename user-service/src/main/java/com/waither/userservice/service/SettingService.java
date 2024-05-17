@@ -117,4 +117,10 @@ public class SettingService {
         settingRepository.save(setting);
     }
 
+    public void updateWeight(User user, SettingReqDto.WeightDto weightDto) {
+        Setting setting = user.getSetting();
+        setting.setWeight(weightDto.weight());
+        settingRepository.save(setting);
+    }
+
 }

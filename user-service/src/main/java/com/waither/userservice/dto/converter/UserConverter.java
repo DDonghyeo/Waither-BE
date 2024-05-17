@@ -1,12 +1,12 @@
 package com.waither.userservice.dto.converter;
 
-import com.waither.userservice.dto.request.AccountReqDto;
+import com.waither.userservice.dto.request.UserReqDto;
 import com.waither.userservice.entity.User;
 import com.waither.userservice.entity.type.UserStatus;
 
-public class AccountConverter {
+public class UserConverter {
 
-    public static User toUser(AccountReqDto.RegisterRequestDto requestDto, String encodedPw) {
+    public static User toUser(UserReqDto.SignUpRequestDto requestDto, String encodedPw) {
         return User.builder()
                 .email(requestDto.email())
                 .password(encodedPw)

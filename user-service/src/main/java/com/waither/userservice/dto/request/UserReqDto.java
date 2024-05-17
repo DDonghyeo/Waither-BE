@@ -1,12 +1,10 @@
 package com.waither.userservice.dto.request;
 
-import com.waither.userservice.entity.User;
-import com.waither.userservice.entity.type.UserStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public class AccountReqDto {
+public class UserReqDto {
     public record LoginRequestDto(
             @NotBlank(message = "[ERROR] 이메일 입력은 필수입니다.")
             @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,6}$", message = "[ERROR] 이메일 형식에 맞지 않습니다.")
@@ -19,7 +17,7 @@ public class AccountReqDto {
     ) { }
 
     // 로그인과 같은 형식이지만, 확장성(회원가입 할 떄 추가 정보를 받을 수도 있음)을 위해 나누어 놓았습니다.
-    public record RegisterRequestDto(
+    public record SignUpRequestDto(
             @NotBlank(message = "[ERROR] 이메일 입력은 필수입니다.")
             @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,6}$", message = "[ERROR] 이메일 형식에 맞지 않습니다.")
             String email,
