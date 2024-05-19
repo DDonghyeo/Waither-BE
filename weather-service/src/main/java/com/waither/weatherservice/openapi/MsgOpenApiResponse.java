@@ -3,7 +3,6 @@ package com.waither.weatherservice.openapi;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
 
@@ -11,66 +10,53 @@ import lombok.Getter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MsgOpenApiResponse {
 
-	@JsonProperty("DisasterMsg2")
-	private List<MsgData> disasterMsg;
+	private Response response;
 
 	@Getter
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	public static class MsgData {
-		@JsonProperty("head")
-		private List<HeadData> head;
-		@JsonProperty("row")
-		private List<RowData> row;
+	public static class Response {
+		private Header header;
+		private Body body;
 	}
 
 	@Getter
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	public static class HeadData {
-		@JsonProperty("totalCount")
-		private int totalCount;
-		@JsonProperty("numOfRows")
-		private String numOfRows;
-		@JsonProperty("pageNo")
-		private String pageNo;
-		@JsonProperty("type")
-		private String type;
-		@JsonProperty("RESULT")
-		private ResultData resultData;
-	}
-
-	@Getter
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	public static class ResultData {
-		@JsonProperty("resultCode")
+	public static class Header {
 		private String resultCode;
-		@JsonProperty("resultMsg")
 		private String resultMsg;
 	}
 
 	@Getter
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	public static class RowData {
-		@JsonProperty("create_date")
-		private String createDate;
-		@JsonProperty("location_id")
-		private String locationId;
-		@JsonProperty("location_name")
-		private String locationName;
-		@JsonProperty("md101_sn")
-		private String md101Sn;
-		@JsonProperty("msg")
-		private String msg;
-		@JsonProperty("send_platform")
-		private String sendPlatform;
+	public static class Body {
+		private String dataType;
+		private Items items;
+		private int pageNo;
+		private int numOfRows;
+		private int totalCount;
+	}
 
+	@Getter
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public static class Items {
+		private List<Item> item;
+	}
+
+	@Getter
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public static class Item {
+		private String stnId;
+		private String title;
+		private String tmFc;
+		private String tmSeq;
+
+		@Override
 		public String toString() {
-			return "RowData{" +
-				"createDate='" + createDate + '\'' +
-				", locationId='" + locationId + '\'' +
-				", locationName='" + locationName + '\'' +
-				", md101Sn='" + md101Sn + '\'' +
-				", msg='" + msg + '\'' +
-				", sendPlatform='" + sendPlatform + '\'' +
+			return "Item{" +
+				"stnId='" + stnId + '\'' +
+				", title='" + title + '\'' +
+				", tmFc='" + tmFc + '\'' +
+				", tmSeq='" + tmSeq + '\'' +
 				'}';
 		}
 	}

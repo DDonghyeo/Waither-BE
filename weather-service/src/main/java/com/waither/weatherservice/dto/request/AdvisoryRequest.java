@@ -1,6 +1,6 @@
 package com.waither.weatherservice.dto.request;
 
-public record MsgTestRequest(
+public record AdvisoryRequest(
 	String location
 ) {
 }
