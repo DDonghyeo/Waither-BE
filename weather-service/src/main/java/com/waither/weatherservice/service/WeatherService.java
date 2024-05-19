@@ -113,9 +113,11 @@ public class WeatherService {
 
 	}
 
-	public void createWeatherAdvisory(String location) throws URISyntaxException, IOException {
+	public void createWeatherAdvisory(double latitude, double longitude) throws URISyntaxException, IOException {
 		LocalDate now = LocalDate.now();
 		String today = openApiUtil.convertLocalDateToString(now);
+
+		String location = gpsTransfer.convertGpsToRegionCode(latitude, longitude);
 
 		List<MsgOpenApiResponse.Item> items = openApiUtil.callAdvisoryApi(location, today);
 

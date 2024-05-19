@@ -1,6 +1,16 @@
 package com.waither.weatherservice.gps;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
+
+import com.waither.weatherservice.exception.WeatherExceptionHandler;
+import com.waither.weatherservice.response.WeatherErrorCode;
 
 @Component
 public class GpsTransfer {
@@ -91,5 +101,43 @@ public class GpsTransfer {
 			.x(x)
 			.y(y)
 			.build();
+	}
+
+	// ex) lat = 37.57142000, lon = 126.96580000 -> 108
+	public String convertGpsToRegionCode(double lat, double lon) {
+		String regionCode = null;
+		try {
+			InputStream inputStream = getClass().getResourceAsStream("/api/Region.xlsx");
+			XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+			Sheet sheet = workbook.getSheetAt(0); // 시트 인덱스, 첫 번째 시트를 가져옴
+
+			for (int i = 2; i <= sheet.getLastRowNum(); i++) {
+				Row row = sheet.getRow(i);
+				if (row != null) {
+					Cell lonCell = row.getCell(3);
+					Cell latCell = row.getCell(4);
+
+					// 셀이 비어 있는지 확인
+					if (lonCell != null && latCell != null) {
+						String lonValue = lonCell.toString().replace(",", "");
+						String latValue = latCell.toString().replace(",", "");
+
+						double rowLon = Double.parseDouble(lonValue);
+						double rowLat = Double.parseDouble(latValue);
+
+						// 위도 경도에 일치하는 지역코드
+						if (lon == rowLon && lat == rowLat) {
+							String stnId = row.getCell(0).toString();
+							regionCode = stnId;
+							break; // 일치하는 stn_id를 찾으면 반복 종료
+						}
+					}
+				}
+			}
+			workbook.close();
+		} catch (IOException e) {
+			throw new WeatherExceptionHandler(WeatherErrorCode.WEATHER_MAIN_ERROR);
+		}
+		return regionCode;
 	}
 }

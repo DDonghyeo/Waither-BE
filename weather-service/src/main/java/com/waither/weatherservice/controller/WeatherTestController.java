@@ -38,7 +38,7 @@ public class WeatherTestController {
 
 	@PostMapping("/advisory")
 	public void createWeatherAdvisory(@RequestBody AdvisoryRequest request) throws URISyntaxException, IOException {
-		weatherService.createWeatherAdvisory(request.location());
+		weatherService.createWeatherAdvisory(request.latitude(), request.longitude());
 	}
 
 	@PostMapping("/air")

@@ -29,12 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class OpenApiUtil {
 
-	public static final String ENCODING = "UTF-8";
-	public static final String RESPONSE_EXCEPTION_MSG = "Response is null";
 	@Value("${openapi.forecast.key}")
 	private String forecastKey;
-	@Value("${openapi.disasterMsg.key}")
-	private String disasterMsgKey;
 
 	@Value("${openapi.accuweather.key}")
 	private String accuweatherKey;
@@ -153,6 +149,7 @@ public class OpenApiUtil {
 		return localDate.format(formatter);
 	}
 
+	// TODO AccuWeather 대기 정보로 변경 예정
 	public List<AirKoreaOpenApiResponse.Items> callAirKorea(String searchDate) throws URISyntaxException {
 		int pageNo = 1;
 		int numOfRows = 10;
@@ -203,7 +200,6 @@ public class OpenApiUtil {
 			.map(s -> s.split(" : "))
 			.collect(HashMap::new, (m, arr) -> m.put(arr[0], arr[1]), HashMap::putAll);
 
-		// TODO 삭제 예정
 		map.forEach((key, value) -> log.info(key + " -> " + value));
 
 		return map;
