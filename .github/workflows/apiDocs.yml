@@ -3,47 +3,56 @@ name: API Docs Integration
 on:
   push:
     branches:
-      - docs/#44
+      - develop
 
 jobs:
-  document:
+  api-docs-integration:
     runs-on: ubuntu-latest
     steps:
 
-      # 프로젝트 코드를 가져옵니다.
+      # 프로젝트 코드 가져오기
       - name: Checkout Code 
         uses: actions/checkout@v3
         with:
-          ref: 'docs/#44'
+          ref: 'develop'
 
-      # Redoc : json 파일을 가져와 bundle
-      - name: redoc-cli-github-action
-        uses: seeebiii/redoc-cli-github-action@v9
+      # Json 파일 가져오기
+      - name : collect json
+        run : |
+            cp ./noti-service/docs/noti.json ./
+            cp ./user-service/docs/user.json ./
+            cp ./weather-service/docs/weather.json ./
+
+      # Redoc : json 파일 join
+      - name: redoc-cli join
+        uses: DeltaLaboratory/redocly-cli-action@v1.0.0
         with:
-          args: 'bundle ./noti-service/docs/noti.json --output ./noti-service/docs/index.html --ext html'
+          args: 'join *.json -o api.yaml'
 
-      # - name: Rename Yaml Title & Desc
-      #   run: |
-      #     cat ./noti-service/docs/noti.yaml
-      #     yq -i '.info.title = "PetStore Backend API Document for FrontEnd"' ./noti-service/docs/noti.yaml
-      #     yq -i '.info.description = "Please contact Petstore backend if there are any issues with API"' ./noti-service/docs/noti.yaml
-
-      # - name: redoc-cli-github-action
-      #   uses: seeebiii/redoc-cli-github-action@v9
-      #   with:
-      #     args: 'build-docs ./noti-serivce/docs/noti.yaml --output ./noti-serivce/docs/api-docs.html'
-
-      # 완성된 html 파일을 docs 디렉토리에 놓습니다.
-      - name: save build result to tmp dir
+      #결과 검사
+      - name: check result
         run: |
-          mkdir -p docs
-          mv ./noti-service/docs/index.html ./docs
+          ls -al
+          test -f api.yaml || (echo "Missing api.yaml from previous step." && exit 1)
 
-      # 웹페이지 Repository에 Push 합니다.
+      # Redoc : build-dcos
+      - name: redoc-cli build docs
+        uses: DeltaLaboratory/redocly-cli-action@v1.0.0
+        with:
+          args: 'build-docs api.yaml -o index.html'
+
+      #결과 검사
+      - name: check result
+        run: |
+          ls -al
+          test -f index.html || (echo "Missing index.html from previous step." && exit 1)
+
+          
+      # 웹페이지 Repository에 Push
       - name: Install SSH Key
         uses: leigholiver/commit-with-deploy-key@v1.0.4
         with:
-          source: ./docs/index.html
+          source: index.html
           destination_folder: docs
           destination_repo: WaitherTeam/WaitherTeam.github.io
           destination_branch: main
