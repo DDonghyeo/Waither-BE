@@ -1,13 +1,12 @@
 package com.waither.userservice.global.annotation;
 
 import com.waither.userservice.entity.User;
-import com.waither.userservice.jwt.execption.SecurityCustomException;
-import com.waither.userservice.jwt.execption.SecurityErrorCode;
-import com.waither.userservice.jwt.util.JwtUtil;
+import com.waither.userservice.global.jwt.execption.SecurityCustomException;
+import com.waither.userservice.global.jwt.execption.SecurityErrorCode;
+import com.waither.userservice.global.jwt.util.JwtUtil;
 import com.waither.userservice.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.MethodParameter;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.support.WebDataBinderFactory;

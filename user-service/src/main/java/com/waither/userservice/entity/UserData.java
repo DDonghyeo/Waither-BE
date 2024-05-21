@@ -1,6 +1,7 @@
 package com.waither.userservice.entity;
 
 import com.waither.userservice.entity.type.Season;
+import com.waither.userservice.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "user_data")
 @Entity
-public class UserData {
+public class UserData extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,15 +24,15 @@ public class UserData {
     private Double level4;
     private Double level5;
 
-    // 사용자 데이터 가중치
-    private Double weight;
-
     // 계절
     @Enumerated(EnumType.STRING)
     private Season season;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

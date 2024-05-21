@@ -1,8 +1,7 @@
 package com.waither.userservice.entity.type;
 
 public enum Season {
-    SPRING,
+    SPRING_AUTUMN,
     SUMMER,
-    AUTUMN,
     WINTER
 }

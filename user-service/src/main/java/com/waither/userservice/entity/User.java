@@ -5,6 +5,8 @@ import com.waither.userservice.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "user")
 @Builder
@@ -51,11 +53,11 @@ public class User extends BaseEntity {
     @JoinColumn(name = "setting_id", unique = true)
     private Setting setting;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private UserData UserData;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserData> UserData;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private UserMedian UserMedian;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserMedian> UserMedian;
 
     // 비밀번호 변경
     public void setPassword(String password) {
@@ -67,20 +69,22 @@ public class User extends BaseEntity {
         this.nickname = nickname;
     }
 
+    // 사용자 맞춤형 데이터 변경
     public void setCustom(boolean custom) {
         this.custom = custom;
     }
+
 
     // 연관관계 설정
     public void setSetting(Setting setSetting) {
         setting = setSetting;
     }
 
-    public void setUserData(UserData setUserData) {
-        UserData = setUserData;
+    public void setUserData(List<com.waither.userservice.entity.UserData> userData) {
+        UserData = userData;
     }
 
-    public void setUserMedian(UserMedian setUserMedian) {
-        UserMedian = setUserMedian;
+    public void setUserMedian(List<com.waither.userservice.entity.UserMedian> userMedian) {
+        UserMedian = userMedian;
     }
 }

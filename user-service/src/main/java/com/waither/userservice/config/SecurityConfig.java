@@ -1,9 +1,9 @@
 package com.waither.userservice.config;
 
 
-import com.waither.userservice.jwt.filter.*;
-import com.waither.userservice.jwt.util.JwtUtil;
-import com.waither.userservice.util.RedisUtil;
+import com.waither.userservice.global.jwt.filter.*;
+import com.waither.userservice.global.jwt.util.JwtUtil;
+import com.waither.userservice.global.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +16,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration // IoC 빈(bean)을 등록
 @EnableWebSecurity // 필터 체인 관리 시작 어노테이션
@@ -50,11 +52,11 @@ public class SecurityConfig {
 
         // form 로그인 방식 disable
         http
-                .formLogin(AbstractHttpConfigurer::disable);
+                .formLogin(withDefaults());
 
         // http basic 인증 방식 disable
         http
-                .httpBasic(AbstractHttpConfigurer::disable);
+                .httpBasic(withDefaults());
 
         // Session을 사용하지 않고, Stateless 서버를 만듬.
         http

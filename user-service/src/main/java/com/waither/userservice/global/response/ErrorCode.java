@@ -48,7 +48,10 @@ public enum ErrorCode implements BaseErrorCode {
     USER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "USER400_6", "사용자가 이미 존재합니다."),
 
     // 세팅 관련 에러
-    UNSUPPORTED_SETTING_TYPE(HttpStatus.BAD_REQUEST, "SETTING400_1", "body에 사용할 수 없는 setting key가 있습니다.");
+    UNSUPPORTED_SETTING_TYPE(HttpStatus.BAD_REQUEST, "SETTING400_1", "body에 사용할 수 없는 setting key가 있습니다."),
+
+    // 설문 관련 에러
+    INVALID_SEASON(HttpStatus.BAD_REQUEST, "SURVEY400_1", "정의되지 않은 계절입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -3,8 +3,8 @@ package com.waither.userservice.controller;
 import com.waither.userservice.dto.request.UserReqDto;
 import com.waither.userservice.entity.User;
 import com.waither.userservice.global.annotation.AuthUser;
-import com.waither.userservice.jwt.dto.JwtDto;
-import com.waither.userservice.service.UserService;
+import com.waither.userservice.global.jwt.dto.JwtDto;
+import com.waither.userservice.service.commandService.UserService;
 import com.waither.userservice.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -66,7 +66,7 @@ public class UserController {
     }
 
     // 닉네임 변경
-    @PatchMapping("/update-nickname")
+    @PutMapping("/update-nickname")
     public ApiResponse<String> updateNickname(@AuthUser User user,
                                               @RequestBody UserReqDto.NicknameDto nicknameDto) {
         userService.updateNickname(user, nicknameDto.nickname());
@@ -82,7 +82,7 @@ public class UserController {
     }
 
     // 비밀번호 변경
-    @PatchMapping("/update-password")
+    @PutMapping("/update-password")
     public ApiResponse<String> updatePassword(@AuthUser User user,
                                               @Valid @RequestBody UserReqDto.UpdatePasswordDto updatePasswordDto) {
         userService.updatePassword(user, updatePasswordDto.password());
