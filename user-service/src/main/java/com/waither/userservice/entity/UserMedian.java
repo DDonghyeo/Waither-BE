@@ -1,6 +1,7 @@
 package com.waither.userservice.entity;
 
 import com.waither.userservice.entity.type.Season;
+import com.waither.userservice.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "user_median")
 @Entity
-public class UserMedian {
+public class UserMedian extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,9 +27,12 @@ public class UserMedian {
     @Enumerated(EnumType.STRING)
     private Season season;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
 

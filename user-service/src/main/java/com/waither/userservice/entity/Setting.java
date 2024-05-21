@@ -1,5 +1,6 @@
 package com.waither.userservice.entity;
 
+import com.waither.userservice.global.BaseEntity;
 import jakarta.persistence.*;
 import java.time.LocalTime;
 
@@ -19,7 +20,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @Entity
 @DynamicInsert
 @DynamicUpdate
-public class Setting {
+public class Setting extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -84,8 +85,7 @@ public class Setting {
     @Column(name = "dust", nullable = false)
     private boolean dust;
 
-    // 사용자 가중치
-    @Column(name = "weight", nullable = false)
+    // 사용자 데이터 가중치
     private Double weight;
 
     // Mapping
