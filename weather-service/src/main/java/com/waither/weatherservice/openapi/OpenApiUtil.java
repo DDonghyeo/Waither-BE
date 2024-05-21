@@ -3,7 +3,8 @@ package com.waither.weatherservice.openapi;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -28,12 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class OpenApiUtil {
 
-	public static final String ENCODING = "UTF-8";
-	public static final String RESPONSE_EXCEPTION_MSG = "Response is null";
 	@Value("${openapi.forecast.key}")
 	private String forecastKey;
-	@Value("${openapi.disasterMsg.key}")
-	private String disasterMsgKey;
 
 	@Value("${openapi.accuweather.key}")
 	private String accuweatherKey;
@@ -101,22 +98,24 @@ public class OpenApiUtil {
 	}
 
 	// 재난 문자 Api
-	public List<MsgOpenApiResponse.RowData> callDisasterMsgApi(String location) throws
+	public List<MsgOpenApiResponse.Item> callAdvisoryApi(String location, String today) throws
 		URISyntaxException,
 		IOException {
 
 		WebClient webClient = WebClient.create();
 
-		String uriString = "http://apis.data.go.kr/1741000/DisasterMsg4/getDisasterMsg2List" +
-			"?" + URLEncoder.encode("serviceKey", ENCODING) + "=" + disasterMsgKey +
-			"&" + URLEncoder.encode("pageNo", ENCODING) + "=" + URLEncoder.encode("1", ENCODING) +
-			"&" + URLEncoder.encode("numOfRows", ENCODING) + "=" + URLEncoder.encode("2", ENCODING) +
-			"&" + URLEncoder.encode("type", ENCODING) + "=" + URLEncoder.encode("json", ENCODING) +
-			"&" + URLEncoder.encode("location_name", ENCODING) + "=" + URLEncoder.encode(location, ENCODING);
+		String uriString = "http://apis.data.go.kr/1360000/WthrWrnInfoService/getWthrWrnList" +
+			"?serviceKey=" + forecastKey +
+			"&numOfRows=" + "10" +
+			"&pageNo=" + "1" +
+			"&dataType=" + "JSON" +
+			"&stnId=" + location +
+			"&fromTmFc=" + today +
+			"&toTmFc=" + today;
 
 		URI uri = new URI(uriString);
 
-		log.info("[*] 재난 문자 Api : {}", uri);
+		log.info("[*] 기상 특보 Api : {}", uri);
 
 		String responseString = webClient.get()
 			.uri(uri)
@@ -131,19 +130,26 @@ public class OpenApiUtil {
 			.block();
 
 		ObjectMapper objectMapper = new ObjectMapper();
-		MsgOpenApiResponse response = objectMapper.readValue(responseString, MsgOpenApiResponse.class);
+		MsgOpenApiResponse.Response response = objectMapper.readValue(responseString, MsgOpenApiResponse.class)
+			.getResponse();
 
-		if (response.getDisasterMsg().get(0).getHead().get(2).getResultData().getResultCode().equals("INFO-0")) {
-			return response.getDisasterMsg().get(1).getRow();
+		if (response.getHeader().getResultCode().equals("00")) {
+			return response.getBody().getItems().getItem();
+		} else if (response.getHeader().getResultCode().equals("03")) {
+			log.info("특보 내용 없음");
+			throw new WeatherExceptionHandler(WeatherErrorCode.WEATHER_OPENAPI_ERROR);
 		} else {
-			String resultMsg = response.getDisasterMsg().get(0).getHead().get(2).getResultData().getResultMsg();
-			log.info("[*] OpenApi Error : {}", resultMsg);
+			log.info("특보 오류");
 			throw new WeatherExceptionHandler(WeatherErrorCode.WEATHER_OPENAPI_ERROR);
 		}
 	}
 
-	// TODO 재난 문자 필터 (날씨 정보만 추출)
+	public String convertLocalDateToString(LocalDate localDate) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+		return localDate.format(formatter);
+	}
 
+	// TODO AccuWeather 대기 정보로 변경 예정
 	public List<AirKoreaOpenApiResponse.Items> callAirKorea(String searchDate) throws URISyntaxException {
 		int pageNo = 1;
 		int numOfRows = 10;
@@ -194,7 +200,6 @@ public class OpenApiUtil {
 			.map(s -> s.split(" : "))
 			.collect(HashMap::new, (m, arr) -> m.put(arr[0], arr[1]), HashMap::putAll);
 
-		// TODO 삭제 예정
 		map.forEach((key, value) -> log.info(key + " -> " + value));
 
 		return map;

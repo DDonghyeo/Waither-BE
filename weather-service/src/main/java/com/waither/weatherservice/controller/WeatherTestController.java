@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.waither.weatherservice.dto.request.AccuweatherTestRequest;
+import com.waither.weatherservice.dto.request.AdvisoryRequest;
 import com.waither.weatherservice.dto.request.AirTestRequest;
 import com.waither.weatherservice.dto.request.ForeCastTestRequest;
-import com.waither.weatherservice.dto.request.MsgTestRequest;
 import com.waither.weatherservice.service.WeatherService;
 
 import lombok.RequiredArgsConstructor;
@@ -36,9 +36,9 @@ public class WeatherTestController {
 		weatherService.createDailyWeather(request.nx(), request.ny(), request.baseDate(), request.baseTime());
 	}
 
-	@PostMapping("/msg")
-	public void createDisasterMsgTest(@RequestBody MsgTestRequest request) throws URISyntaxException, IOException {
-		weatherService.createDisasterMsg(request.location());
+	@PostMapping("/advisory")
+	public void createWeatherAdvisory(@RequestBody AdvisoryRequest request) throws URISyntaxException, IOException {
+		weatherService.createWeatherAdvisory(request.latitude(), request.longitude());
 	}
 
 	@PostMapping("/air")

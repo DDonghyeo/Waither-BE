@@ -2,6 +2,7 @@ package com.waither.weatherservice.service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -12,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.waither.weatherservice.dto.response.MainWeatherResponse;
 import com.waither.weatherservice.entity.DailyWeather;
-import com.waither.weatherservice.entity.DisasterMessage;
 import com.waither.weatherservice.entity.ExpectedWeather;
+import com.waither.weatherservice.entity.WeatherAdvisory;
 import com.waither.weatherservice.exception.WeatherExceptionHandler;
 import com.waither.weatherservice.gps.GpsTransfer;
 import com.waither.weatherservice.gps.LatXLngY;
@@ -22,8 +23,8 @@ import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
 import com.waither.weatherservice.openapi.MsgOpenApiResponse;
 import com.waither.weatherservice.openapi.OpenApiUtil;
 import com.waither.weatherservice.redis.DailyWeatherRepository;
-import com.waither.weatherservice.redis.DisasterMessageRepository;
 import com.waither.weatherservice.redis.ExpectedWeatherRepository;
+import com.waither.weatherservice.redis.WeatherAdvisoryRepository;
 import com.waither.weatherservice.response.WeatherErrorCode;
 
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class WeatherService {
 	private final OpenApiUtil openApiUtil;
 	private final DailyWeatherRepository dailyWeatherRepository;
 	private final ExpectedWeatherRepository expectedWeatherRepository;
-	private final DisasterMessageRepository disasterMessageRepository;
+	private final WeatherAdvisoryRepository weatherAdvisoryRepository;
 	private final Producer producer;
 	private final GpsTransfer gpsTransfer;
 
@@ -112,21 +113,24 @@ public class WeatherService {
 
 	}
 
-	public void createDisasterMsg(String location) throws URISyntaxException, IOException {
-		List<MsgOpenApiResponse.RowData> rows = openApiUtil.callDisasterMsgApi(location);
-		MsgOpenApiResponse.RowData row = rows.get(0);
+	public void createWeatherAdvisory(double latitude, double longitude) throws URISyntaxException, IOException {
+		LocalDate now = LocalDate.now();
+		String today = openApiUtil.convertLocalDateToString(now);
 
-		String createDate = row.getCreateDate();
-		String msg = row.getMsg();
+		String location = gpsTransfer.convertGpsToRegionCode(latitude, longitude);
 
-		String key = location + "_" + createDate;
-		DisasterMessage disasterMessage = DisasterMessage.builder()
+		List<MsgOpenApiResponse.Item> items = openApiUtil.callAdvisoryApi(location, today);
+
+		String msg = items.get(0).getTitle();
+
+		String key = location + "_" + today;
+		WeatherAdvisory weatherAdvisory = WeatherAdvisory.builder()
 			.id(key)
 			.message(msg)
 			.build();
 
-		DisasterMessage save = disasterMessageRepository.save(disasterMessage);
-		log.info("[*] 재난 문자 : {}", save);
+		WeatherAdvisory save = weatherAdvisoryRepository.save(weatherAdvisory);
+		log.info("[*] 기상 특보 : {}", save);
 	}
 
 	public void createAirKorea(String searchTime) throws URISyntaxException {

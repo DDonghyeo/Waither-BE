@@ -13,15 +13,15 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@RedisHash(value = "DisasterMessage", timeToLive = 86400L) // 유효시간: 24시간
-public class DisasterMessage {
+@RedisHash(value = "WeatherAdvisory", timeToLive = 86400L) // 유효시간: 24시간
+public class WeatherAdvisory {
 
 	@Id
 	private String id;
 	private String message;
 
 	public String toString() {
-		return "DisasterMessage{" +
+		return "WeatherAdvisory{" +
 			"message='" + message + '\'' +
 			'}';
 	}
