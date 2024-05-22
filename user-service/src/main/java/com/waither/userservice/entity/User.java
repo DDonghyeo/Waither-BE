@@ -1,6 +1,6 @@
 package com.waither.userservice.entity;
 
-import com.waither.userservice.entity.type.UserStatus;
+import com.waither.userservice.entity.enums.UserStatus;
 import com.waither.userservice.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -80,11 +80,11 @@ public class User extends BaseEntity {
         setting = setSetting;
     }
 
-    public void setUserData(List<com.waither.userservice.entity.UserData> userData) {
+    public void setUserData(List<UserData> userData) {
         UserData = userData;
     }
 
-    public void setUserMedian(List<com.waither.userservice.entity.UserMedian> userMedian) {
+    public void setUserMedian(List<UserMedian> userMedian) {
         UserMedian = userMedian;
     }
 }

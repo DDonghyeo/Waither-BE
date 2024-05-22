@@ -1,12 +1,11 @@
 package com.waither.userservice.entity;
 
-import com.waither.userservice.entity.type.Season;
+import com.waither.userservice.entity.enums.Season;
 import com.waither.userservice.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Builder
 @Getter

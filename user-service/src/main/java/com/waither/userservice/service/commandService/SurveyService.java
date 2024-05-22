@@ -3,7 +3,7 @@ package com.waither.userservice.service.commandService;
 import com.waither.userservice.converter.SurveyConverter;
 import com.waither.userservice.dto.request.SurveyReqDto;
 import com.waither.userservice.entity.*;
-import com.waither.userservice.entity.type.Season;
+import com.waither.userservice.entity.enums.Season;
 import com.waither.userservice.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
