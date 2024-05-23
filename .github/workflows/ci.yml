@@ -31,7 +31,9 @@ jobs:
 
       - name: Build with Gradle - config
         run: |
-          ./config-service/gradlew clean build -x test |& tee config-build.log
+          ls -all
+          cd config-service
+          gradlew clean build -x test |& tee config-build.log
           cat config-build.log
         env:
           CONFIG_GIT_URI: ${{ secrets.CONFIG_GIT_URI }}
@@ -39,7 +41,7 @@ jobs:
           CONFIG_PRIVATE_KEY: ${{ secrets.CONFIG_PRIVATE_KEY }}
         
       - name: Run config-service
-        run: ./config-service/gradlew bootRun &
+        run: gradlew bootRun &
 
       - name: Wait for config-service to start
         run: sleep 5
