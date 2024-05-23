@@ -7,7 +7,7 @@ RUNNING_KAFKA=$(docker ps | grep kafka)
 # Eureka 검색
 if [ -z "$RUNNING_EUREKA" ]; then
     echo "Starting Eureka ..."
-    docker compose -f /home/docker-compose.yml up -d eureka
+    docker-compose -f /home/docker-compose.yml up -d eureka
     sleep 5 #Eureka 실행 5초 대기
 else
     echo "Eureka is already running"
