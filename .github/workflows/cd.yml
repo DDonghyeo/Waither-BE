@@ -16,7 +16,6 @@ on:
   #       - weather-service
   push:
     branches:
-      - cicd/#61
       - prod
 
 jobs:
@@ -141,4 +140,4 @@ jobs:
 
             bash /home/docker_init.sh
             bash /home/common.sh
-            bash /home/deploy.sh "${SERVICE_NAME}"
+            bash /home/deploy.sh
