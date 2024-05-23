@@ -28,9 +28,9 @@ public class SettingResDto {
     ) { }
 
     public record DisplayDto(
-            boolean rainfallDisplay,
-            boolean windDisplay,
-            boolean dustDisplay
+            boolean precipitation,
+            boolean wind,
+            boolean dust
     ) { }
 
     public record WeightDto(

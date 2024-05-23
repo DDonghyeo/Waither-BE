@@ -2,7 +2,11 @@ package com.waither.userservice.entity;
 
 import com.waither.userservice.global.BaseEntity;
 import jakarta.persistence.*;
+
+import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -35,20 +39,11 @@ public class Setting extends BaseEntity {
     private LocalTime outTime;
 
     // 월 ~ 금 알림
-    @Column(name = "sun", nullable = false)
-    private boolean sun;
-    @Column(name = "mon", nullable = false)
-    private boolean mon;
-    @Column(name = "tue", nullable = false)
-    private boolean tue;
-    @Column(name = "wed", nullable = false)
-    private boolean wed;
-    @Column(name = "thu", nullable = false)
-    private boolean thu;
-    @Column(name = "fri", nullable = false)
-    private boolean fri;
-    @Column(name = "sat", nullable = false)
-    private boolean sat;
+    @ElementCollection
+    @CollectionTable(name = "setting_days", joinColumns = @JoinColumn(name = "setting_id"))
+    @Column(name = "day")
+    @Enumerated(EnumType.STRING)
+    private Set<DayOfWeek> days = new HashSet<>();
 
     // 기상 특보 알림
     @Column(name = "climateAlert", nullable = false)
@@ -76,11 +71,9 @@ public class Setting extends BaseEntity {
     // 강수량 보기
     @Column(name = "precipitation", nullable = false)
     private boolean precipitation;
-
     // 풍량/풍속 보기
     @Column(name = "wind", nullable = false)
     private boolean wind;
-
     // 미세먼지 보기
     @Column(name = "dust", nullable = false)
     private boolean dust;

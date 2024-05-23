@@ -1,7 +1,9 @@
 package com.waither.userservice.converter;
 
 import com.waither.userservice.entity.Region;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class RegionConverter {
 
     // Region 기본값으로 설정
