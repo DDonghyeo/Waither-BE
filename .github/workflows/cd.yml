@@ -44,6 +44,14 @@ jobs:
           chmod +x ./user-service/gradlew
           chmod +x ./weather-service/gradlew
 
+      #Setting yml
+      - name: Settings for config service
+        run: |
+          cd .config-service/src/main/resources
+          touch ./bootstrap.yml
+          echo "${{ secrets.CONFIG_APPLICATION_YML }}" > ./bootstrap.yml
+          cd
+      
       # DockerHub Login
       - name: Docker Hub Login
         uses: docker/login-action@v2
