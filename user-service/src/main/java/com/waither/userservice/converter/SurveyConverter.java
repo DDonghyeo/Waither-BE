@@ -7,7 +7,8 @@ import com.waither.userservice.global.exception.CustomException;
 import com.waither.userservice.global.response.ErrorCode;
 import lombok.experimental.UtilityClass;
 
-import static com.waither.userservice.service.commandService.SurveyService.calculateMedian;
+import static com.waither.userservice.util.CalculateUtil.calculateMedian;
+
 
 @UtilityClass
 public class SurveyConverter {

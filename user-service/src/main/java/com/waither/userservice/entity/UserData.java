@@ -2,6 +2,8 @@ package com.waither.userservice.entity;
 
 import com.waither.userservice.entity.enums.Season;
 import com.waither.userservice.global.BaseEntity;
+import com.waither.userservice.global.exception.CustomException;
+import com.waither.userservice.global.response.ErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,4 +37,37 @@ public class UserData extends BaseEntity {
     public void setUser(User user) {
         this.user = user;
     }
+    public Double getLevel(int level) {
+        return switch (level) {
+            case 1 -> level1;
+            case 2 -> level2;
+            case 3 -> level3;
+            case 4 -> level4;
+            case 5 -> level5;
+            default -> throw new CustomException(ErrorCode.INVALID_LEVEL_VALUE);
+        };
+    }
+
+    public void updateLevelValue(int level, double newValue) {
+        switch (level) {
+            case 1:
+                this.level1 = newValue;
+                break;
+            case 2:
+                this.level2 = newValue;
+                break;
+            case 3:
+                this.level3 = newValue;
+                break;
+            case 4:
+                this.level4 = newValue;
+                break;
+            case 5:
+                this.level5 = newValue;
+                break;
+            default:
+                throw new CustomException(ErrorCode.INVALID_LEVEL_VALUE);
+        }
+    }
+
 }

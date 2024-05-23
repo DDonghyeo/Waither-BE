@@ -4,13 +4,20 @@ import com.waither.userservice.converter.SurveyConverter;
 import com.waither.userservice.dto.request.SurveyReqDto;
 import com.waither.userservice.entity.*;
 import com.waither.userservice.entity.enums.Season;
+import com.waither.userservice.global.exception.CustomException;
+import com.waither.userservice.global.response.ErrorCode;
 import com.waither.userservice.repository.SurveyRepository;
+import com.waither.userservice.repository.UserDataRepository;
+import com.waither.userservice.repository.UserMedianRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -19,23 +26,48 @@ import java.time.LocalDateTime;
 public class SurveyService {
 
     private final SurveyRepository surveyRepository;
+    private final UserDataRepository userDataRepository;
+    private final UserMedianRepository userMedianRepository;
 
+    @Transactional
     public void createSurvey(User user, SurveyReqDto.SurveyRequestDto surveyRequestDto) {
-        Survey survey = SurveyConverter.toSurvey(surveyRequestDto, getTemp(surveyRequestDto.time()), getCurrentSeason());
+        Double temp = getTemp(surveyRequestDto.time());
+        Survey survey = SurveyConverter.toSurvey(surveyRequestDto, temp, getCurrentSeason());
         survey.setUser(user);
+
+        UserData userData = userDataRepository.findByUserAndSeason(user, survey.getSeason())
+                .orElseThrow(() -> new CustomException(ErrorCode.NO_USER_DATA_FOUND));
+        UserMedian userMedian = userMedianRepository.findByUserAndSeason(user, survey.getSeason())
+                .orElseThrow(() -> new CustomException(ErrorCode.NO_USER_MEDIAN_FOUND));
+
+        updateUserData(userData, surveyRequestDto.ans(), temp);
+        updateUserMedian(userData, userMedian);
+
         surveyRepository.save(survey);
     }
 
-    public static double calculateMedian(double value1, double value2) {
-        return (value1 + value2) / 2;
+    private void updateUserData(UserData userData, Integer ans, Double temp) {
+
+        double newValue = (userData.getLevel(ans) + temp) / 2 ;
+
+        if (!isValidLevelValue(userData, ans, newValue)) {
+            throw new CustomException(ErrorCode.IGNORE_SURVEY_ANSWER);
+        }
+
+        userData.updateLevelValue(ans, newValue);
+        userDataRepository.save(userData);
     }
 
-    // Todo: 해당 시각의 체감 온도 받아오기 (Weather-Service)
+    private void updateUserMedian(UserData userData, UserMedian userMedian) {
+        userMedian.updateMedianValue(userData);
+        userMedianRepository.save(userMedian);
+    }
+
+    // Todo: 해당 시각의 체감 온도 받아오기 (Weather-Service로 부터)
     public Double getTemp(LocalDateTime time) {
         return 18.0;
     }
 
-    // Todo: 봄여름가을겨울 기준 변경 가능성 있음
     public static Season getCurrentSeason() {
         LocalDateTime now = LocalDateTime.now();
         int month = now.getMonthValue();
@@ -50,6 +82,14 @@ public class SurveyService {
         } else {
             return Season.WINTER;
         }
+    }
+
+    // 상위, 하위 온도가 해당 온도를 넘는가
+    private boolean isValidLevelValue(UserData userData, Integer ans, Double newValue) {
+        Double lowerLevelValue = ans > 1 ? userData.getLevel(ans - 1) : Double.MIN_VALUE;
+        Double upperLevelValue = ans < 5 ? userData.getLevel(ans + 1) : Double.MAX_VALUE;
+
+        return newValue >= lowerLevelValue && newValue <= upperLevelValue;
     }
 
 }

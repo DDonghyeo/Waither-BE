@@ -55,7 +55,11 @@ public enum ErrorCode implements BaseErrorCode {
     OUT_TIME_NULL(HttpStatus.BAD_REQUEST, "SETTING400_3", "외출 시간이 지정되지 않았습니다."),
 
     // 설문 관련 에러
-    INVALID_SEASON(HttpStatus.BAD_REQUEST, "SURVEY400_1", "정의되지 않은 계절입니다.");
+    INVALID_SEASON(HttpStatus.BAD_REQUEST, "SURVEY400_1", "정의되지 않은 계절입니다."),
+    NO_USER_DATA_FOUND(HttpStatus.BAD_REQUEST, "SURVEY400_2", "해당 사용자와 계절에 대한 UserData를 찾을 수 없습니다."),
+    NO_USER_MEDIAN_FOUND(HttpStatus.BAD_REQUEST, "SURVEY400_3", "해당 사용자와 계절에 대한 UserMedian을 찾을 수 없습니다."),
+    INVALID_LEVEL_VALUE(HttpStatus.BAD_REQUEST, "SURVEY400_4", "정의되지 않은 Level 입니다."),
+    IGNORE_SURVEY_ANSWER(HttpStatus.BAD_REQUEST, "SURVEY400_5", "상위 레벨보다 높거나 하위 레벨보다 낮은 값이 계산되었습니다. 답변을 무시합니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
