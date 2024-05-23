@@ -4,9 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       service:
-        description: 'Service to deploy. Default is all \n options : \n - api-gateway \n - noti-service \n - user-service \n - weather-service \n - all'
+        description: 'Choose Service to deploy. Default is all.'
         required: true
         default: 'all'
+        type: choice
+        options:
+        - all
+        - api-gateway
+        - noti-service
+        - user-service
+        - weather-service
   # push:
   #   branches:
   #     - cicd/#61
