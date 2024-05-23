@@ -47,7 +47,7 @@ jobs:
       #Setting yml
       - name: Settings for config service
         run: |
-          cd .config-service/src/main/resources
+          cd ./config-service/src/main/resources
           touch ./bootstrap.yml
           echo "${{ secrets.CONFIG_APPLICATION_YML }}" > ./bootstrap.yml
           cd
