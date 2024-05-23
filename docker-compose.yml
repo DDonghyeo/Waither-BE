@@ -30,7 +30,7 @@ services:
     environment:
       CONFIG_GIT_URI : ${CONFIG_GIT_URI}
       CONFIG_PASSPHRASE : ${CONFIG_PASSPHRASE}
-      CONFIG_PRIVATE_KEY : ${CONFIG_PRIVATE_KEY}
+      CONFIG_PRIVATE_KEY_DIR : ${CONFIG_PRIVATE_KEY_DIR}
     restart: always
     volumes:
       - /home/ec2-user/logs/config:/logs
@@ -76,7 +76,6 @@ services:
     container_name: zookeeper
     ports:
       - "2181:2181"
-      -
   kafka:
     image: wurstmeister/kafka:latest
     container_name: kafka
