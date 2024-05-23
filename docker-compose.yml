@@ -18,7 +18,8 @@ services:
     image: ${DOCKERHUB_USERNAME}/waither-gateway
     expose:
       - "8000"
-    restart: always
+#    restart: always
+    restart: no
     volumes:
       - /home/ec2-user/logs/api-gateway:/logs
 
@@ -30,8 +31,9 @@ services:
     environment:
       CONFIG_GIT_URI : ${CONFIG_GIT_URI}
       CONFIG_PASSPHRASE : ${CONFIG_PASSPHRASE}
-      CONFIG_PRIVATE_KEY_DIR : ${CONFIG_PRIVATE_KEY_DIR}
-    restart: always
+#      CONFIG_PRIVATE_KEY_DIR : ${CONFIG_PRIVATE_KEY_DIR}
+#    restart: always
+    restart: no
     volumes:
       - /home/ec2-user/logs/config:/logs
 
@@ -40,7 +42,8 @@ services:
     image: ${DOCKERHUB_USERNAME}/waither-eureka
     expose:
       - "8761"
-    restart: always
+#    restart: always
+    restart: no
     volumes:
       - /home/ec2-user/logs/eureka:/logs
 
@@ -49,7 +52,8 @@ services:
     image: ${DOCKERHUB_USERNAME}/waither-user
     expose:
       - "8080"
-    restart: unless-stopped #수동으로 중지되지 않는 이상 항상 재실행
+#    restart: unless-stopped #수동으로 중지되지 않는 이상 항상 재실행
+    restart: no
     volumes:
       - /home/ec2-user/logs/user-service:/logs
 
@@ -58,7 +62,8 @@ services:
     image: ${DOCKERHUB_USERNAME}/waither-weather
     expose:
       - "8081"
-    restart: unless-stopped
+#    restart: unless-stopped
+    restart: no
     volumes:
       - /home/ec2-user/logs/weather-service:/logs
 
@@ -67,7 +72,8 @@ services:
     image: ${DOCKERHUB_USERNAME}/waither-noti
     expose:
       - "8082"
-    restart: unless-stopped
+#    restart: unless-stopped
+    restart: no
     volumes:
       - /home/ec2-user/logs/noti-service:/logs
         
@@ -76,6 +82,7 @@ services:
     container_name: zookeeper
     ports:
       - "2181:2181"
+
   kafka:
     image: wurstmeister/kafka:latest
     container_name: kafka
