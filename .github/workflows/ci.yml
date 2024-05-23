@@ -1,12 +1,10 @@
 name: Backend CI
 
 on:
-  push:
-  # pull_request:
+  pull_request:
     branches:
       - prod
       - develop
-      - cicd/#61
 
 jobs:
   build-test:
@@ -32,8 +30,7 @@ jobs:
       - name: Build with Gradle - config
         run: |
           cd config-service
-          ./gradlew clean build -x test |& tee config-build.log
-          cat config-build.log
+          ./gradlew clean build -x test 
         env:
           CONFIG_GIT_URI: ${{ secrets.CONFIG_GIT_URI }}
           CONFIG_PASSPHRASE: ${{ secrets.CONFIG_PASSPHRASE }}
@@ -50,20 +47,17 @@ jobs:
       - name: Build with Gradle - noti-service
         run: |
           cd noti-service
-          ./gradlew clean build -x test |& tee noti-build.log
-          cat noti-build.log
+          ./gradlew clean build -x test 
           cd ..
   
       - name: Build with Gradle - user-service
         run: |
           cd user-service
-          ./gradlew clean build -x test |& tee user-build.log
-          cat user-build.log
+          ./gradlew clean build -x test 
           cd ..
   
       - name: Build with Gradle - weather-service
         run: |
           cd weather-service
-          ./gradlew clean build -x test |& tee user-build.log
-          cat user-build.log
+          ./gradlew clean build -x test 
           cd ..
