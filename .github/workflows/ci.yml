@@ -7,7 +7,6 @@ on:
       - prod
       - develop
       - cicd/#61
-    types: [opened, synchronize]
 
 jobs:
   build:
@@ -32,4 +31,18 @@ jobs:
           CONFIG_GIT_URI: ${{ secrets.CONFIG_GIT_URI }}
           CONFIG_PASSPHRASE: ${{ secrets.CONFIG_PASSPHRASE }}
           CONFIG_PRIVATE_KEY: ${{ secrets.CONFIG_PRIVATE_KEY }}
-          
+        
+      - name: Run config-service
+        run: ./config-service/gradlew bootRun &
+
+      - name: Wait for config-service to start
+        run: sleep 5
+  
+      - name: Build with Gradle - noti-service
+        run: ./noti-service/gradlew clean build -x test
+  
+      - name: Build with Gradle - user-service
+        run: ./user-service/gradlew clean build -x test
+  
+      - name: Build with Gradle - weather-service
+        run: ./weather-service/gradlew clean build -x test
