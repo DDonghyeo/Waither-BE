@@ -77,7 +77,7 @@ public class WeatherService {
 	public void createDailyWeather(int nx,
 		int ny,
 		String baseDate,
-		String baseTime) throws URISyntaxException, JsonProcessingException {
+		String baseTime) throws URISyntaxException {
 
 		// Base_time : 0200, 0500, 0800, 1100, 1400, 1700, 2000, 2300 업데이트 (1일 8회)
 		List<ForeCastOpenApiResponse.Item> items = openApiUtil.callForeCastApi(nx, ny, baseDate, baseTime, 350,
