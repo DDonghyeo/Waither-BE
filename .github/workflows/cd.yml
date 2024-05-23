@@ -1,23 +1,23 @@
 name: Backend CI/CD with Gradle
 
 on:
-  workflow_dispatch:
-    inputs:
-      service:
-        description: 'Choose Service to deploy. Default is all.'
-        required: true
-        default: 'all'
-        type: choice
-        options:
-        - all
-        - api-gateway
-        - noti-service
-        - user-service
-        - weather-service
-  # push:
-  #   branches:
-  #     - cicd/#61
-  #     - prod
+  # workflow_dispatch:
+  #   inputs:
+  #     service:
+  #       description: 'Choose Service to deploy. Default is all.'
+  #       required: true
+  #       default: 'all'
+  #       type: choice
+  #       options:
+  #       - all
+  #       - api-gateway
+  #       - noti-service
+  #       - user-service
+  #       - weather-service
+  push:
+    branches:
+      - cicd/#61
+      - prod
 
 jobs:
   build:
