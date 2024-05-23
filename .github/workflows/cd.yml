@@ -126,7 +126,7 @@ jobs:
       - name: Deploy to Server
         uses: appleboy/ssh-action@v0.1.6
         env:
-          SERVICE_NAME: "all"
+          SERVICE_NAME: all
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
@@ -137,6 +137,7 @@ jobs:
             export CONFIG_GIT_URI=${{ secrets.CONFIG_GIT_URI }}
             export CONFIG_PASSPHRASE=${{ secrets.CONFIG_PASSPHRASE }}
             export CONFIG_PRIVATE_KEY=${{ secrets.CONFIG_PRIVATE_KEY }}
+            export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
 
             bash /home/docker_init.sh
             bash /home/common.sh
