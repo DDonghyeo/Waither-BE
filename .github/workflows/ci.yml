@@ -33,7 +33,7 @@ jobs:
         run: |
           ls -all
           cd config-service
-          gradlew clean build -x test |& tee config-build.log
+          ./gradlew clean build -x test |& tee config-build.log
           cat config-build.log
         env:
           CONFIG_GIT_URI: ${{ secrets.CONFIG_GIT_URI }}
