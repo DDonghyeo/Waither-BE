@@ -10,6 +10,7 @@ import com.waither.userservice.global.exception.CustomException;
 import com.waither.userservice.global.response.ErrorCode;
 import com.waither.userservice.repository.RegionRepository;
 import com.waither.userservice.repository.SettingRepository;
+import com.waither.userservice.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SettingService {
 
+    private final UserRepository userRepository;
     private final SettingRepository settingRepository;
     private final RegionRepository regionRepository;
 
@@ -35,9 +37,8 @@ public class SettingService {
 
     // 사용자 맞춤 서비스 제공 설정 변경
     public void updateCustom(User user, SettingReqDto.CustomDto customDto) {
-        Setting setting = user.getSetting();
-        setting.setUserAlert(customDto.custom());
-        settingRepository.save(setting);
+        user.setCustom(customDto.custom());
+        userRepository.save(user);
     }
 
     // 메인 화면 날씨 상세 정보 변경
