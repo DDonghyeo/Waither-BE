@@ -9,7 +9,7 @@ on:
       - cicd/#61
 
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,7 +23,11 @@ jobs:
           distribution: 'temurin'
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: |
+          chmod +x ./config-service/gradlew
+          chmod +x ./noti-service/gradlew
+          chmod +x ./user-service/gradlew
+          chmod +x ./weather-service/gradlew
 
       - name: Build with Gradle - config
         run: ./config-service/gradlew clean build -x test
