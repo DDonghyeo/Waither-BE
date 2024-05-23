@@ -1,0 +1,89 @@
+version: '3'
+
+services:
+
+#  nginx:
+#    container_name: nginx
+#    image: nginx:latest
+#    ports:
+#      - "80:80"
+#    volumes:
+#      - /home/ec2-user/nginx.conf:/etc/nginx/nginx.conf
+#    depends_on:
+#      - "db"
+#    restart: always #항상 재실행
+
+  api-gateway:
+    container_name: api-gateway
+    image: ${DOCKERHUB_USERNAME}/waither-gateway
+    expose:
+      - "8000"
+    restart: always
+    volumes:
+      - /home/ec2-user/logs/api-gateway:/logs
+
+  config:
+    container_name: config
+    image: ${DOCKERHUB_USERNAME}/waither-config
+    expose:
+      - "8888"
+    environment:
+      CONFIG_GIT_URI : ${CONFIG_GIT_URI}
+      CONFIG_PASSPHRASE : ${CONFIG_PASSPHRASE}
+      CONFIG_PRIVATE_KEY : ${CONFIG_PRIVATE_KEY}
+    restart: always
+    volumes:
+      - /home/ec2-user/logs/config:/logs
+
+  eureka:
+    container_name: eureka
+    image: ${DOCKERHUB_USERNAME}/waither-eureka
+    expose:
+      - "8761"
+    restart: always
+    volumes:
+      - /home/ec2-user/logs/eureka:/logs
+
+  user-service:
+    container_name: user-service
+    image: ${DOCKERHUB_USERNAME}/waither-user
+    expose:
+      - "8080"
+    restart: unless-stopped #수동으로 중지되지 않는 이상 항상 재실행
+    volumes:
+      - /home/ec2-user/logs/user-service:/logs
+
+  weather-service:
+    container_name: weather-service
+    image: ${DOCKERHUB_USERNAME}/waither-weather
+    expose:
+      - "8081"
+    restart: unless-stopped
+    volumes:
+      - /home/ec2-user/logs/weather-service:/logs
+
+  noti-service:
+    container_name: noti-service
+    image: ${DOCKERHUB_USERNAME}/waither-noti
+    expose:
+      - "8082"
+    restart: unless-stopped
+    volumes:
+      - /home/ec2-user/logs/noti-service:/logs
+        
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+      -
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

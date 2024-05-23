@@ -6,3 +6,11 @@ spring:
     active: dev
   application:
     name: config-service
+  cloud:
+    config:
+      server:
+        git:
+          uri: ${CONFIG_GIT_URI}
+          ignore-local-ssh-settings: true
+          passphrase: ${CONFIG_PASSPHRASE}
+          private-key: ${CONFIG_PRIVATE_KEY}

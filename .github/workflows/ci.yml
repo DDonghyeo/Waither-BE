@@ -1,0 +1,63 @@
+name: Backend CI
+
+on:
+  pull_request:
+    branches:
+      - prod
+      - develop
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: action checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: |
+          chmod +x ./config-service/gradlew
+          chmod +x ./noti-service/gradlew
+          chmod +x ./user-service/gradlew
+          chmod +x ./weather-service/gradlew
+
+      - name: Build with Gradle - config
+        run: |
+          cd config-service
+          ./gradlew clean build -x test 
+        env:
+          CONFIG_GIT_URI: ${{ secrets.CONFIG_GIT_URI }}
+          CONFIG_PASSPHRASE: ${{ secrets.CONFIG_PASSPHRASE }}
+          CONFIG_PRIVATE_KEY: ${{ secrets.CONFIG_PRIVATE_KEY }}
+        
+      - name: Run config-service
+        run: |
+          ./gradlew bootRun &
+          cd ..
+
+      - name: Wait for config-service to start
+        run: sleep 5
+  
+      - name: Build with Gradle - noti-service
+        run: |
+          cd noti-service
+          ./gradlew clean build -x test 
+          cd ..
+  
+      - name: Build with Gradle - user-service
+        run: |
+          cd user-service
+          ./gradlew clean build -x test 
+          cd ..
+  
+      - name: Build with Gradle - weather-service
+        run: |
+          cd weather-service
+          ./gradlew clean build -x test 
+          cd ..
