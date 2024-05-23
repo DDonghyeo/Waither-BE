@@ -7,10 +7,10 @@ on:
         description: 'Service to deploy. Default is all \n options : \n - api-gateway \n - noti-service \n - user-service \n - weather-service \n - all'
         required: true
         default: 'all'
-  push:
-    branches:
-      - cicd/#61
-      - prod
+  # push:
+  #   branches:
+  #     - cicd/#61
+  #     - prod
 
 jobs:
   build:
@@ -127,7 +127,7 @@ jobs:
           port: ${{ secrets.EC2_SSH_PORT }}
           timeout: 60s
           script: |
-            export CONFIG_GIT_URI = ${{ secrets.DOCKERHUB_IMAGENAME }}
+            export CONFIG_GIT_URI = ${{ secrets.CONFIG_GIT_URI }}
             export CONFIG_PASSPHRASE = ${{ secrets.CONFIG_PASSPHRASE }}
             export CONFIG_PRIVATE_KEY = ${{ secrets.CONFIG_PRIVATE_KEY }}
 
