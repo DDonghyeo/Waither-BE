@@ -135,7 +135,7 @@ jobs:
           script: |
             export CONFIG_GIT_URI=${{ secrets.CONFIG_GIT_URI }}
             export CONFIG_PASSPHRASE=${{ secrets.CONFIG_PASSPHRASE }}
-            export CONFIG_PRIVATE_KEY=${{ secrets.CONFIG_PRIVATE_KEY }}
+            export CONFIG_PRIVATE_KEY=${{ secrets.CONFIG_PRIVATE_KEY_DIR }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
 
             bash /home/docker_init.sh
