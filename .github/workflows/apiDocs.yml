@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - cicd/#61
 
 jobs:
   api-docs-integration:
