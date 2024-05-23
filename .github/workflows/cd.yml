@@ -126,7 +126,7 @@ jobs:
       - name: Deploy to Server
         uses: appleboy/ssh-action@v0.1.6
         env:
-          SERVICE_NAME: ${{ github.event.inputs.service }}
+          SERVICE_NAME: "all"
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
