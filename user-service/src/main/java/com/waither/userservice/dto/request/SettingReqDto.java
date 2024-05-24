@@ -31,14 +31,14 @@ public class SettingReqDto {
     ) { }
 
     public record WindDto(
-            boolean windAlert,
+            Boolean windAlert,
             Integer windDegree
     ) { }
 
     public record DisplayDto(
-            boolean precipitation,
-            boolean wind,
-            boolean dust
+            Boolean precipitation,
+            Boolean wind,
+            Boolean dust
     ) {}
 
     public record RegionDto(

@@ -6,7 +6,7 @@ import com.waither.userservice.converter.SurveyConverter;
 import com.waither.userservice.converter.UserConverter;
 import com.waither.userservice.dto.request.UserReqDto;
 import com.waither.userservice.entity.*;
-import com.waither.userservice.entity.type.Season;
+import com.waither.userservice.entity.enums.Season;
 import com.waither.userservice.global.jwt.dto.JwtDto;
 import com.waither.userservice.global.jwt.util.JwtUtil;
 import com.waither.userservice.global.util.RedisUtil;
@@ -46,6 +46,7 @@ public class UserService {
 
     // 회원가입
     public void signup(UserReqDto.SignUpRequestDto requestDto) {
+        // Todo : 다시 풀기
 //        if (!verifiedAccounts(requestDto.email())) {
 //            throw new CustomException(ErrorCode.INVALID_Account);
 //        }

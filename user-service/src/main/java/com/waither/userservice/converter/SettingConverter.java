@@ -4,6 +4,9 @@ import com.waither.userservice.dto.response.SettingResDto;
 import com.waither.userservice.entity.Region;
 import com.waither.userservice.entity.Setting;
 import com.waither.userservice.entity.User;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 
 import java.time.DayOfWeek;
 import java.util.AbstractMap;
@@ -11,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SettingConverter {
 
     // Setting을 기본값으로 설정
@@ -40,18 +43,9 @@ public class SettingConverter {
     }
 
     public static SettingResDto.NotificationDto toNotificationDto(Setting setting) {
-        List<String> days = Stream.of(
-                        new AbstractMap.SimpleEntry<>(DayOfWeek.SUNDAY, setting.isSun()),
-                        new AbstractMap.SimpleEntry<>(DayOfWeek.MONDAY, setting.isMon()),
-                        new AbstractMap.SimpleEntry<>(DayOfWeek.TUESDAY, setting.isTue()),
-                        new AbstractMap.SimpleEntry<>(DayOfWeek.WEDNESDAY, setting.isWed()),
-                        new AbstractMap.SimpleEntry<>(DayOfWeek.THURSDAY, setting.isThu()),
-                        new AbstractMap.SimpleEntry<>(DayOfWeek.FRIDAY, setting.isFri()),
-                        new AbstractMap.SimpleEntry<>(DayOfWeek.SATURDAY, setting.isSat())
-                )
-                .filter(Map.Entry::getValue)
-                .map(entry -> entry.getKey().toString())
-                .collect(Collectors.toList());
+        List<String> days = setting.getDays().stream()
+                .map(Enum::toString)
+                .toList();
 
         return new SettingResDto.NotificationDto(
                 setting.isOutAlert(),

@@ -1,9 +1,11 @@
 package com.waither.userservice.entity;
 
-import com.waither.userservice.entity.type.Season;
+import com.waither.userservice.entity.enums.Season;
 import com.waither.userservice.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import static com.waither.userservice.util.CalculateUtil.calculateMedian;
 
 @Builder
 @Getter
@@ -34,5 +36,13 @@ public class UserMedian extends BaseEntity {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public void updateMedianValue(UserData userData) {
+        this.medianOf1And2 = calculateMedian(userData.getLevel1(), userData.getLevel2());
+        this.medianOf2And3 = calculateMedian(userData.getLevel2(), userData.getLevel3());
+        this.medianOf3And4 = calculateMedian(userData.getLevel3(), userData.getLevel4());
+        this.medianOf4And5 = calculateMedian(userData.getLevel4(), userData.getLevel5());
+    }
+
 }
 

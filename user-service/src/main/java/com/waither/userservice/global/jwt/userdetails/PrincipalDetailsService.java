@@ -1,6 +1,8 @@
 package com.waither.userservice.global.jwt.userdetails;
 
 import com.waither.userservice.entity.User;
+import com.waither.userservice.global.exception.CustomException;
+import com.waither.userservice.global.response.ErrorCode;
 import com.waither.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +26,6 @@ public class PrincipalDetailsService implements UserDetailsService {
             User user = userEntity.get();
             return new PrincipalDetails(user.getEmail(),user.getPassword(), user.getRole());
         }
-        throw new UsernameNotFoundException("사용자가 존재하지 않습니다.");
+        throw new CustomException(ErrorCode.USER_NOT_FOUND);
     }
 }

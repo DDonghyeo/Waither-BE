@@ -1,4 +1,4 @@
-package com.waither.userservice.entity.type;
+package com.waither.userservice.entity.enums;
 
 public enum UserStatus {
 
