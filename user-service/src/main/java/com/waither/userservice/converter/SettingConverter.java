@@ -4,6 +4,8 @@ import com.waither.userservice.dto.response.SettingResDto;
 import com.waither.userservice.entity.Region;
 import com.waither.userservice.entity.Setting;
 import com.waither.userservice.entity.User;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 import java.time.DayOfWeek;
@@ -12,8 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-@UtilityClass
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SettingConverter {
 
     // Setting을 기본값으로 설정

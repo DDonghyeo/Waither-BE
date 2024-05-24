@@ -5,12 +5,14 @@ import com.waither.userservice.entity.*;
 import com.waither.userservice.entity.enums.Season;
 import com.waither.userservice.global.exception.CustomException;
 import com.waither.userservice.global.response.ErrorCode;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 import static com.waither.userservice.util.CalculateUtil.calculateMedian;
 
 
-@UtilityClass
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SurveyConverter {
 
     // UserData 기본값으로 설정

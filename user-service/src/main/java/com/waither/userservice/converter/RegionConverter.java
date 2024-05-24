@@ -1,9 +1,11 @@
 package com.waither.userservice.converter;
 
 import com.waither.userservice.entity.Region;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.experimental.UtilityClass;
 
-@UtilityClass
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RegionConverter {
 
     // Region 기본값으로 설정
