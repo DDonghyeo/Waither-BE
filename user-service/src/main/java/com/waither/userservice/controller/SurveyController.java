@@ -22,10 +22,10 @@ public class SurveyController {
         return ApiResponse.onSuccess("survey 생성완료");
     }
 
-    @PostMapping("/reset")
-    public ApiResponse<String> resetServeyData(@AuthUser User user) {
-        surveyService.resetSurveyData(user);
-        return ApiResponse.onSuccess("사용자의 설문 정보를 초기화 하였습니다.");
-    }
+//    @PostMapping("/reset")
+//    public ApiResponse<String> resetServeyData(@AuthUser User user) {
+//        surveyService.resetSurveyData(user);
+//        return ApiResponse.onSuccess("사용자의 설문 정보를 초기화 하였습니다.");
+//    }
 
 }
