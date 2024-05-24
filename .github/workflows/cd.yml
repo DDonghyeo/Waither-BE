@@ -1,19 +1,19 @@
 name: Backend CI/CD with Gradle
 
 on:
-  # workflow_dispatch:
-  #   inputs:
-  #     service:
-  #       description: 'Choose Service to deploy. Default is all.'
-  #       required: true
-  #       default: 'all'
-  #       type: choice
-  #       options:
-  #       - all
-  #       - api-gateway
-  #       - noti-service
-  #       - user-service
-  #       - weather-service
+#   workflow_dispatch:
+#     inputs:
+#       service:
+#         description: 'Choose Service to deploy. Default is all.'
+#         required: true
+#         default: 'all'
+#         type: choice
+#         options:
+#         - all
+#         - api-gateway
+#         - noti-service
+#         - user-service
+#         - weather-service
   push:
     branches:
       - prod
@@ -69,11 +69,11 @@ jobs:
         env:
           CONFIG_GIT_URI: ${{ secrets.CONFIG_GIT_URI }}
           CONFIG_PASSPHRASE: ${{ secrets.CONFIG_PASSPHRASE }}
-          CONFIG_PRIVATE_KEY: ${{ secrets.CONFIG_PRIVATE_KEY }}
 
       #Config-Service Run
       - name: Run config-service
         run: |
+          cd config-service
           ./gradlew bootRun &
           cd ..
       #Wait 5 sec
@@ -133,7 +133,7 @@ jobs:
       - name: Deploy to Server
         uses: appleboy/ssh-action@v0.1.6
         env:
-          SERVICE_NAME: all
+          SERVICE_NAME: ${{ github.event.inputs.service }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
@@ -144,6 +144,7 @@ jobs:
             export CONFIG_GIT_URI=${{ secrets.CONFIG_GIT_URI }}
             export CONFIG_PASSPHRASE=${{ secrets.CONFIG_PASSPHRASE }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            export CONFIG_PRIVATE_KEY=${{ secrets.CONFIG_PRIVATE_KEY }}
 
             bash /home/docker_init.sh
             bash /home/common.sh
