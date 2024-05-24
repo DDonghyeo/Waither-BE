@@ -26,6 +26,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          ref: prod
 
       #Setting JDK
       - name: Set up JDK 17
@@ -148,3 +150,5 @@ jobs:
             bash /home/docker_init.sh
             bash /home/common.sh
             bash /home/deploy.sh
+            
+            docker image prune -f
