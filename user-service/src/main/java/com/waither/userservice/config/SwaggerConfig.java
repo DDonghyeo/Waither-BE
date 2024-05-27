@@ -1,4 +1,4 @@
-package com.waither.notiservice.config;
+package com.waither.userservice.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -15,8 +15,8 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI waitherAPI() {
         Info info = new Info()
-                .title("Waither Notification API Docs")
-                .description("Waither Notification Service API 명세서입니다.")
+                .title("Waither User API Docs")
+                .description("Waither User Service API 명세서입니다.")
                 .version("1.0.0");
 
         String jwtSchemeName = "accessToken";
