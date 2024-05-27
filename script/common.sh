@@ -3,6 +3,7 @@ RUNNING_EUREKA=$(docker ps | grep eureka)
 RUNNING_CONFIG=$(docker ps | grep config)
 RUNNING_ZOOKEEPER=$(docker ps | grep zookeeper)
 RUNNING_KAFKA=$(docker ps | grep kafka)
+RUNNING_REDIS=$(docker ps | grep redis)
 
 # Eureka 검색
 if [ -z "$RUNNING_EUREKA" ]; then
@@ -20,6 +21,14 @@ if [ -z "$RUNNING_CONFIG" ]; then
     sleep 5 #Config 실행 5초 대기
 else
     echo "Config Service is already running"
+fi
+
+# Redis 검색
+if [ -z "$RUNNING_REDIS" ]; then
+    echo "Starting Redis ..."
+    docker-compose -f /home/docker-compose.yml up -d redis
+else
+    echo "Redis is already running"
 fi
 
 # Zookeeper 검색
