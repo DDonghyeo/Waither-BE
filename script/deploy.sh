@@ -10,10 +10,10 @@
 # -d : detached 모드. 컨테이너를 백그라운드에서 실행
 
 echo "api-gateway server start..."
-docker-compose -f /home/docker-compose.yml up -d api-gateway
+docker-compose -f /home/docker-compose.yml up -d api-gateway --build
 echo "noti-service server start..."
-docker-compose -f /home/docker-compose.yml up -d noti-service
+docker-compose -f /home/docker-compose.yml up -d noti-service --build
 echo "user-service server start..."
-docker-compose -f /home/docker-compose.yml up -d user-service
+docker-compose -f /home/docker-compose.yml up -d user-service --build
 echo "weather-service server start..."
-docker-compose -f /home/docker-compose.yml up -d weather-service
+docker-compose -f /home/docker-compose.yml up -d weather-service --build

@@ -8,7 +8,7 @@ spring:
     active: dev
   cloud:
     config:
-      uri: http://config:8888
+      uri: http://localhost:8888
       name: database-noti,redis
   kafka:
     bootstrap-servers: "localhost:9092"
@@ -19,4 +19,4 @@ eureka:
     register-with-eureka: true # register to eureka server
     fetch-registry: true # Getting instances' information from eureka server
     service-url:
-      defaultZone : http://127.0.0.1:8761/eureka #Eureka Server's address
+      defaultZone : http://localhost:8761/eureka #Eureka Server's address

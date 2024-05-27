@@ -8,10 +8,10 @@ spring:
     active: dev
   cloud:
     config:
-      uri: http://config:8888
+      uri: http://localhost:8888
       name: database-apiGateway, redis, jwt
   kafka:
-    bootstrap-servers: "localhost:9092"
+    bootstrap-servers: "http://localhost:9092"
     consumer:
       group-id: "GroupId"
 
