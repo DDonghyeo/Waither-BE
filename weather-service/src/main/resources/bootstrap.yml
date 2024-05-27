@@ -33,7 +33,7 @@ springdoc:
   api-docs:
     version: openapi_3_0
     enabled: true
-    path: /noti/v3/api-docs
+    path: /weather/v3/api-docs
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
   enable-spring-security: true
