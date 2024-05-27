@@ -9,7 +9,7 @@ services:
     depends_on:
       - config
     ports:
-      - "8000:8000"
+      - "443:443"
 #    restart: always
     restart: no
     volumes:
