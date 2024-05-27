@@ -19,4 +19,14 @@ eureka:
     register-with-eureka: true # register to eureka server
     fetch-registry: true # Getting instances' information from eureka server
     service-url:
-      defaultZone : http://localhost:8761/eureka #Eureka Server's address
+      defaultZone : http://127.0.0.1:8761/eureka #Eureka Server's address
+
+springdoc:
+  api-docs:
+    version: openapi_3_0
+    enabled: true
+    path: /noti/v3/api-docs
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  enable-spring-security: true
+

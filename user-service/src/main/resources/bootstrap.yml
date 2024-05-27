@@ -28,3 +28,12 @@ eureka:
 #    web:
 #      exposure:
 #        include: busrefresh
+
+springdoc:
+  api-docs:
+    version: openapi_3_0
+    enabled: true
+    path: /user/v3/api-docs
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  enable-spring-security: true

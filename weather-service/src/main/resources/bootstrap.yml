@@ -23,8 +23,17 @@ eureka:
     service-url:
       defaultZone : http://localhost:8761/eureka #Eureka Server's address
 
-management: # Actuator
-  endpoints:
-    web:
-      exposure:
-        include: busrefresh
+#management: # Actuator
+#  endpoints:
+#    web:
+#      exposure:
+#        include: busrefresh
+
+springdoc:
+  api-docs:
+    version: openapi_3_0
+    enabled: true
+    path: /noti/v3/api-docs
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  enable-spring-security: true

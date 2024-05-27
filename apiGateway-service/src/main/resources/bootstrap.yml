@@ -1,5 +1,5 @@
 server:
-  port: 80
+  port: 443
 
 spring:
   application:
@@ -22,8 +22,28 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
+
+springdoc:
+#  api-docs:
+#    enabled: true
+#    version: openapi_3_0
+  swagger-ui:
+    use-root-path: true
+    urls:
+      - url: /noti/v3/api-docs
+        name: Notification Service
+      - url: /weather/v3/api-docs
+        name: Weather Service
+      - url: /user/v3/api-docs
+        name: User Service
+#    path: /swagger-ui.html
+#    version: 3.0.0
+
+
+
 #management: # Actuator Settings
 #  endpoints:
 #    web:
 #      exposure:
 #        include: refresh, health, beans, httptrace
+
