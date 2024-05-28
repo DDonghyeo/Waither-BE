@@ -66,7 +66,7 @@ public class UserController {
     }
 
     // 닉네임 변경
-    @PutMapping("/update-nickname")
+    @PutMapping("/nickname")
     public ApiResponse<String> updateNickname(@AuthUser User user,
                                               @RequestBody UserReqDto.NicknameDto nicknameDto) {
         userService.updateNickname(user, nicknameDto.nickname());
@@ -82,7 +82,7 @@ public class UserController {
     }
 
     // 비밀번호 변경
-    @PutMapping("/update-password")
+    @PutMapping("/password")
     public ApiResponse<String> updatePassword(@AuthUser User user,
                                               @Valid @RequestBody UserReqDto.UpdatePasswordDto updatePasswordDto) {
         userService.updatePassword(user, updatePasswordDto.password());
