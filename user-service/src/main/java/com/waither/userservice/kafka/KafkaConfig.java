@@ -1,4 +1,4 @@
-package com.waither.userservice.config;
+package com.waither.userservice.kafka;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
