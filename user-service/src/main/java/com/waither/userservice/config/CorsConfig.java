@@ -2,6 +2,7 @@ package com.waither.userservice.config;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -9,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.ArrayList;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
     public static CorsConfigurationSource apiConfigurationSource() {
