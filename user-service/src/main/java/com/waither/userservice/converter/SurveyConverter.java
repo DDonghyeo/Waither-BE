@@ -7,9 +7,8 @@ import com.waither.userservice.global.exception.CustomException;
 import com.waither.userservice.global.response.ErrorCode;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.experimental.UtilityClass;
 
-import static com.waither.userservice.util.CalculateUtil.calculateMedian;
+import static com.waither.userservice.global.util.CalculateUtil.calculateMedian;
 
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
