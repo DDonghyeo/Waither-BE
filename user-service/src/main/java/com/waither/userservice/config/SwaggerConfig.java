@@ -3,6 +3,7 @@ package com.waither.userservice.config;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
@@ -17,7 +18,8 @@ public class SwaggerConfig {
         Info info = new Info()
                 .title("Waither User API Docs")
                 .description("Waither User Service API 명세서입니다.")
-                .version("1.0.0");
+                .version("1.0.0")
+                .license(new License());
 
         String jwtSchemeName = "accessToken";
         // API 요청헤더에 인증정보 포함
@@ -38,3 +40,6 @@ public class SwaggerConfig {
                 .components(components);
     }
 }
+
+
+
