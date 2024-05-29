@@ -10,7 +10,6 @@ import java.util.Set;
 
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicUpdate;
 
 // 코드 일부 생략

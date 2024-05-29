@@ -5,7 +5,7 @@ import com.waither.userservice.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import static com.waither.userservice.util.CalculateUtil.calculateMedian;
+import static com.waither.userservice.global.util.CalculateUtil.calculateMedian;
 
 @Builder
 @Getter

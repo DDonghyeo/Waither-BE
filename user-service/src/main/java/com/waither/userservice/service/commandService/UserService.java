@@ -10,9 +10,14 @@ import com.waither.userservice.entity.enums.Season;
 import com.waither.userservice.global.jwt.dto.JwtDto;
 import com.waither.userservice.global.jwt.util.JwtUtil;
 import com.waither.userservice.global.util.RedisUtil;
+import com.waither.userservice.kafka.KafkaConverter;
+import com.waither.userservice.kafka.KafkaDto;
+import com.waither.userservice.kafka.KafkaProducer;
+import com.waither.userservice.kafka.KafkaService;
 import com.waither.userservice.repository.UserRepository;
 import com.waither.userservice.global.exception.CustomException;
 import com.waither.userservice.global.response.ErrorCode;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +31,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.waither.userservice.service.commandService.SurveyService.getCurrentSeason;
+
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
@@ -38,6 +45,8 @@ public class UserService {
     private static final String VERIFIED_PREFIX = "Verified_";
 
     private final EmailService emailService;
+    private final KafkaService kafkaService;
+
     private final RedisUtil redisUtil;
     private final JwtUtil jwtUtil;
 
@@ -72,11 +81,23 @@ public class UserService {
                 })
                 .toList();
 
+
         // 연관관계 설정
         newSetting.setRegion(newRegion);
         newUser.setSetting(newSetting);
         newUser.setUserData(userDataList);
         newUser.setUserMedian(userMedianList);
+
+        //
+        Season currentSeason = getCurrentSeason();
+        UserMedian currentUserMedian = userMedianList.stream()
+                .filter(userMedian -> userMedian.getSeason() == currentSeason)
+                .findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_SEASON));
+
+        // 초기값 Kafka 전송
+        KafkaDto.InitialDataDto initialDataDto = KafkaConverter.toInitialData(newUser, newSetting, currentUserMedian);
+        kafkaService.sendInitialData(initialDataDto);
 
         userRepository.save(newUser);
     }
@@ -211,6 +232,11 @@ public class UserService {
     // 닉네임 변경
     public void updateNickname(User user, String nickanme) {
         user.setNickname(nickanme);
+
+        // Kafka 전송
+        KafkaDto.UserSettingsDto settingDto = KafkaConverter.toSettingDto(user, "nickanme", nickanme);
+        kafkaService.sendUserSettings(settingDto);
+
         userRepository.save(user);
     }
 

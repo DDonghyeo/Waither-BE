@@ -6,6 +6,9 @@ import com.waither.userservice.entity.*;
 import com.waither.userservice.entity.enums.Season;
 import com.waither.userservice.global.exception.CustomException;
 import com.waither.userservice.global.response.ErrorCode;
+import com.waither.userservice.kafka.KafkaConverter;
+import com.waither.userservice.kafka.KafkaDto;
+import com.waither.userservice.kafka.KafkaService;
 import com.waither.userservice.repository.SurveyRepository;
 import com.waither.userservice.repository.UserDataRepository;
 import com.waither.userservice.repository.UserMedianRepository;
@@ -29,6 +32,8 @@ public class SurveyService {
     private final UserDataRepository userDataRepository;
     private final UserMedianRepository userMedianRepository;
 
+    private final KafkaService kafkaService;
+
     @Transactional
     public void createSurvey(User user, SurveyReqDto.SurveyRequestDto surveyRequestDto) {
         Double temp = getTemp(surveyRequestDto.time());
@@ -43,6 +48,10 @@ public class SurveyService {
         updateUserData(userData, surveyRequestDto.ans(), temp);
         updateUserMedian(userData, userMedian);
 
+        // Kafka 전송
+        KafkaDto.UserMedianDto userMedianDto = KafkaConverter.toUserMedianDto(user, userMedian);
+        kafkaService.sendUserMedian(userMedianDto);
+
         surveyRepository.save(survey);
     }
 
@@ -55,6 +64,7 @@ public class SurveyService {
         }
 
         userData.updateLevelValue(ans, newValue);
+
         userDataRepository.save(userData);
     }
 

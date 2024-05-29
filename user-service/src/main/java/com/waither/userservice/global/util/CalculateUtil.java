@@ -1,4 +1,4 @@
-package com.waither.userservice.util;
+package com.waither.userservice.global.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
