@@ -32,4 +32,20 @@ public class Region {
 	private int startY;
 	private int endY;
 	private int regionCode;
+
+	public String toString() {
+		return "Region{" +
+			"id=" + id +
+			", regionName='" + regionName + '\'' +
+			", startLat=" + startLat +
+			", endLat=" + endLat +
+			", startLon=" + startLon +
+			", endLon=" + endLon +
+			", startX=" + startX +
+			", endX=" + endX +
+			", startY=" + startY +
+			", endY=" + endY +
+			", regionCode=" + regionCode +
+			'}';
+	}
 }
