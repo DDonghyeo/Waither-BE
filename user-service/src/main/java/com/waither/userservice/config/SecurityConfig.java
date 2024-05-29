@@ -77,8 +77,8 @@ public class SecurityConfig {
 
         http
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
-        http
-                .addFilterBefore(new JwtAuthorizationFilter(jwtUtil, redisUtil), JwtAuthenticationFilter.class);
+//        http
+//                .addFilterBefore(new JwtAuthorizationFilter(jwtUtil, redisUtil), JwtAuthenticationFilter.class);
         http
                 .addFilterBefore(new JwtExceptionFilter(), JwtAuthenticationFilter.class);
 
