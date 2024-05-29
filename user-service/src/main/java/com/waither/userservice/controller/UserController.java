@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/")
+@RequestMapping(value = "/user")
 public class UserController {
 
     private final UserService userService;
@@ -95,5 +95,12 @@ public class UserController {
     public ApiResponse<String> deleteUser(@AuthUser User user) {
         userService.deleteUser(user);
         return ApiResponse.onSuccess(user.getEmail() + "님의 계정이 성공적으로 탈퇴되었습니다.");
+    }
+
+
+    //Swagger용 가짜 컨트롤러
+    @PostMapping("/login")
+    public ApiResponse<JwtDto> login(@RequestBody UserReqDto.LoginRequestDto loginRequestDto) {
+        return null;
     }
 }
