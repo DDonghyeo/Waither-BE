@@ -22,13 +22,8 @@ public class Region {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String stnID;
 	private String stnKo;
-	private String stnSp;
-	private double longitude;
-	private double  latitude;
-	private String fctId;
-	private String wrnId;
-	private String wrnKo;
-	private String sfcStn;
+	private int stnId;
+	private double lat;
+	private double lon;
 }
