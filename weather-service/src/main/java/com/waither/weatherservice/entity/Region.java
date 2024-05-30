@@ -22,13 +22,30 @@ public class Region {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String stnID;
-	private String stnKo;
-	private String stnSp;
-	private double longitude;
-	private double  latitude;
-	private String fctId;
-	private String wrnId;
-	private String wrnKo;
-	private String sfcStn;
+	private String regionName;
+	private double startLat;
+	private double endLat;
+	private double startLon;
+	private double endLon;
+	private int startX;
+	private int endX;
+	private int startY;
+	private int endY;
+	private int regionCode;
+
+	public String toString() {
+		return "Region{" +
+			"id=" + id +
+			", regionName='" + regionName + '\'' +
+			", startLat=" + startLat +
+			", endLat=" + endLat +
+			", startLon=" + startLon +
+			", endLon=" + endLon +
+			", startX=" + startX +
+			", endX=" + endX +
+			", startY=" + startY +
+			", endY=" + endY +
+			", regionCode=" + regionCode +
+			'}';
+	}
 }

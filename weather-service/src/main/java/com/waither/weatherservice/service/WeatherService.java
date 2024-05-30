@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.waither.weatherservice.dto.response.MainWeatherResponse;
 import com.waither.weatherservice.entity.DailyWeather;
 import com.waither.weatherservice.entity.ExpectedWeather;
+import com.waither.weatherservice.entity.Region;
 import com.waither.weatherservice.entity.WeatherAdvisory;
 import com.waither.weatherservice.exception.WeatherExceptionHandler;
 import com.waither.weatherservice.gps.GpsTransfer;
@@ -25,6 +26,7 @@ import com.waither.weatherservice.openapi.OpenApiUtil;
 import com.waither.weatherservice.redis.DailyWeatherRepository;
 import com.waither.weatherservice.redis.ExpectedWeatherRepository;
 import com.waither.weatherservice.redis.WeatherAdvisoryRepository;
+import com.waither.weatherservice.repository.RegionRepository;
 import com.waither.weatherservice.response.WeatherErrorCode;
 
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,7 @@ public class WeatherService {
 	private final DailyWeatherRepository dailyWeatherRepository;
 	private final ExpectedWeatherRepository expectedWeatherRepository;
 	private final WeatherAdvisoryRepository weatherAdvisoryRepository;
+	private final RegionRepository regionRepository;
 	private final Producer producer;
 	private final GpsTransfer gpsTransfer;
 
@@ -74,10 +77,12 @@ public class WeatherService {
 		log.info("[*] 예상 기후 : {}", save);
 	}
 
-	public void createDailyWeather(int nx,
+	public void createDailyWeather(
+		int nx,
 		int ny,
 		String baseDate,
-		String baseTime) throws URISyntaxException {
+		String baseTime
+	) throws URISyntaxException {
 
 		// Base_time : 0200, 0500, 0800, 1100, 1400, 1700, 2000, 2300 업데이트 (1일 8회)
 		List<ForeCastOpenApiResponse.Item> items = openApiUtil.callForeCastApi(nx, ny, baseDate, baseTime, 350,
@@ -179,5 +184,11 @@ public class WeatherService {
 		String baseTime = temp[0] + "00";
 
 		return baseDate + "_" + baseTime;
+	}
+
+	public List<Region> getRegionList() {
+		List<Region> all = regionRepository.findAll();
+		log.info("Region List : {}", all);
+		return regionRepository.findAll();
 	}
 }
