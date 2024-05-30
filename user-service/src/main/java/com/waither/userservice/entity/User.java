@@ -1,5 +1,6 @@
 package com.waither.userservice.entity;
 
+import com.waither.userservice.entity.type.AuthType;
 import com.waither.userservice.entity.type.UserStatus;
 import com.waither.userservice.global.BaseEntity;
 import jakarta.persistence.*;
@@ -17,17 +18,25 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // OAuth ID
+    @Column(name = "auth_id")
+    private Long authId;
+
     // 유저 이메일
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     // 유저 비밀번호
-    @Column(name = "password", nullable = false)
+    @Column(name = "password")
     private String password;
 
     // 유저 닉네임
     @Column(name = "nickname", nullable = false)
     private String nickname;
+
+    // 회원 가입 타입
+    @Enumerated(EnumType.STRING)
+    private AuthType authType;
 
     // 유저 상태 (active / 휴면 / 탈퇴 등)
     @Enumerated(EnumType.STRING)
