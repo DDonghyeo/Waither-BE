@@ -2,10 +2,12 @@ package com.waither.userservice.service;
 
 import com.waither.userservice.dto.converter.AccountConverter;
 import com.waither.userservice.dto.request.AccountReqDto;
+import com.waither.userservice.dto.response.KakaoResDto;
 import com.waither.userservice.entity.Region;
 import com.waither.userservice.entity.Setting;
 import com.waither.userservice.entity.User;
 import com.waither.userservice.jwt.dto.JwtDto;
+import com.waither.userservice.jwt.userdetails.PrincipalDetails;
 import com.waither.userservice.jwt.util.JwtUtil;
 import com.waither.userservice.repository.SettingRepository;
 import com.waither.userservice.util.RedisUtil;
@@ -55,29 +57,35 @@ public class AccountsService {
         User newUser = AccountConverter.toUser(requestDto, encodedPw);
 
         // Setting을 기본값으로 설정
-        Setting defaultSetting = Setting.builder()
-                .climateAlert(true)
-                .userAlert(true)
-                .snowAlert(true)
-                .windAlert(true)
-                .windDegree(10)
-                .regionReport(true)
-                .precipitation(true)
-                .wind(true)
-                .dust(true)
-                .weight(0.0)
-                .build();
+        Setting defaultSetting = deafultSettings();
 
         // Region 기본값으로 설정
-        Region defaultRegion = Region.builder()
-                .regionName("서울시")
-                .longitude(37.5665)
-                .latitude(126.9780)
-                .build();
+        Region defaultRegion = deafultRegion();
 
         defaultSetting.setRegion(defaultRegion);
         newUser.setSetting(defaultSetting);
         userRepository.save(newUser);
+    }
+
+    // 회원가입 (카카오)
+    public void signup(KakaoResDto.UserInfoResponseDto userInfo) {
+
+        User newUser = AccountConverter.toUser(userInfo);
+
+        Setting defaultSetting = deafultSettings();
+        Region defaultRegion = deafultRegion();
+
+        defaultSetting.setRegion(defaultRegion);
+        newUser.setSetting(defaultSetting);
+        userRepository.save(newUser);
+    }
+
+    // OAuth용 토큰 발급
+    public JwtDto provideTokenForOAuth(String email) {
+        PrincipalDetails principalDetails = new PrincipalDetails(email, null, "ROLE_USER");
+        return new JwtDto(
+                jwtUtil.createJwtAccessToken(principalDetails),
+                jwtUtil.createJwtRefreshToken(principalDetails));
     }
 
     // 재발급
@@ -85,8 +93,8 @@ public class AccountsService {
         jwtUtil.isRefreshToken(refreshToken);
         return jwtUtil.reissueToken(refreshToken);
     }
-
     // 인증 번호 전송
+
     public void sendAuthCodeToEmail(String email) {
         this.checkDuplicatedEmail(email);
 
@@ -99,8 +107,8 @@ public class AccountsService {
         redisUtil.save(AUTH_CODE_PREFIX + email,
                 authCode, authCodeExpirationMillis, TimeUnit.MILLISECONDS);
     }
-
     // 임시 비밀번호 보내기
+
     public String sendTempPassword(String email) {
         // 전송
         String tempPassword = this.createTemporaryPassword();
@@ -109,24 +117,29 @@ public class AccountsService {
 
         return tempPassword;
     }
-
     // 회원가입 하려는 이메일로 이미 가입한 회원이 있는지 확인하는 메서드.
     // 만약 해당 이메일을 가진 회원이 존재하면 예외를 발생.
+
     private void checkDuplicatedEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
             throw new CustomException(ErrorCode.USER_ALREADY_EXIST);
         }
     }
+    public boolean isUserRegistered(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.isPresent();
+    }
 
     // 회원 존재하는 지 확인
+
     public void checkUserExists(String email) {
         if (!userRepository.existsByEmail(email)) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
     }
-
     // 인증 번호 생성하는 메서드
+
     public String createAuthCode() {
         int lenth = 6;
         try {
@@ -141,8 +154,8 @@ public class AccountsService {
             throw new CustomException(ErrorCode.NO_SUCH_ALGORITHM);
         }
     }
-
     //랜덤함수로 임시비밀번호 구문 만들기
+
     public String createTemporaryPassword() {
         char[] charSet = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
                 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
@@ -153,8 +166,8 @@ public class AccountsService {
                 .mapToObj(idx -> String.valueOf(charSet[idx]))
                 .collect(Collectors.joining());
     }
-
     // 인증 코드를 검증하는 메서드.
+
     public void verifyCode(String email, String authCode) {
         this.checkDuplicatedEmail(email);
 
@@ -173,8 +186,8 @@ public class AccountsService {
             throw new CustomException(ErrorCode.INVALID_CODE);
         }
     }
-
     // signup 과정 전에 인증된 email인지 확인하는 메서드
+
     public boolean verifiedAccounts(String email) {
         // 인증하지 않았거나, 인증 완료까지는 했지만 너무 시간이 경과한 경우
         if(!redisUtil.hasKey(VERIFIED_PREFIX + email)) {
@@ -183,22 +196,22 @@ public class AccountsService {
         // hasKey(VERIFIED_PREFIX + email) 만 통과 하면 -> 인증 완료한 것
         return true;
     }
-
     // 임시 비밀번호로 비밀번호를 변경
+
     public void changeToTempPassword(String email, String tempPassword) {
         // 이메일로 사용자 조회
         userRepository.findByEmail(email).get().setPassword(passwordEncoder.encode(tempPassword));
     }
-
     // 현재 비밀번호 체크
+
     public void checkPassword(User user, String currentPassword) {
         // 현재 비밀번호가 일치하는지 확인
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new CustomException(ErrorCode.CURRENT_PASSWORD_NOT_EQUAL);
         }
     }
-
     // 비밀번호 변경
+
     public void updatePassword(User user, String newPassword) {
         if (passwordEncoder.matches(newPassword, user.getPassword())) {
             throw new CustomException(ErrorCode.CURRENT_PASSWORD_EQUAL);
@@ -206,15 +219,38 @@ public class AccountsService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
-
     // 닉네임 변경
+
     public void updateNickname(User user, String nickanme) {
         user.setNickname(nickanme);
         userRepository.save(user);
     }
-
     // 회원 삭제
+
     public void deleteUser(User user){
         userRepository.delete(user);
+    }
+
+    private Setting deafultSettings() {
+        return Setting.builder()
+                .climateAlert(true)
+                .userAlert(true)
+                .snowAlert(true)
+                .windAlert(true)
+                .windDegree(10)
+                .regionReport(true)
+                .precipitation(true)
+                .wind(true)
+                .dust(true)
+                .weight(0.0)
+                .build();
+    }
+
+    private Region deafultRegion() {
+        return Region.builder()
+                .regionName("서울시")
+                .longitude(37.5665)
+                .latitude(126.9780)
+                .build();
     }
 }
