@@ -1,4 +1,4 @@
-package com.waither.weatherservice.redis;
+package com.waither.weatherservice.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

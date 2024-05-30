@@ -1,4 +1,4 @@
-package com.waither.weatherservice.redis;
+package com.waither.weatherservice.repository;
 
 import org.springframework.data.repository.CrudRepository;
 

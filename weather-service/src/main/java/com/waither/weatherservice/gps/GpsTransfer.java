@@ -7,12 +7,15 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.stereotype.Component;
 
 import com.waither.weatherservice.exception.WeatherExceptionHandler;
 import com.waither.weatherservice.response.WeatherErrorCode;
 
-@Component
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+// @Component
 public class GpsTransfer {
 
 	// 격자 간격 (단위: km)
@@ -36,7 +39,7 @@ public class GpsTransfer {
 	// radian 을 degree 로 변환하는 상수
 	private static final double RADIANS_TO_DEGREES = 180.0 / Math.PI;
 
-	public LatXLngY convertGpsToGrid(double lat, double lng) {
+	public static LatXLngY convertGpsToGrid(double lat, double lng) {
 		double sn = Math.tan(Math.PI * 0.25 + PROJECTION_LATITUDE_2 * 0.5) / Math.tan(
 			Math.PI * 0.25 + PROJECTION_LATITUDE_1 * 0.5);
 		sn = Math.log(Math.cos(PROJECTION_LATITUDE_1) / Math.cos(PROJECTION_LATITUDE_2)) / Math.log(sn);
@@ -64,7 +67,7 @@ public class GpsTransfer {
 			.build();
 	}
 
-	public LatXLngY convertGridToGps(double x, double y) {
+	public static LatXLngY convertGridToGps(double x, double y) {
 		double sn = Math.tan(Math.PI * 0.25 + PROJECTION_LATITUDE_2 * 0.5) / Math.tan(
 			Math.PI * 0.25 + PROJECTION_LATITUDE_1 * 0.5);
 		sn = Math.log(Math.cos(PROJECTION_LATITUDE_1) / Math.cos(PROJECTION_LATITUDE_2)) / Math.log(sn);
@@ -104,10 +107,10 @@ public class GpsTransfer {
 	}
 
 	// ex) lat = 37.57142000, lon = 126.96580000 -> 108
-	public String convertGpsToRegionCode(double lat, double lon) {
+	public static String convertGpsToRegionCode(double lat, double lon) {
 		String regionCode = null;
 		try {
-			InputStream inputStream = getClass().getResourceAsStream("/api/Region.xlsx");
+			InputStream inputStream = GpsTransfer.class.getResourceAsStream("/api/Region.xlsx");
 			XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
 			Sheet sheet = workbook.getSheetAt(0); // 시트 인덱스, 첫 번째 시트를 가져옴
 

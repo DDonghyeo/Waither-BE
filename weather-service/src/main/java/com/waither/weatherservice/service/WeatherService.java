@@ -23,10 +23,10 @@ import com.waither.weatherservice.kafka.Producer;
 import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
 import com.waither.weatherservice.openapi.MsgOpenApiResponse;
 import com.waither.weatherservice.openapi.OpenApiUtil;
-import com.waither.weatherservice.redis.DailyWeatherRepository;
-import com.waither.weatherservice.redis.ExpectedWeatherRepository;
-import com.waither.weatherservice.redis.WeatherAdvisoryRepository;
+import com.waither.weatherservice.repository.DailyWeatherRepository;
+import com.waither.weatherservice.repository.ExpectedWeatherRepository;
 import com.waither.weatherservice.repository.RegionRepository;
+import com.waither.weatherservice.repository.WeatherAdvisoryRepository;
 import com.waither.weatherservice.response.WeatherErrorCode;
 
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,6 @@ public class WeatherService {
 	private final WeatherAdvisoryRepository weatherAdvisoryRepository;
 	private final RegionRepository regionRepository;
 	private final Producer producer;
-	private final GpsTransfer gpsTransfer;
 
 	public void createExpectedWeather(
 		int nx,
@@ -122,7 +121,7 @@ public class WeatherService {
 		LocalDate now = LocalDate.now();
 		String today = openApiUtil.convertLocalDateToString(now);
 
-		String location = gpsTransfer.convertGpsToRegionCode(latitude, longitude);
+		String location = GpsTransfer.convertGpsToRegionCode(latitude, longitude);
 
 		List<MsgOpenApiResponse.Item> items = openApiUtil.callAdvisoryApi(location, today);
 
@@ -147,7 +146,7 @@ public class WeatherService {
 	}
 
 	public MainWeatherResponse getMainWeather(double latitude, double longitude) {
-		LatXLngY latXLngY = gpsTransfer.convertGpsToGrid(latitude, longitude);
+		LatXLngY latXLngY = GpsTransfer.convertGpsToGrid(latitude, longitude);
 
 		LocalDateTime now = LocalDateTime.now();
 		String key = (int)latXLngY.x() + "_" + (int)latXLngY.y() + "_" + convertLocalDateTimeToString(now);
@@ -190,5 +189,9 @@ public class WeatherService {
 		List<Region> all = regionRepository.findAll();
 		log.info("Region List : {}", all);
 		return regionRepository.findAll();
+	}
+
+	public String convertGpsToRegionName(double latitude, double longitude) {
+		return regionRepository.findRegionByLatAndLong(latitude, longitude).get(0).getRegionName();
 	}
 }
