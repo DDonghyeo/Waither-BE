@@ -113,8 +113,8 @@ public class WeatherService {
 			.windDegree(wsd)
 			.build();
 
-		KafkaMessage kafkaMessage = KafkaMessage.of(dailyWeather, regionName);
-		producer.produceMessage(kafkaMessage);
+		KafkaMessage kafkaMessage = KafkaMessage.of(regionName, dailyWeather.getWindDegree());
+		producer.produceMessage("alarm-wind", kafkaMessage);
 
 		DailyWeather save = dailyWeatherRepository.save(dailyWeather);
 		log.info("[*] 하루 온도 : {}", save);
@@ -136,6 +136,9 @@ public class WeatherService {
 			.id(key)
 			.message(msg)
 			.build();
+
+		KafkaMessage kafkaMessage = KafkaMessage.of(location, msg);
+		producer.produceMessage("alarm-climate", kafkaMessage);
 
 		WeatherAdvisory save = weatherAdvisoryRepository.save(weatherAdvisory);
 		log.info("[*] 기상 특보 : {}", save);

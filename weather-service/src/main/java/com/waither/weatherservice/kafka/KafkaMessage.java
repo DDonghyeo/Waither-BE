@@ -1,20 +1,18 @@
 package com.waither.weatherservice.kafka;
 
-import com.waither.weatherservice.entity.DailyWeather;
-
 import lombok.Builder;
 
 // 우선 문자열로 바람 세기만. 추후 변경 가능성
 @Builder
 public record KafkaMessage(
 	String region,
-	String wind
+	String message
 ) {
 
-	public static KafkaMessage of(DailyWeather dailyWeather, String region) {
+	public static KafkaMessage of(String region, String message) {
 		return KafkaMessage.builder()
 			.region(region)
-			.wind(dailyWeather.getWindDegree())
+			.message(message)
 			.build();
 	}
 }
