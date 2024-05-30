@@ -19,6 +19,7 @@ import com.waither.weatherservice.entity.WeatherAdvisory;
 import com.waither.weatherservice.exception.WeatherExceptionHandler;
 import com.waither.weatherservice.gps.GpsTransfer;
 import com.waither.weatherservice.gps.LatXLngY;
+import com.waither.weatherservice.kafka.KafkaMessage;
 import com.waither.weatherservice.kafka.Producer;
 import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
 import com.waither.weatherservice.openapi.MsgOpenApiResponse;
@@ -99,7 +100,8 @@ public class WeatherService {
 		ForeCastOpenApiResponse.Item item = items.get(0);
 
 		List<Region> region = regionRepository.findRegionByXAndY(item.getNx(), item.getNy());
-		String key = region.get(0).getRegionName() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
+		String regionName = region.get(0).getRegionName();
+		String key = regionName + "_" + item.getFcstDate() + "_" + item.getFcstTime();
 
 		DailyWeather dailyWeather = DailyWeather.builder()
 			.id(key)
@@ -111,10 +113,8 @@ public class WeatherService {
 			.windDegree(wsd)
 			.build();
 
-		// DailyWeatherKafkaMessage kafkaMessage = DailyWeatherKafkaMessage.from(dailyWeather);
-
-		// 바람 세기 Kafka 전송
-		producer.produceMessage(wsd);
+		KafkaMessage kafkaMessage = KafkaMessage.of(dailyWeather, regionName);
+		producer.produceMessage(kafkaMessage);
 
 		DailyWeather save = dailyWeatherRepository.save(dailyWeather);
 		log.info("[*] 하루 온도 : {}", save);
