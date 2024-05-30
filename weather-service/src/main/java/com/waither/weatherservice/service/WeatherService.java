@@ -62,7 +62,9 @@ public class WeatherService {
 		List<String> expectedSkyList = openApiUtil.apiResponseListFilter(items, "SKY");
 
 		ForeCastOpenApiResponse.Item item = items.get(0);
-		String key = item.getNx() + "_" + item.getNy() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
+
+		List<Region> region = regionRepository.findRegionByXAndY(item.getNx(), item.getNy());
+		String key = region.get(0).getRegionName() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
 
 		ExpectedWeather expectedWeather = ExpectedWeather.builder()
 			.id(key)
@@ -95,7 +97,9 @@ public class WeatherService {
 		String wsd = openApiUtil.apiResponseStringFilter(items, "WSD");
 
 		ForeCastOpenApiResponse.Item item = items.get(0);
-		String key = item.getNx() + "_" + item.getNy() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
+
+		List<Region> region = regionRepository.findRegionByXAndY(item.getNx(), item.getNy());
+		String key = region.get(0).getRegionName() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
 
 		DailyWeather dailyWeather = DailyWeather.builder()
 			.id(key)
@@ -149,7 +153,9 @@ public class WeatherService {
 		LatXLngY latXLngY = GpsTransfer.convertGpsToGrid(latitude, longitude);
 
 		LocalDateTime now = LocalDateTime.now();
-		String key = (int)latXLngY.x() + "_" + (int)latXLngY.y() + "_" + convertLocalDateTimeToString(now);
+
+		List<Region> region = regionRepository.findRegionByLatAndLong(latitude, longitude);
+		String key = region.get(0).getRegionName() + "_" + convertLocalDateTimeToString(now);
 
 		// 테스트 키 : "55_127_20240508_1500"
 
