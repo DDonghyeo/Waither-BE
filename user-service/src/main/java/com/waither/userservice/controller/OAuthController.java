@@ -13,24 +13,25 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/oauth")
+@RequestMapping("/user/oauth")
 public class OAuthController {
 
     private final KakaoService kakaoService;
 
     private final AccountsService accountsService;
 
-    @GetMapping("/callback")
+    @GetMapping("/kakao/callback")
     public ApiResponse<?> callback(@RequestParam("code") String code) {
 
         String accessTokenFromKakao = kakaoService.getAccessTokenFromKakao(code);
 
         KakaoResDto.UserInfoResponseDto userInfo = kakaoService.getUserInfo(accessTokenFromKakao);
 
-        //TODO: if 회원가입 안 한 상태 -> 회원가입 진행
+        String email = userInfo.getKakaoAccount().getEmail();
+        if (!accountsService.isUserRegistered(email)) {
+            accountsService.signup(userInfo);
+        }
 
-        //TODO: 토큰 발급
-        //accountsService
-        return ApiResponse.onSuccess(null);
+        return ApiResponse.onSuccess(accountsService.provideTokenForOAuth(email));
     }
 }
