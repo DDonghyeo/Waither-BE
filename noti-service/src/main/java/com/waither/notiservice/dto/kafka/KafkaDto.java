@@ -48,18 +48,21 @@ public class KafkaDto {
         }
     }
 
+    @Builder
     public record UserMedianDto(
             Long userId,
             List<Map<String, Double>> medians
 
     ) {}
 
+    @Builder
     public record UserSettingsDto(
             Long userId,
             String key,
             String value
     ) {}
 
+    @Builder
     public record TokenDto(
             Long userId,
             String token
