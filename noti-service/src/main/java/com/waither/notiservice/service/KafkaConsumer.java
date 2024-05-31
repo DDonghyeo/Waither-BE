@@ -6,8 +6,8 @@ import com.waither.notiservice.domain.type.Season;
 import com.waither.notiservice.dto.kafka.KafkaDto;
 import com.waither.notiservice.global.exception.CustomException;
 import com.waither.notiservice.global.response.ErrorCode;
-import com.waither.notiservice.repository.UserDataRepository;
-import com.waither.notiservice.repository.UserMedianRepository;
+import com.waither.notiservice.repository.jpa.UserDataRepository;
+import com.waither.notiservice.repository.jpa.UserMedianRepository;
 import com.waither.notiservice.utils.RedisUtils;
 import com.waither.notiservice.utils.TemperatureUtils;
 import lombok.RequiredArgsConstructor;
@@ -37,13 +37,13 @@ public class KafkaConsumer {
     @KafkaListener(topics = "${spring.kafka.template.user-median-topic}", containerFactory = "userMedianKafkaListenerContainerFactory")
     public void consumeUserMedian(KafkaDto.UserMedianDto userMedianDto) {
 
-        Season season = TemperatureUtils.getCurrentSeason();
+        Season currentSeason = TemperatureUtils.getCurrentSeason();
         log.info("[ Kafka Listener ] 사용자 중앙값 데이터 동기화");
-        log.info("[ Kafka Listener ] Season : -- {} ", season.name());
-        log.info("[ Kafka Listener ] User Id : --> {}", userMedianDto.userId());
+        log.info("[ Kafka Listener ] Season : -- {} ", currentSeason.name());
+        log.info("[ Kafka Listener ] Email : --> {}", userMedianDto.email());
 
 
-        Optional<UserMedian> optionalUserMedian = userMedianRepository.findById(userMedianDto.userId());
+        Optional<UserMedian> optionalUserMedian = userMedianRepository.findByEmailAndSeason(userMedianDto.email(), currentSeason);
         if (optionalUserMedian.isPresent()) {
             //User Median 이미 있을 경우
             UserMedian userMedian = optionalUserMedian.get();
@@ -52,14 +52,14 @@ public class KafkaConsumer {
 
         } else {
             //User Median 없을 경우 생성
+            //TODO : 계절당 초기값 받아야 함
             UserMedian newUserMedian = UserMedian.builder()
-                    .userId(userMedianDto.userId())
+                    .email(userMedianDto.email())
+                    .season(currentSeason)
                     .build();
             newUserMedian.setLevel(userMedianDto);
             userMedianRepository.save(newUserMedian);
         }
-
-
     }
 
 
@@ -70,11 +70,11 @@ public class KafkaConsumer {
     public void consumeFirebaseToken(KafkaDto.TokenDto tokenDto) {
 
         log.info("[ Kafka Listener ] Firebase Token 동기화");
-        log.info("[ Kafka Listener ] User Id : --> {}", tokenDto.userId());
+        log.info("[ Kafka Listener ] Email : --> {}", tokenDto.email());
         log.info("[ Kafka Listener ] Token : --> {}", tokenDto.token());
 
         //토큰 Redis 저장
-        redisUtils.save(String.valueOf(tokenDto.userId()), tokenDto.token());
+        redisUtils.save(tokenDto.email(), tokenDto.token());
     }
 
 
@@ -85,17 +85,18 @@ public class KafkaConsumer {
     public void consumeUserSettings(KafkaDto.UserSettingsDto userSettingsDto) {
 
         log.info("[ Kafka Listener ] 사용자 설정값 데이터 동기화");
-        log.info("[ Kafka Listener ] User Id : --> {}", userSettingsDto.userId());
+        log.info("[ Kafka Listener ] Email : --> {}", userSettingsDto.email());
         log.info("[ Kafka Listener ] Key : --> {}", userSettingsDto.key());
         log.info("[ Kafka Listener ] Value : --> {}", userSettingsDto.value());
 
-        Optional<UserData> userData = userDataRepository.findById(userSettingsDto.userId());
+        Optional<UserData> userData = userDataRepository.findByEmail(userSettingsDto.email());
         if (userData.isPresent()) {
             userData.get().updateValue(userSettingsDto.key(), userSettingsDto.value());
             userDataRepository.save(userData.get());
         } else {
+            log.warn("[ Kafka Listener ] User Data 초기값이 없었습니다.");
             UserData newUserData = UserData.builder()
-                    .userId(userSettingsDto.userId())
+                    .email(userSettingsDto.email())
                     .build();
             newUserData.updateValue(userSettingsDto.key(), userSettingsDto.value());
             userDataRepository.save(newUserData);
@@ -107,7 +108,7 @@ public class KafkaConsumer {
     public void consumeUserInit(KafkaDto.InitialDataDto initialDataDto) {
 
         log.info("[ Kafka Listener ] 초기 설정값 세팅");
-        log.info("[ Kafka Listener ] user --> {}", initialDataDto.nickName());
+        log.info("[ Kafka Listener ] email --> {}", initialDataDto.email());
         userDataRepository.save(initialDataDto.toUserDataEntity());
         userMedianRepository.save(initialDataDto.toUserMedianEntity());
     }
@@ -120,7 +121,8 @@ public class KafkaConsumer {
      * */
     @KafkaListener(topics = "alarm-wind")
     public void consumeWindAlarm(@Payload String message) {
-        String resultMessage = "";
+        StringBuilder sb = new StringBuilder();
+
         Long windStrength = Long.valueOf(message); //바람세기
 
         log.info("[ Kafka Listener ] 바람 세기");
@@ -130,10 +132,10 @@ public class KafkaConsumer {
         List<Long> userIds = new ArrayList<>();
 
         //TODO : 바람 세기 알림 멘트 정리
-        resultMessage += "현재 바람 세기가 " + windStrength + "m/s 이상입니다. 강풍에 주의하세요.";
+        sb.append("현재 바람 세기가 ").append(windStrength).append("m/s 이상입니다. 강풍에 주의하세요.");
 
         System.out.println("[ 푸시알림 ] 바람 세기 알림");
-        sendAlarms(userIds, resultMessage);
+        sendAlarms(userIds, sb.toString());
     }
 
 
@@ -178,15 +180,15 @@ public class KafkaConsumer {
     }
 
 
-    private void sendAlarms(List<Long> userIds, String message) {
-        userIds.forEach(id ->{
-            String token = String.valueOf(redisUtils.get(String.valueOf(id)));
+    private void sendAlarms(List<Long> userEmails, String message) {
+        userEmails.forEach(email ->{
+            String token = String.valueOf(redisUtils.get(String.valueOf(email)));
             if (token == null) { //token을 찾지 못했을 경우
                 throw new CustomException(ErrorCode.FIREBASE_TOKEN_NOT_FOUND);
             }
 
 
-            System.out.printf("[ 푸시알림 ] userId ---> {%d}", id);
+            System.out.printf("[ 푸시알림 ] Email ---> {%d}", email);
             System.out.printf("[ 푸시알림 ] message ---> {%s}", message);
         });
     }
