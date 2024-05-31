@@ -1,10 +1,12 @@
 package com.waither.notiservice.service;
 
 import com.waither.notiservice.domain.UserData;
+import com.waither.notiservice.domain.type.Season;
 import com.waither.notiservice.dto.kafka.KafkaDto;
 import com.waither.notiservice.repository.jpa.UserDataRepository;
 import com.waither.notiservice.repository.jpa.UserMedianRepository;
 import com.waither.notiservice.utils.RedisUtils;
+import com.waither.notiservice.utils.TemperatureUtils;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.BeforeAll;
@@ -76,12 +78,15 @@ public class KafkaConsumerTest {
         //Given
         ProducerFactory<Integer, KafkaDto.UserMedianDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
         KafkaTemplate<Integer, KafkaDto.UserMedianDto> template = new KafkaTemplate<>(pf);
+        Season currentSeason = TemperatureUtils.getCurrentSeason();
+        String tempEmail = "kafkaTest@gmail.com";
 
         //when
         KafkaDto.UserMedianDto userMedianDto = KafkaDto.UserMedianDto.builder()
-                .userId(0L)
+                .email(tempEmail)
                 .medians(List.of(
-                        Map.of("medianOf1And2", 10.5))
+                        Map.of("medianOf1And2", 10.5),
+                        Map.of("medianOf2And3", 12.5))
                 )
                 .build();
         CompletableFuture<SendResult<Integer, KafkaDto.UserMedianDto>> future = template.send("user-median", userMedianDto);
@@ -96,13 +101,13 @@ public class KafkaConsumerTest {
         Thread.sleep(2000); //2초 대기
 
         userMedianRepository.findAll().forEach(userMedian -> {
-            System.out.println(" userId : " + userMedian.getUserId());
+            System.out.println(" email : " + userMedian.getEmail());
         });
 
-        assertThat(userMedianRepository.findById(0L).get().getMedianOf1And2()).isEqualTo(10.5);
+        assertThat(userMedianRepository.findByEmailAndSeason(tempEmail, currentSeason).get().getMedianOf1And2()).isEqualTo(10.5);
 
         //끝나고 삭제 -> Rollback 일어나지 않아서
-        userMedianRepository.deleteById(0L);
+        userMedianRepository.deleteById(tempEmail);
     }
 
 
@@ -114,10 +119,11 @@ public class KafkaConsumerTest {
         //Given
         ProducerFactory<Integer, KafkaDto.TokenDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
         KafkaTemplate<Integer, KafkaDto.TokenDto> template = new KafkaTemplate<>(pf);
+        String tempEmail = "kafkaTest@gmail.com";
 
         //when
         KafkaDto.TokenDto tokenDto = KafkaDto.TokenDto.builder()
-                .userId(0L)
+                .email(tempEmail)
                 .token("test token")
                 .build();
         CompletableFuture<SendResult<Integer, KafkaDto.TokenDto>> future = template.send("firebase-token", tokenDto);
@@ -132,10 +138,10 @@ public class KafkaConsumerTest {
         Thread.sleep(2000); //2초 대기
 
 
-        assertThat(String.valueOf(redisUtils.get("0"))).isEqualTo("test token");
+        assertThat(String.valueOf(redisUtils.get(tempEmail))).isEqualTo("test token");
 
         //끝나고 삭제 -> Rollback 일어나지 않아서
-        redisUtils.delete("0");
+        redisUtils.delete(tempEmail);
     }
 
     @Test
@@ -145,14 +151,15 @@ public class KafkaConsumerTest {
         //Given
         ProducerFactory<Integer, KafkaDto.UserSettingsDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
         KafkaTemplate<Integer, KafkaDto.UserSettingsDto> template = new KafkaTemplate<>(pf);
+        String tempEmail = "kafkaTest@gmail.com";
 
         //when
         userDataRepository.save(UserData.builder()
                 .windDegree(11)
-                .userId(0L)
+                .email(tempEmail)
                 .build());
         KafkaDto.UserSettingsDto userSettingsDto = KafkaDto.UserSettingsDto.builder()
-                .userId(0L)
+                .email(tempEmail)
                 .key("windDegree")
                 .value("11")
                 .build();
@@ -169,10 +176,10 @@ public class KafkaConsumerTest {
         Thread.sleep(2000); //2초 대기
 
 
-        assertThat(userDataRepository.findById(0L).get().getWindDegree()).isEqualTo(11);
+        assertThat(userDataRepository.findByEmail(tempEmail).get().getWindDegree()).isEqualTo(11);
 
         //끝나고 삭제 -> Rollback 일어나지 않아서
-        userDataRepository.deleteById(0L);
+        userDataRepository.deleteById(tempEmail);
     }
 
     @Test
