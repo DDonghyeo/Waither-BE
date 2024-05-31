@@ -1,6 +1,7 @@
 package com.waither.notiservice.domain;
 
 import com.waither.notiservice.domain.type.Season;
+import com.waither.notiservice.dto.kafka.KafkaDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -24,12 +25,18 @@ public class UserMedian {
     @Enumerated(value = EnumType.STRING)
     public Season season;
 
-    public void setLevel(int level, double value) {
+    public void setLevel(String level, Double value) {
         switch (level) {
-            case 1 -> medianOf1And2 = value;
-            case 2 -> medianOf2And3 = value;
-            case 3 -> medianOf3And4 = value;
-            case 4 -> medianOf4And5 = value;
+            case "medianOf1And2" -> medianOf1And2 = value;
+            case "medianOf2And3" -> medianOf2And3 = value;
+            case "medianOf3And4" -> medianOf3And4 = value;
+            case "medianOf4And5" -> medianOf4And5 = value;
         }
+    }
+
+    public void setLevel(KafkaDto.UserMedianDto userMedianDto) {
+        userMedianDto.medians().forEach(median ->
+                median.forEach(this::setLevel)
+        );
     }
 }

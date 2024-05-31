@@ -3,9 +3,7 @@ package com.waither.notiservice.service;
 import com.waither.notiservice.domain.UserData;
 import com.waither.notiservice.domain.UserMedian;
 import com.waither.notiservice.domain.type.Season;
-import com.waither.notiservice.dto.kafka.TokenDto;
-import com.waither.notiservice.dto.kafka.UserMedianDto;
-import com.waither.notiservice.dto.kafka.UserSettingsDto;
+import com.waither.notiservice.dto.kafka.KafkaDto;
 import com.waither.notiservice.global.exception.CustomException;
 import com.waither.notiservice.global.response.ErrorCode;
 import com.waither.notiservice.repository.UserDataRepository;
@@ -31,34 +29,33 @@ public class KafkaConsumer {
 
     private final UserDataRepository userDataRepository;
     private final UserMedianRepository userMedianRepository;
-
     private final RedisUtils redisUtils;
 
     /**
      * 중앙값 동기화 Listener
      * */
-    @KafkaListener(topics = "user-median", containerFactory = "userMedianKafkaListenerContainerFactory")
-    public void consumeUserMedian(UserMedianDto userMedianDto) {
+    @KafkaListener(topics = "${spring.kafka.template.user-median-topic}", containerFactory = "userMedianKafkaListenerContainerFactory")
+    public void consumeUserMedian(KafkaDto.UserMedianDto userMedianDto) {
 
         Season season = TemperatureUtils.getCurrentSeason();
         log.info("[ Kafka Listener ] 사용자 중앙값 데이터 동기화");
         log.info("[ Kafka Listener ] Season : -- {} ", season.name());
-        log.info("[ Kafka Listener ] User Id : --> {}", userMedianDto.getUserId());
-        log.info("[ Kafka Listener ] Level : --> {}", userMedianDto.getLevel());
-        log.info("[ Kafka Listener ] Temperature : --> {}", userMedianDto.getTemperature());
+        log.info("[ Kafka Listener ] User Id : --> {}", userMedianDto.userId());
 
-        Optional<UserMedian> userMedian = userMedianRepository.findById(userMedianDto.getUserId());
-        if (userMedian.isPresent()) {
+
+        Optional<UserMedian> optionalUserMedian = userMedianRepository.findById(userMedianDto.userId());
+        if (optionalUserMedian.isPresent()) {
             //User Median 이미 있을 경우
-            userMedian.get()
-                    .setLevel(userMedianDto.getLevel(), userMedianDto.getTemperature());
+            UserMedian userMedian = optionalUserMedian.get();
+            userMedian.setLevel(userMedianDto);
+            userMedianRepository.save(userMedian);
+
         } else {
-            //User Median 없을 경우 (생성)
+            //User Median 없을 경우 생성
             UserMedian newUserMedian = UserMedian.builder()
-                    .userId(userMedianDto.getUserId())
+                    .userId(userMedianDto.userId())
                     .build();
-            newUserMedian.setLevel(userMedianDto.getLevel(),
-                    userMedianDto.getTemperature());
+            newUserMedian.setLevel(userMedianDto);
             userMedianRepository.save(newUserMedian);
         }
 
@@ -70,42 +67,50 @@ public class KafkaConsumer {
      * Firebase Token Listener
      * */
     @KafkaListener(topics = "firebase-token", containerFactory = "firebaseTokenKafkaListenerContainerFactory")
-    public void consumeFirebaseToken(TokenDto tokenDto) {
+    public void consumeFirebaseToken(KafkaDto.TokenDto tokenDto) {
 
         log.info("[ Kafka Listener ] Firebase Token 동기화");
-        log.info("[ Kafka Listener ] User Id : --> {}", tokenDto.getUserId());
-        log.info("[ Kafka Listener ] Token : --> {}", tokenDto.getToken());
+        log.info("[ Kafka Listener ] User Id : --> {}", tokenDto.userId());
+        log.info("[ Kafka Listener ] Token : --> {}", tokenDto.token());
 
         //토큰 Redis 저장
-        redisUtils.save(String.valueOf(tokenDto.getUserId()), tokenDto.getToken());
+        redisUtils.save(String.valueOf(tokenDto.userId()), tokenDto.token());
     }
 
 
     /**
      * User Settings Listener
      * */
-    @KafkaListener(topics = "user-settings", containerFactory = "userSettingsKafkaListenerContainerFactory")
-    public void consumeUserSettings(UserSettingsDto userSettingsDto) {
+    @KafkaListener(topics = "${spring.kafka.template.user-settings-topic}", containerFactory = "userSettingsKafkaListenerContainerFactory")
+    public void consumeUserSettings(KafkaDto.UserSettingsDto userSettingsDto) {
 
         log.info("[ Kafka Listener ] 사용자 설정값 데이터 동기화");
-        log.info("[ Kafka Listener ] User Id : --> {}", userSettingsDto.getUserId());
-        log.info("[ Kafka Listener ] Key : --> {}", userSettingsDto.getKey());
-        log.info("[ Kafka Listener ] Value : --> {}", userSettingsDto.getValue());
+        log.info("[ Kafka Listener ] User Id : --> {}", userSettingsDto.userId());
+        log.info("[ Kafka Listener ] Key : --> {}", userSettingsDto.key());
+        log.info("[ Kafka Listener ] Value : --> {}", userSettingsDto.value());
 
-        Optional<UserData> userData = userDataRepository.findById(userSettingsDto.getUserId());
+        Optional<UserData> userData = userDataRepository.findById(userSettingsDto.userId());
         if (userData.isPresent()) {
-            userData.get().updateValue(userSettingsDto.getKey(), userSettingsDto.getValue());
+            userData.get().updateValue(userSettingsDto.key(), userSettingsDto.value());
             userDataRepository.save(userData.get());
         } else {
             UserData newUserData = UserData.builder()
-                    .userId(userSettingsDto.getUserId())
+                    .userId(userSettingsDto.userId())
                     .build();
-            newUserData.updateValue(userSettingsDto.getKey(), userSettingsDto.getValue());
+            newUserData.updateValue(userSettingsDto.key(), userSettingsDto.value());
             userDataRepository.save(newUserData);
         }
 
     }
 
+    @KafkaListener(topics = "${spring.kafka.template.initial-data-topic}", containerFactory = "initialDataKafkaListenerContainerFactory")
+    public void consumeUserInit(KafkaDto.InitialDataDto initialDataDto) {
+
+        log.info("[ Kafka Listener ] 초기 설정값 세팅");
+        log.info("[ Kafka Listener ] user --> {}", initialDataDto.nickName());
+        userDataRepository.save(initialDataDto.toUserDataEntity());
+        userMedianRepository.save(initialDataDto.toUserMedianEntity());
+    }
 
 
 
@@ -185,4 +190,5 @@ public class KafkaConsumer {
             System.out.printf("[ 푸시알림 ] message ---> {%s}", message);
         });
     }
+
 }

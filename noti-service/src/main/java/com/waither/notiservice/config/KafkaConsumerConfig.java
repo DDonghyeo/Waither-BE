@@ -1,8 +1,6 @@
 package com.waither.notiservice.config;
 
-import com.waither.notiservice.dto.kafka.TokenDto;
-import com.waither.notiservice.dto.kafka.UserMedianDto;
-import com.waither.notiservice.dto.kafka.UserSettingsDto;
+import com.waither.notiservice.dto.kafka.KafkaDto;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -81,8 +79,8 @@ public class KafkaConsumerConfig {
 
 
     @Bean("userMedianKafkaListenerContainerFactory")
-    public ConcurrentKafkaListenerContainerFactory<String, UserMedianDto> userMedianDtoConcurrentKafkaListenerContainerFactory(){
-        ConcurrentKafkaListenerContainerFactory<String, UserMedianDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, KafkaDto.UserMedianDto> userMedianDtoConcurrentKafkaListenerContainerFactory(){
+        ConcurrentKafkaListenerContainerFactory<String, KafkaDto.UserMedianDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(userMedianConsumerFactory());
         factory.setConcurrency(3);
         factory.setBatchListener(true);
@@ -90,16 +88,16 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
-    private ConsumerFactory<String, UserMedianDto> userMedianConsumerFactory() {
+    private ConsumerFactory<String, KafkaDto.UserMedianDto> userMedianConsumerFactory() {
         Map<String, Object> props = dtoSettings();
-         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(UserMedianDto.class));
+         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(KafkaDto.UserMedianDto.class));
     }
 
 
 
     @Bean("firebaseTokenKafkaListenerContainerFactory")
-    public ConcurrentKafkaListenerContainerFactory<String, TokenDto> firebaseTokenConcurrentKafkaListenerContainerFactory(){
-        ConcurrentKafkaListenerContainerFactory<String, TokenDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, KafkaDto.TokenDto> firebaseTokenConcurrentKafkaListenerContainerFactory(){
+        ConcurrentKafkaListenerContainerFactory<String, KafkaDto.TokenDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(firebaseTokenConsumerFactory());
         factory.setConcurrency(3);
         factory.setBatchListener(true);
@@ -107,16 +105,16 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
-    private ConsumerFactory<String, TokenDto> firebaseTokenConsumerFactory() {
+    private ConsumerFactory<String, KafkaDto.TokenDto> firebaseTokenConsumerFactory() {
         Map<String, Object> props = dtoSettings();
-         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(TokenDto.class));
+         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(KafkaDto.TokenDto.class));
     }
 
 
 
     @Bean("userSettingsKafkaListenerContainerFactory")
-    public ConcurrentKafkaListenerContainerFactory<String, UserSettingsDto> userSettingsConcurrentKafkaListenerContainerFactory(){
-        ConcurrentKafkaListenerContainerFactory<String, UserSettingsDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, KafkaDto.UserSettingsDto> userSettingsConcurrentKafkaListenerContainerFactory(){
+        ConcurrentKafkaListenerContainerFactory<String, KafkaDto.UserSettingsDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(userSettingsConsumerFactory());
         factory.setConcurrency(3);
         factory.setBatchListener(true);
@@ -124,9 +122,25 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
-    private ConsumerFactory<String, UserSettingsDto> userSettingsConsumerFactory() {
+    private ConsumerFactory<String, KafkaDto.UserSettingsDto> userSettingsConsumerFactory() {
         Map<String, Object> props = dtoSettings();
-         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(UserSettingsDto.class));
+         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(KafkaDto.UserSettingsDto.class));
+    }
+
+
+    @Bean("initialDataKafkaListenerContainerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, KafkaDto.InitialDataDto> initialDataConcurrentKafkaListenerContainerFactory(){
+        ConcurrentKafkaListenerContainerFactory<String, KafkaDto.InitialDataDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(initialDataConsumerFactory());
+        factory.setConcurrency(3);
+        factory.setBatchListener(true);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
+        return factory;
+    }
+
+    private ConsumerFactory<String, KafkaDto.InitialDataDto> initialDataConsumerFactory() {
+        Map<String, Object> props = dtoSettings();
+         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(KafkaDto.InitialDataDto.class));
     }
 
 
