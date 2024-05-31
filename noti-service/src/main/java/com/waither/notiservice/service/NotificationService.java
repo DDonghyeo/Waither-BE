@@ -5,7 +5,6 @@ import com.waither.notiservice.domain.Notification;
 import com.waither.notiservice.domain.UserData;
 import com.waither.notiservice.domain.UserMedian;
 import com.waither.notiservice.api.request.LocationDto;
-import com.waither.notiservice.domain.redis.NotificationRecord;
 import com.waither.notiservice.domain.type.Season;
 import com.waither.notiservice.global.exception.CustomException;
 import com.waither.notiservice.global.response.ErrorCode;
@@ -126,8 +125,8 @@ public class NotificationService {
     public void checkCurrentAlarm(String email, LocationDto locationDto) {
 
         log.info("[ Notification Service ]  email ---> {}", email);
-        log.info("[ Notification Service ]  현재 위치 위도 (x) ---> {}", locationDto.getX());
-        log.info("[ Notification Service ]  현재 위치 경도 (y) ---> {}", locationDto.getY());
+        log.info("[ Notification Service ]  현재 위치 위도 (lat) ---> {}", locationDto.getLat());
+        log.info("[ Notification Service ]  현재 위치 경도 (lon) ---> {}", locationDto.getLon());
 
         notificationRecordRepository.findByEmail(email);
 
