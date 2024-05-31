@@ -34,14 +34,16 @@ public class NotificationController {
 
     @Operation(summary = "Send Go Out Alarm", description = "외출 알림 전송하기")
     @PostMapping("/goOut")
-    public void sendGoOutAlarm(@AuthUser String email) {
+    public ApiResponse<?> sendGoOutAlarm(@AuthUser String email) {
         notificationService.sendGoOutAlarm(email);
+        return ApiResponse.onSuccess(HttpStatus.OK);
     }
 
     @Operation(summary = "Current Location", description = "현재 위치 전송")
     @PostMapping("/location")
-    public void checkCurrentAlarm(@AuthUser String email, @RequestBody @Valid LocationDto locationDto) {
+    public ApiResponse<?> checkCurrentAlarm(@AuthUser String email, @RequestBody @Valid LocationDto locationDto) {
         notificationService.checkCurrentAlarm(email, locationDto);
+        return ApiResponse.onSuccess(HttpStatus.OK);
     }
 
 }
