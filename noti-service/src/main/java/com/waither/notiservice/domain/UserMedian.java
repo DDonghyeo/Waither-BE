@@ -16,7 +16,7 @@ import org.hibernate.annotations.DynamicInsert;
 public class UserMedian {
 
     @Id
-    private Long userId;
+    private String email;
     private Double medianOf1And2;
     private Double medianOf2And3;
     private Double medianOf3And4;

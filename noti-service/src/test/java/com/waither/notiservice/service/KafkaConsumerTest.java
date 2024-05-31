@@ -2,8 +2,8 @@ package com.waither.notiservice.service;
 
 import com.waither.notiservice.domain.UserData;
 import com.waither.notiservice.dto.kafka.KafkaDto;
-import com.waither.notiservice.repository.UserDataRepository;
-import com.waither.notiservice.repository.UserMedianRepository;
+import com.waither.notiservice.repository.jpa.UserDataRepository;
+import com.waither.notiservice.repository.jpa.UserMedianRepository;
 import com.waither.notiservice.utils.RedisUtils;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;

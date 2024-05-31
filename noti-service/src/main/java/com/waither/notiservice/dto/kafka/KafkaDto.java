@@ -12,7 +12,7 @@ public class KafkaDto {
 
     public record InitialDataDto(
 
-            String nickName,
+            String email,
             boolean climateAlert,
             boolean userAlert,
             boolean snowAlert,
@@ -27,7 +27,7 @@ public class KafkaDto {
     ) {
         public UserData toUserDataEntity() {
             return UserData.builder()
-                    .userId(0L)
+                    .email(email)
                     .climateAlert(climateAlert)
                     .userAlert(userAlert)
                     .snowAlert(snowAlert)
@@ -39,6 +39,7 @@ public class KafkaDto {
 
         public UserMedian toUserMedianEntity() {
             return UserMedian.builder()
+                    .email(email)
                     .season(TemperatureUtils.getCurrentSeason())
                     .medianOf1And2(medianOf1And2 + weight)
                     .medianOf2And3(medianOf2And3 + weight)
@@ -50,21 +51,21 @@ public class KafkaDto {
 
     @Builder
     public record UserMedianDto(
-            Long userId,
+            String email,
             List<Map<String, Double>> medians
 
     ) {}
 
     @Builder
     public record UserSettingsDto(
-            Long userId,
+            String email,
             String key,
             String value
     ) {}
 
     @Builder
     public record TokenDto(
-            Long userId,
+            String email,
             String token
     ){}
 

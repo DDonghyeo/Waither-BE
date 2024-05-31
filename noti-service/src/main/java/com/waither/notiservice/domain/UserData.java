@@ -16,7 +16,7 @@ import org.hibernate.annotations.DynamicInsert;
 public class UserData {
 
     @Id
-    private Long userId;
+    private String email;
 
     private String nickName;
 
