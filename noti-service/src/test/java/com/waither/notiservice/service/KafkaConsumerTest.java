@@ -1,6 +1,7 @@
 package com.waither.notiservice.service;
 
 import com.waither.notiservice.domain.UserData;
+import com.waither.notiservice.domain.UserMedian;
 import com.waither.notiservice.domain.type.Season;
 import com.waither.notiservice.dto.kafka.KafkaDto;
 import com.waither.notiservice.repository.jpa.UserDataRepository;
@@ -9,10 +10,7 @@ import com.waither.notiservice.utils.RedisUtils;
 import com.waither.notiservice.utils.TemperatureUtils;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +40,7 @@ public class KafkaConsumerTest {
     Map<String, Object> stringProps;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws InterruptedException {
         jsonProps = new HashMap<>();
         jsonProps.put(ProducerConfig.ACKS_CONFIG, "all");
         jsonProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
@@ -64,10 +63,8 @@ public class KafkaConsumerTest {
 
     @Autowired
     private UserMedianRepository userMedianRepository;
-
     @Autowired
     private RedisUtils redisUtils;
-
     @Autowired
     private UserDataRepository userDataRepository;
 
@@ -75,9 +72,10 @@ public class KafkaConsumerTest {
     @DisplayName("User Median Consumer Test")
     @Transactional //Transaction 후 Rollback (작동하지 않음. Listener 로 작동해서?)
     void userMedianTest() throws InterruptedException {
+
         //Given
-        ProducerFactory<Integer, KafkaDto.UserMedianDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
-        KafkaTemplate<Integer, KafkaDto.UserMedianDto> template = new KafkaTemplate<>(pf);
+        ProducerFactory<String, KafkaDto.UserMedianDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
+        KafkaTemplate<String, KafkaDto.UserMedianDto> template = new KafkaTemplate<>(pf);
         Season currentSeason = TemperatureUtils.getCurrentSeason();
         String tempEmail = "kafkaTest@gmail.com";
 
@@ -89,7 +87,8 @@ public class KafkaConsumerTest {
                         Map.of("medianOf2And3", 12.5))
                 )
                 .build();
-        CompletableFuture<SendResult<Integer, KafkaDto.UserMedianDto>> future = template.send("user-median", userMedianDto);
+        System.out.println("[ Kafka Test ] data --> "+ userMedianDto);
+        CompletableFuture<SendResult<String, KafkaDto.UserMedianDto>> future = template.send("user-median", userMedianDto);
 
         //then
         future.whenComplete(((result, throwable) -> {
@@ -98,13 +97,17 @@ public class KafkaConsumerTest {
             System.out.println("offset : "+ result.getRecordMetadata().offset());
         }
         ));
-        Thread.sleep(2000); //2초 대기
+
+        System.out.println("5초 대기");
+        Thread.sleep(5000);
 
         userMedianRepository.findAll().forEach(userMedian -> {
             System.out.println(" email : " + userMedian.getEmail());
         });
 
-        assertThat(userMedianRepository.findByEmailAndSeason(tempEmail, currentSeason).get().getMedianOf1And2()).isEqualTo(10.5);
+        Optional<UserMedian> byEmailAndSeason = userMedianRepository.findByEmailAndSeason(tempEmail, currentSeason);
+        assertThat(byEmailAndSeason.isPresent()).isTrue();
+        assertThat(byEmailAndSeason.get().getMedianOf1And2()).isEqualTo(10.5);
 
         //끝나고 삭제 -> Rollback 일어나지 않아서
         userMedianRepository.deleteById(tempEmail);
@@ -158,6 +161,7 @@ public class KafkaConsumerTest {
                 .windDegree(11)
                 .email(tempEmail)
                 .build());
+
         KafkaDto.UserSettingsDto userSettingsDto = KafkaDto.UserSettingsDto.builder()
                 .email(tempEmail)
                 .key("windDegree")

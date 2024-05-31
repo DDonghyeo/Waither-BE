@@ -3,6 +3,7 @@ package com.waither.notiservice.domain.redis;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 public class NotificationRecord {
 
     //유저 식별자
+    @Id
     private String email;
 
     //마지막 강수 알림 받은 시간
