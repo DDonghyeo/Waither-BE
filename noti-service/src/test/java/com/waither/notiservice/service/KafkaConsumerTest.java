@@ -1,9 +1,7 @@
 package com.waither.notiservice.service;
 
 import com.waither.notiservice.domain.UserData;
-import com.waither.notiservice.dto.kafka.TokenDto;
-import com.waither.notiservice.dto.kafka.UserMedianDto;
-import com.waither.notiservice.dto.kafka.UserSettingsDto;
+import com.waither.notiservice.dto.kafka.KafkaDto;
 import com.waither.notiservice.repository.UserDataRepository;
 import com.waither.notiservice.repository.UserMedianRepository;
 import com.waither.notiservice.utils.RedisUtils;
@@ -26,6 +24,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -75,16 +74,17 @@ public class KafkaConsumerTest {
     @Transactional //Transaction 후 Rollback (작동하지 않음. Listener 로 작동해서?)
     void userMedianTest() throws InterruptedException {
         //Given
-        ProducerFactory<Integer, UserMedianDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
-        KafkaTemplate<Integer, UserMedianDto> template = new KafkaTemplate<>(pf);
+        ProducerFactory<Integer, KafkaDto.UserMedianDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
+        KafkaTemplate<Integer, KafkaDto.UserMedianDto> template = new KafkaTemplate<>(pf);
 
         //when
-        UserMedianDto userMedianDto = UserMedianDto.builder()
+        KafkaDto.UserMedianDto userMedianDto = KafkaDto.UserMedianDto.builder()
                 .userId(0L)
-                .level(1)
-                .temperature(10.5)
+                .medians(List.of(
+                        Map.of("medianOf1And2", 10.5))
+                )
                 .build();
-        CompletableFuture<SendResult<Integer, UserMedianDto>> future = template.send("user-median", userMedianDto);
+        CompletableFuture<SendResult<Integer, KafkaDto.UserMedianDto>> future = template.send("user-median", userMedianDto);
 
         //then
         future.whenComplete(((result, throwable) -> {
@@ -112,15 +112,15 @@ public class KafkaConsumerTest {
     @Transactional //Transaction 후 Rollback (작동하지 않음. Listener 로 작동해서?)
     void firebaseTokenTest() throws InterruptedException {
         //Given
-        ProducerFactory<Integer, TokenDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
-        KafkaTemplate<Integer, TokenDto> template = new KafkaTemplate<>(pf);
+        ProducerFactory<Integer, KafkaDto.TokenDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
+        KafkaTemplate<Integer, KafkaDto.TokenDto> template = new KafkaTemplate<>(pf);
 
         //when
-        TokenDto tokenDto = TokenDto.builder()
+        KafkaDto.TokenDto tokenDto = KafkaDto.TokenDto.builder()
                 .userId(0L)
                 .token("test token")
                 .build();
-        CompletableFuture<SendResult<Integer, TokenDto>> future = template.send("firebase-token", tokenDto);
+        CompletableFuture<SendResult<Integer, KafkaDto.TokenDto>> future = template.send("firebase-token", tokenDto);
 
         //then
         future.whenComplete(((result, throwable) -> {
@@ -143,21 +143,21 @@ public class KafkaConsumerTest {
     @Transactional //Transaction 후 Rollback (작동하지 않음. Listener 로 작동해서?)
     void userSettingsWindDegreeTest() throws InterruptedException {
         //Given
-        ProducerFactory<Integer, UserSettingsDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
-        KafkaTemplate<Integer, UserSettingsDto> template = new KafkaTemplate<>(pf);
+        ProducerFactory<Integer, KafkaDto.UserSettingsDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
+        KafkaTemplate<Integer, KafkaDto.UserSettingsDto> template = new KafkaTemplate<>(pf);
 
         //when
         userDataRepository.save(UserData.builder()
                 .windDegree(11)
                 .userId(0L)
                 .build());
-        UserSettingsDto userSettingsDto = UserSettingsDto.builder()
+        KafkaDto.UserSettingsDto userSettingsDto = KafkaDto.UserSettingsDto.builder()
                 .userId(0L)
                 .key("windDegree")
                 .value("11")
                 .build();
 
-        CompletableFuture<SendResult<Integer, UserSettingsDto>> future = template.send("user-settings", userSettingsDto);
+        CompletableFuture<SendResult<Integer, KafkaDto.UserSettingsDto>> future = template.send("user-settings", userSettingsDto);
 
         //then
         future.whenComplete(((result, throwable) -> {
