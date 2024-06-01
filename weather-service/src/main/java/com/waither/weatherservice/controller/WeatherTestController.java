@@ -30,7 +30,6 @@ public class WeatherTestController {
 
 	@PostMapping("/daily")
 	public void createDailyWeatherTest(@RequestBody ForeCastTestRequest request) throws URISyntaxException {
-		weatherService.getRegionList();
 		weatherService.createDailyWeather(request.nx(), request.ny(), request.baseDate(), request.baseTime());
 	}
 

@@ -21,12 +21,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.waither.weatherservice.exception.WeatherExceptionHandler;
 import com.waither.weatherservice.response.WeatherErrorCode;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OpenApiUtil {
 
 	@Value("${openapi.forecast.key}")

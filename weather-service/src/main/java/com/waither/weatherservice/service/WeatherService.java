@@ -19,14 +19,15 @@ import com.waither.weatherservice.entity.WeatherAdvisory;
 import com.waither.weatherservice.exception.WeatherExceptionHandler;
 import com.waither.weatherservice.gps.GpsTransfer;
 import com.waither.weatherservice.gps.LatXLngY;
+import com.waither.weatherservice.kafka.KafkaMessage;
 import com.waither.weatherservice.kafka.Producer;
 import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
 import com.waither.weatherservice.openapi.MsgOpenApiResponse;
 import com.waither.weatherservice.openapi.OpenApiUtil;
-import com.waither.weatherservice.redis.DailyWeatherRepository;
-import com.waither.weatherservice.redis.ExpectedWeatherRepository;
-import com.waither.weatherservice.redis.WeatherAdvisoryRepository;
+import com.waither.weatherservice.repository.DailyWeatherRepository;
+import com.waither.weatherservice.repository.ExpectedWeatherRepository;
 import com.waither.weatherservice.repository.RegionRepository;
+import com.waither.weatherservice.repository.WeatherAdvisoryRepository;
 import com.waither.weatherservice.response.WeatherErrorCode;
 
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,6 @@ public class WeatherService {
 	private final WeatherAdvisoryRepository weatherAdvisoryRepository;
 	private final RegionRepository regionRepository;
 	private final Producer producer;
-	private final GpsTransfer gpsTransfer;
 
 	public void createExpectedWeather(
 		int nx,
@@ -63,7 +63,9 @@ public class WeatherService {
 		List<String> expectedSkyList = openApiUtil.apiResponseListFilter(items, "SKY");
 
 		ForeCastOpenApiResponse.Item item = items.get(0);
-		String key = item.getNx() + "_" + item.getNy() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
+
+		List<Region> region = regionRepository.findRegionByXAndY(item.getNx(), item.getNy());
+		String key = region.get(0).getRegionName() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
 
 		ExpectedWeather expectedWeather = ExpectedWeather.builder()
 			.id(key)
@@ -96,7 +98,10 @@ public class WeatherService {
 		String wsd = openApiUtil.apiResponseStringFilter(items, "WSD");
 
 		ForeCastOpenApiResponse.Item item = items.get(0);
-		String key = item.getNx() + "_" + item.getNy() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
+
+		List<Region> region = regionRepository.findRegionByXAndY(item.getNx(), item.getNy());
+		String regionName = region.get(0).getRegionName();
+		String key = regionName + "_" + item.getFcstDate() + "_" + item.getFcstTime();
 
 		DailyWeather dailyWeather = DailyWeather.builder()
 			.id(key)
@@ -108,10 +113,8 @@ public class WeatherService {
 			.windDegree(wsd)
 			.build();
 
-		// DailyWeatherKafkaMessage kafkaMessage = DailyWeatherKafkaMessage.from(dailyWeather);
-
-		// 바람 세기 Kafka 전송
-		producer.produceMessage(wsd);
+		KafkaMessage kafkaMessage = KafkaMessage.of(regionName, dailyWeather.getWindDegree());
+		producer.produceMessage("alarm-wind", kafkaMessage);
 
 		DailyWeather save = dailyWeatherRepository.save(dailyWeather);
 		log.info("[*] 하루 온도 : {}", save);
@@ -122,7 +125,7 @@ public class WeatherService {
 		LocalDate now = LocalDate.now();
 		String today = openApiUtil.convertLocalDateToString(now);
 
-		String location = gpsTransfer.convertGpsToRegionCode(latitude, longitude);
+		String location = GpsTransfer.convertGpsToRegionCode(latitude, longitude);
 
 		List<MsgOpenApiResponse.Item> items = openApiUtil.callAdvisoryApi(location, today);
 
@@ -133,6 +136,9 @@ public class WeatherService {
 			.id(key)
 			.message(msg)
 			.build();
+
+		KafkaMessage kafkaMessage = KafkaMessage.of(location, msg);
+		producer.produceMessage("alarm-climate", kafkaMessage);
 
 		WeatherAdvisory save = weatherAdvisoryRepository.save(weatherAdvisory);
 		log.info("[*] 기상 특보 : {}", save);
@@ -147,10 +153,12 @@ public class WeatherService {
 	}
 
 	public MainWeatherResponse getMainWeather(double latitude, double longitude) {
-		LatXLngY latXLngY = gpsTransfer.convertGpsToGrid(latitude, longitude);
+		LatXLngY latXLngY = GpsTransfer.convertGpsToGrid(latitude, longitude);
 
 		LocalDateTime now = LocalDateTime.now();
-		String key = (int)latXLngY.x() + "_" + (int)latXLngY.y() + "_" + convertLocalDateTimeToString(now);
+
+		List<Region> region = regionRepository.findRegionByLatAndLong(latitude, longitude);
+		String key = region.get(0).getRegionName() + "_" + convertLocalDateTimeToString(now);
 
 		// 테스트 키 : "55_127_20240508_1500"
 
@@ -190,5 +198,9 @@ public class WeatherService {
 		List<Region> all = regionRepository.findAll();
 		log.info("Region List : {}", all);
 		return regionRepository.findAll();
+	}
+
+	public String convertGpsToRegionName(double latitude, double longitude) {
+		return regionRepository.findRegionByLatAndLong(latitude, longitude).get(0).getRegionName();
 	}
 }

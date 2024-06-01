@@ -11,12 +11,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,38 +34,47 @@ public class KafkaConfig {
 	@Value("${spring.kafka.consumer.group-id}")
 	private String groupId;
 
-	@Bean
-	public ProducerFactory<String, String> producerFactory() {
+	private <T> ProducerFactory<String, T> producerFactory(Class<T> valueClass) {
 		Map<String, Object> config = new HashMap<>();
 		config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
 		config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-		config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+
+		if (valueClass == String.class) {
+			config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+		} else {
+			config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+		}
 
 		return new DefaultKafkaProducerFactory<>(config);
 	}
 
 	@Bean
-	public KafkaTemplate<String, String> kafkaTemplate() {
-		return new KafkaTemplate<>(producerFactory());
+	public KafkaTemplate<String, Object> kafkaTemplate() {
+		return new KafkaTemplate<>(producerFactory(Object.class));
 	}
 
 	@Bean
-	public ConsumerFactory<String, String> consumerStringFactory() {
-		HashMap<String, Object> config = new HashMap<>();
-		config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
-		// Consumer Group
-		config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-		return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(),
-			new JsonDeserializer<>(String.class));
+	public KafkaTemplate<String, String> kafkaStringTemplate() {
+		return new KafkaTemplate<>(producerFactory(String.class));
 	}
 
-	// @Bean
-	// public ConcurrentKafkaListenerContainerFactory<String, DailyWeatherKafkaMessage> kafkaListenerContainerFactory() {
-	// 	ConcurrentKafkaListenerContainerFactory<String, DailyWeatherKafkaMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
-	// 	factory.setConsumerFactory(dailyWeatherConsumerFactory());
-	// 	factory.setConcurrency(3);
-	// 	factory.setBatchListener(true);
-	// 	factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
-	// 	return factory;
-	// }
+	// Consumer 관련 설정
+	private <T> ConsumerFactory<String, T> consumerFactory(Class<T> valueClass) {
+		HashMap<String, Object> config = new HashMap<>();
+		config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+		config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+
+		return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(),
+			new JsonDeserializer<>(valueClass));
+	}
+
+	@Bean
+	public ConcurrentKafkaListenerContainerFactory<String, KafkaMessage> kafkaListenerContainerFactory() {
+		ConcurrentKafkaListenerContainerFactory<String, KafkaMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+		factory.setConsumerFactory(consumerFactory(KafkaMessage.class));
+		factory.setConcurrency(3);
+		factory.setBatchListener(true);
+		factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
+		return factory;
+	}
 }
