@@ -10,23 +10,24 @@ import com.waither.weatherservice.dto.response.MainWeatherResponse;
 import com.waither.weatherservice.response.ApiResponse;
 import com.waither.weatherservice.service.WeatherService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/weather")
+@RequestMapping("/weather")
 public class WeatherController {
 
 	private final WeatherService weatherService;
 
 	@GetMapping("/main")
-	public ApiResponse<MainWeatherResponse> getMainWeather(@RequestBody GetWeatherRequest getWeatherRequest) {
+	public ApiResponse<MainWeatherResponse> getMainWeather(@RequestBody @Valid GetWeatherRequest getWeatherRequest) {
 		return ApiResponse.onSuccess(
 			weatherService.getMainWeather(getWeatherRequest.latitude(), getWeatherRequest.longitude()));
 	}
 
 	@GetMapping("/region")
-	public ApiResponse<String> convertGpsToRegionName(@RequestBody GetWeatherRequest getWeatherRequest) {
+	public ApiResponse<String> convertGpsToRegionName(@RequestBody @Valid GetWeatherRequest getWeatherRequest) {
 		return ApiResponse.onSuccess(
 			weatherService.convertGpsToRegionName(getWeatherRequest.latitude(), getWeatherRequest.longitude()));
 	}
