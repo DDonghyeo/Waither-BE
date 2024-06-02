@@ -10,13 +10,13 @@ public class KafkaService {
 
     private final KafkaProducer kafkaProducer;
 
-    @Value("${spring.kafka.template.initial-data-topic}")
+    @Value("${spring.kafka.template.initial-data}")
     private String initialDataTopic;
 
-    @Value("${spring.kafka.template.user-settings-topic}")
+    @Value("${spring.kafka.template.user-settings}")
     private String userSettingTopic;
 
-    @Value("${spring.kafka.template.user-median-topic}")
+    @Value("${spring.kafka.template.user-median}")
     private String userMedianTopic;
 
     public void sendInitialData(KafkaDto.InitialDataDto initialDataDto) {

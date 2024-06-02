@@ -4,36 +4,33 @@ import com.waither.userservice.converter.RegionConverter;
 import com.waither.userservice.converter.SettingConverter;
 import com.waither.userservice.converter.SurveyConverter;
 import com.waither.userservice.converter.UserConverter;
+import com.waither.userservice.dto.converter.AccountConverter;
 import com.waither.userservice.dto.request.UserReqDto;
+import com.waither.userservice.dto.response.KakaoResDto;
 import com.waither.userservice.entity.*;
 import com.waither.userservice.entity.enums.Season;
+import com.waither.userservice.global.exception.CustomException;
 import com.waither.userservice.global.jwt.dto.JwtDto;
-import com.waither.userservice.global.jwt.util.JwtUtil;
 import com.waither.userservice.global.jwt.userdetails.PrincipalDetails;
+import com.waither.userservice.global.jwt.util.JwtUtil;
+import com.waither.userservice.global.response.ErrorCode;
 import com.waither.userservice.global.util.RedisUtil;
 import com.waither.userservice.kafka.KafkaConverter;
 import com.waither.userservice.kafka.KafkaDto;
 import com.waither.userservice.kafka.KafkaService;
-import com.waither.userservice.dto.converter.AccountConverter;
-import com.waither.userservice.dto.response.KakaoResDto;
-import com.waither.userservice.entity.Region;
-import com.waither.userservice.entity.Setting;
-import com.waither.userservice.entity.User;
 import com.waither.userservice.repository.UserRepository;
-import com.waither.userservice.global.exception.CustomException;
-import com.waither.userservice.global.response.ErrorCode;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.waither.userservice.service.commandService.SurveyService.getCurrentSeason;
@@ -86,22 +83,18 @@ public class UserService {
                 })
                 .toList();
 
-
         // 연관관계 설정
         newSetting.setRegion(newRegion);
         newUser.setSetting(newSetting);
         newUser.setUserData(userDataList);
         newUser.setUserMedian(userMedianList);
 
-        //
-        Season currentSeason = getCurrentSeason();
-        UserMedian currentUserMedian = userMedianList.stream()
-                .filter(userMedian -> userMedian.getSeason() == currentSeason)
-                .findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_SEASON));
+        // 모든 계절의 UserMedian 값을 가져옴
+        Map<Season, UserMedian> userMedianMap = userMedianList.stream()
+                .collect(Collectors.toMap(UserMedian::getSeason, Function.identity()));
 
         // 초기값 Kafka 전송
-        KafkaDto.InitialDataDto initialDataDto = KafkaConverter.toInitialData(newUser, newSetting, currentUserMedian);
+        KafkaDto.InitialDataDto initialDataDto = KafkaConverter.toInitialData(newUser, newSetting, userMedianMap);
         kafkaService.sendInitialData(initialDataDto);
         userRepository.save(newUser);
     }
