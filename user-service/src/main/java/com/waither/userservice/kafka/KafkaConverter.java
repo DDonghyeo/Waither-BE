@@ -8,28 +8,31 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class KafkaConverter {
 
-    public static KafkaDto.InitialDataDto toInitialData(User user, Setting setting, Map<Season, UserMedian> userMedianMap) {
-        Map<Season, KafkaDto.SeasonData> seasonDataMap = new EnumMap<>(Season.class);
+    public static KafkaDto.InitialDataDto toInitialData(User user, Setting setting, List<UserMedian> userMedians) {
+        Map<Season, UserMedian> userMedianMap = userMedians.stream()
+                .collect(Collectors.toMap(UserMedian::getSeason, Function.identity()));
 
-        for (Map.Entry<Season, UserMedian> entry : userMedianMap.entrySet()) {
-            Season season = entry.getKey();
-            UserMedian userMedian = entry.getValue();
-
-            KafkaDto.SeasonData seasonData = KafkaDto.SeasonData.builder()
-                    .medianOf1And2(userMedian.getMedianOf1And2())
-                    .medianOf2And3(userMedian.getMedianOf2And3())
-                    .medianOf3And4(userMedian.getMedianOf3And4())
-                    .medianOf4And5(userMedian.getMedianOf4And5())
-                    .build();
-
-            seasonDataMap.put(season, seasonData);
-        }
+        Map<Season, KafkaDto.SeasonData> seasonDataMap = userMedianMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> KafkaDto.SeasonData.builder()
+                                .medianOf1And2(entry.getValue().getMedianOf1And2())
+                                .medianOf2And3(entry.getValue().getMedianOf2And3())
+                                .medianOf3And4(entry.getValue().getMedianOf3And4())
+                                .medianOf4And5(entry.getValue().getMedianOf4And5())
+                                .build(),
+                        (a, b) -> {
+                            throw new IllegalStateException("Duplicate key");
+                        },
+                        () -> new EnumMap<>(Season.class)
+                ));
 
         return KafkaDto.InitialDataDto.builder()
                 .nickName(user.getNickname())

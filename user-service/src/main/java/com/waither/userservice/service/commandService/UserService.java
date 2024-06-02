@@ -93,8 +93,8 @@ public class UserService {
         Map<Season, UserMedian> userMedianMap = userMedianList.stream()
                 .collect(Collectors.toMap(UserMedian::getSeason, Function.identity()));
 
-        // 초기값 Kafka 전송
-        KafkaDto.InitialDataDto initialDataDto = KafkaConverter.toInitialData(newUser, newSetting, userMedianMap);
+// 초기값 Kafka 전송
+        KafkaDto.InitialDataDto initialDataDto = KafkaConverter.toInitialData(newUser, newSetting, userMedianList);
         kafkaService.sendInitialData(initialDataDto);
         userRepository.save(newUser);
     }
