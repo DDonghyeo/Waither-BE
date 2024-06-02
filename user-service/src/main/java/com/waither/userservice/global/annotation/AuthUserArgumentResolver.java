@@ -3,7 +3,6 @@ package com.waither.userservice.global.annotation;
 import com.waither.userservice.entity.User;
 import com.waither.userservice.global.jwt.execption.SecurityCustomException;
 import com.waither.userservice.global.jwt.execption.SecurityErrorCode;
-import com.waither.userservice.global.jwt.util.JwtUtil;
 import com.waither.userservice.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.MethodParameter;
@@ -23,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
 
-    private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
 
     @Override
@@ -37,10 +35,11 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         HttpServletRequest httpServletRequest = (HttpServletRequest) webRequest.getNativeRequest();
-        String token = jwtUtil.resolveAccessToken(httpServletRequest);
-        String email = jwtUtil.getEmail(token);
+        String email = httpServletRequest.getHeader("email");
+
+        log.info("[*] Header <email> from ApiGateway: {}", email);
 
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new SecurityCustomException(SecurityErrorCode.TOKEN_NOT_FOUND));
+                .orElseThrow(() -> new SecurityCustomException(SecurityErrorCode.USER_NOT_FOUND));
     }
 }
