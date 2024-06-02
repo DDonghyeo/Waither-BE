@@ -1,19 +1,13 @@
 package com.waither.userservice.converter;
 
 import com.waither.userservice.dto.response.SettingResDto;
-import com.waither.userservice.entity.Region;
 import com.waither.userservice.entity.Setting;
 import com.waither.userservice.entity.User;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.experimental.UtilityClass;
 
-import java.time.DayOfWeek;
-import java.util.AbstractMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SettingConverter {
 
@@ -35,11 +29,15 @@ public class SettingConverter {
     }
 
     public static SettingResDto.CustomDto toCustomDto(User user) {
-        return new SettingResDto.CustomDto(user.isCustom());
+        return SettingResDto.CustomDto.builder()
+                .custom(user.isCustom())
+                .build();
     }
 
     public static SettingResDto.RegionNameDto toRegionNameDto(Setting setting) {
-        return new SettingResDto.RegionNameDto(setting.getRegion().getRegionName());
+        return SettingResDto.RegionNameDto.builder()
+                .regionName(setting.getRegion().getRegionName())
+                .build();
     }
 
     public static SettingResDto.NotificationDto toNotificationDto(Setting setting) {
@@ -47,40 +45,41 @@ public class SettingConverter {
                 .map(Enum::toString)
                 .toList();
 
-        return new SettingResDto.NotificationDto(
-                setting.isOutAlert(),
-                days,
-                setting.getOutTime(),
-                setting.isClimateAlert(),
-                setting.isUserAlert(),
-                setting.isSnowAlert()
-        );
+        return SettingResDto.NotificationDto.builder()
+                .outAlert(setting.isOutAlert())
+                .days(days)
+                .outTime(setting.getOutTime())
+                .climateAlert(setting.isClimateAlert())
+                .userAlert(setting.isUserAlert())
+                .snowAlert(setting.isSnowAlert())
+                .build();
     }
 
     public static SettingResDto.WindDto toWindDto(Setting setting) {
-        return new SettingResDto.WindDto(
-                setting.isWindAlert(),
-                setting.getWindDegree()
-        );
+        return SettingResDto.WindDto.builder()
+                .windAlert(setting.isWindAlert())
+                .windDegree(setting.getWindDegree())
+                .build();
     }
 
     public static SettingResDto.DisplayDto toDisplayDto(Setting setting) {
-        return new SettingResDto.DisplayDto(
-                setting.isPrecipitation(),
-                setting.isWind(),
-                setting.isDust()
-        );
+        return SettingResDto.DisplayDto.builder()
+                .precipitation(setting.isPrecipitation())
+                .wind(setting.isWind())
+                .dust(setting.isDust())
+                .build();
     }
 
     public static SettingResDto.WeightDto toWeightDto(Setting setting) {
-        return new SettingResDto.WeightDto(setting.getWeight());
+        return SettingResDto.WeightDto.builder()
+                .weight(setting.getWeight())
+                .build();
     }
 
     public static SettingResDto.UserInfoDto toUserInfoDto(User user) {
-        return new SettingResDto.UserInfoDto(
-                user.getEmail(),
-                user.getNickname()
-        );
+        return SettingResDto.UserInfoDto.builder()
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .build();
     }
-
 }
