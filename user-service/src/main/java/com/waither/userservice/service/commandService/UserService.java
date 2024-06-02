@@ -89,11 +89,8 @@ public class UserService {
         newUser.setUserData(userDataList);
         newUser.setUserMedian(userMedianList);
 
-        // 모든 계절의 UserMedian 값을 가져옴
-        Map<Season, UserMedian> userMedianMap = userMedianList.stream()
-                .collect(Collectors.toMap(UserMedian::getSeason, Function.identity()));
 
-// 초기값 Kafka 전송
+        // 초기값 Kafka 전송
         KafkaDto.InitialDataDto initialDataDto = KafkaConverter.toInitialData(newUser, newSetting, userMedianList);
         kafkaService.sendInitialData(initialDataDto);
         userRepository.save(newUser);
