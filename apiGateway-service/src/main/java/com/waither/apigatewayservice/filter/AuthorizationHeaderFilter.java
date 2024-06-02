@@ -82,7 +82,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
     // Mono(단일 값), Flux(다중 값) -> Spring WebFlux
     private Mono<Void> onError(ServerWebExchange exchange, String errorMsg) {
-        log.error(errorMsg);
+        log.error("[*] Gateway filter error: {}", errorMsg);
 
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
