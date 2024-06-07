@@ -2,6 +2,7 @@ package com.waither.notiservice.dto.kafka;
 
 import com.waither.notiservice.domain.UserData;
 import com.waither.notiservice.domain.UserMedian;
+import com.waither.notiservice.enums.Season;
 import com.waither.notiservice.utils.TemperatureUtils;
 import lombok.Builder;
 
@@ -10,20 +11,26 @@ import java.util.Map;
 
 public class KafkaDto {
 
-    public record InitialDataDto(
-
-            String email,
-            boolean climateAlert,
-            boolean userAlert,
-            boolean snowAlert,
-            boolean windAlert,
-            Integer windDegree,
-            boolean regionReport,
-            Double weight,
+    @Builder
+    public record SeasonData(
             Double medianOf1And2,
             Double medianOf2And3,
             Double medianOf3And4,
             Double medianOf4And5
+    ) {}
+
+    @Builder
+    public record InitialDataDto(
+            String email,
+            String nickName,
+            boolean climateAlert,
+            boolean userAlert,
+            boolean snowAlert,
+            boolean windAlert,
+            int windDegree,
+            boolean regionReport,
+            double weight,
+            Map<String, SeasonData> seasonData
     ) {
         public UserData toUserDataEntity() {
             return UserData.builder()
@@ -37,23 +44,24 @@ public class KafkaDto {
                     .build();
         }
 
-        public UserMedian toUserMedianEntity() {
-            return UserMedian.builder()
-                    .email(email)
-                    .season(TemperatureUtils.getCurrentSeason())
-                    .medianOf1And2(medianOf1And2 + weight)
-                    .medianOf2And3(medianOf2And3 + weight)
-                    .medianOf3And4(medianOf3And4 + weight)
-                    .medianOf4And5(medianOf4And5 + weight)
-                    .build();
+        public List<UserMedian> toUserMedianList() {
+            return seasonData.entrySet().stream()
+                    .map(entry -> UserMedian.builder()
+                            .email(email)
+                            .season(Season.valueOf(entry.getKey()))
+                            .medianOf1And2(entry.getValue().medianOf1And2())
+                            .medianOf2And3(entry.getValue().medianOf2And3())
+                            .medianOf3And4(entry.getValue().medianOf3And4())
+                            .medianOf4And5(entry.getValue().medianOf4And5())
+                            .build())
+                    .toList();
         }
     }
 
     @Builder
     public record UserMedianDto(
             String email,
-            List<Map<String, Double>> medians
-
+            SeasonData seasonData
     ) {}
 
     @Builder

@@ -1,7 +1,7 @@
 package com.waither.notiservice.utils;
 
 import com.waither.notiservice.domain.UserMedian;
-import com.waither.notiservice.domain.type.Season;
+import com.waither.notiservice.enums.Season;
 import com.waither.notiservice.enums.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

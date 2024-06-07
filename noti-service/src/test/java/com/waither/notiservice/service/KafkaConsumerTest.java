@@ -2,7 +2,7 @@ package com.waither.notiservice.service;
 
 import com.waither.notiservice.domain.UserData;
 import com.waither.notiservice.domain.UserMedian;
-import com.waither.notiservice.domain.type.Season;
+import com.waither.notiservice.enums.Season;
 import com.waither.notiservice.dto.kafka.KafkaDto;
 import com.waither.notiservice.repository.jpa.UserDataRepository;
 import com.waither.notiservice.repository.jpa.UserMedianRepository;
@@ -82,9 +82,10 @@ public class KafkaConsumerTest {
         //when
         KafkaDto.UserMedianDto userMedianDto = KafkaDto.UserMedianDto.builder()
                 .email(tempEmail)
-                .medians(List.of(
-                        Map.of("medianOf1And2", 10.5),
-                        Map.of("medianOf2And3", 12.5))
+                .seasonData(KafkaDto.SeasonData.builder()
+                        .medianOf1And2(10.5)
+                        .medianOf2And3(12.5)
+                        .build()
                 )
                 .build();
         System.out.println("[ Kafka Test ] data --> "+ userMedianDto);

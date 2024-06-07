@@ -2,7 +2,7 @@ package com.waither.notiservice.service;
 
 import com.waither.notiservice.domain.UserData;
 import com.waither.notiservice.domain.UserMedian;
-import com.waither.notiservice.domain.type.Season;
+import com.waither.notiservice.enums.Season;
 import com.waither.notiservice.dto.kafka.KafkaDto;
 import com.waither.notiservice.global.exception.CustomException;
 import com.waither.notiservice.global.response.ErrorCode;
@@ -24,7 +24,6 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-@Transactional
 public class KafkaConsumer {
 
     private final UserDataRepository userDataRepository;
@@ -34,6 +33,7 @@ public class KafkaConsumer {
     /**
      * 중앙값 동기화 Listener
      * */
+    @Transactional
     @KafkaListener(topics = "${spring.kafka.template.user-median-topic}", containerFactory = "userMedianKafkaListenerContainerFactory")
     public void consumeUserMedian(KafkaDto.UserMedianDto userMedianDto) {
 
@@ -53,6 +53,7 @@ public class KafkaConsumer {
         } else {
             //User Median 없을 경우 생성
             //TODO : 계절당 초기값 받아야 함
+            log.warn("[ Kafka Listener ] User Median 초기값이 없었습니다.");
             UserMedian newUserMedian = UserMedian.builder()
                     .email(userMedianDto.email())
                     .season(currentSeason)
@@ -66,6 +67,7 @@ public class KafkaConsumer {
     /**
      * Firebase Token Listener
      * */
+    @Transactional
     @KafkaListener(topics = "firebase-token", containerFactory = "firebaseTokenKafkaListenerContainerFactory")
     public void consumeFirebaseToken(KafkaDto.TokenDto tokenDto) {
 
@@ -81,6 +83,7 @@ public class KafkaConsumer {
     /**
      * User Settings Listener
      * */
+    @Transactional
     @KafkaListener(topics = "${spring.kafka.template.user-settings-topic}", containerFactory = "userSettingsKafkaListenerContainerFactory")
     public void consumeUserSettings(KafkaDto.UserSettingsDto userSettingsDto) {
 
@@ -104,13 +107,14 @@ public class KafkaConsumer {
 
     }
 
+    @Transactional
     @KafkaListener(topics = "${spring.kafka.template.initial-data-topic}", containerFactory = "initialDataKafkaListenerContainerFactory")
     public void consumeUserInit(KafkaDto.InitialDataDto initialDataDto) {
 
         log.info("[ Kafka Listener ] 초기 설정값 세팅");
         log.info("[ Kafka Listener ] email --> {}", initialDataDto.email());
         userDataRepository.save(initialDataDto.toUserDataEntity());
-        userMedianRepository.save(initialDataDto.toUserMedianEntity());
+        userMedianRepository.saveAll(initialDataDto.toUserMedianList());
     }
 
 
@@ -119,6 +123,7 @@ public class KafkaConsumer {
     /**
      * 바람 세기 알림 Listener
      * */
+    @Transactional
     @KafkaListener(topics = "alarm-wind")
     public void consumeWindAlarm(@Payload String message) {
         StringBuilder sb = new StringBuilder();
@@ -142,6 +147,7 @@ public class KafkaConsumer {
     /**
      * 강설 정보 알림 Listener
      * */
+    @Transactional
     @KafkaListener(topics = "alarm-snow")
     public void consumeSnow(@Payload String message) {
         String resultMessage = "";
@@ -163,6 +169,7 @@ public class KafkaConsumer {
     /**
      * 기상 특보 알림 Listener
      * */
+    @Transactional
     @KafkaListener(topics = "alarm-climate")
     public void consumeClimateAlarm(@Payload String message) {
         String resultMessage = "";

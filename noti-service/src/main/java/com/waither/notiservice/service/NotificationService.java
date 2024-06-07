@@ -5,7 +5,7 @@ import com.waither.notiservice.domain.Notification;
 import com.waither.notiservice.domain.UserData;
 import com.waither.notiservice.domain.UserMedian;
 import com.waither.notiservice.api.request.LocationDto;
-import com.waither.notiservice.domain.type.Season;
+import com.waither.notiservice.enums.Season;
 import com.waither.notiservice.global.exception.CustomException;
 import com.waither.notiservice.global.response.ErrorCode;
 import com.waither.notiservice.repository.jpa.NotificationRepository;

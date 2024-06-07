@@ -4,7 +4,7 @@ import com.waither.notiservice.api.response.NotificationResponse;
 import com.waither.notiservice.domain.Notification;
 import com.waither.notiservice.domain.UserData;
 import com.waither.notiservice.domain.UserMedian;
-import com.waither.notiservice.domain.type.Season;
+import com.waither.notiservice.enums.Season;
 import com.waither.notiservice.repository.jpa.NotificationRepository;
 import com.waither.notiservice.repository.jpa.UserDataRepository;
 import com.waither.notiservice.repository.jpa.UserMedianRepository;
