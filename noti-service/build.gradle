@@ -60,6 +60,9 @@ dependencies {
     //JUnit + AssertJ
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     testImplementation 'org.assertj:assertj-core:3.23.1'
+
+    //firebase
+    implementation 'com.google.firebase:firebase-admin:9.2.0'
 }
 
 //openApi {
