@@ -143,6 +143,21 @@ public class KafkaConsumerConfig {
          return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(KafkaDto.InitialDataDto.class));
     }
 
+    @Bean("weatherKafkaListenerContainerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, KafkaDto.WeatherDto> weatherConcurrentKafkaListenerContainerFactory(){
+        ConcurrentKafkaListenerContainerFactory<String, KafkaDto.WeatherDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(weatherConsumerFactory());
+        factory.setConcurrency(3);
+        factory.setBatchListener(true);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
+        return factory;
+    }
+
+    private ConsumerFactory<String, KafkaDto.WeatherDto> weatherConsumerFactory() {
+        Map<String, Object> props = dtoSettings();
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(KafkaDto.WeatherDto.class));
+    }
+
 
 
 

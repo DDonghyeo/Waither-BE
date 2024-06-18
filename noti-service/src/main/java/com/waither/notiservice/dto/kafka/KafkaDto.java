@@ -3,7 +3,6 @@ package com.waither.notiservice.dto.kafka;
 import com.waither.notiservice.domain.UserData;
 import com.waither.notiservice.domain.UserMedian;
 import com.waither.notiservice.enums.Season;
-import com.waither.notiservice.utils.TemperatureUtils;
 import lombok.Builder;
 
 import java.util.List;
@@ -76,5 +75,11 @@ public class KafkaDto {
             String email,
             String token
     ){}
+
+    @Builder
+    public record WeatherDto(
+            String region,
+            String message
+    ) {}
 
 }
