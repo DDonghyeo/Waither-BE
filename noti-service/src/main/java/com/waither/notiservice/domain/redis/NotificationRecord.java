@@ -1,13 +1,12 @@
 package com.waither.notiservice.domain.redis;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 import java.time.LocalDateTime;
 
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,9 +23,19 @@ public class NotificationRecord {
     //마지막 바람세기 알림 받은 시간
     private LocalDateTime lastWindAlarmReceived;
 
-    //사용자 마지막 위치 (위도)
-    private Double lat;
+    //사용자 마지막 위치 (지역)
+    private String region;
 
-    //사용자 마지막 위치 (경도)
-    private Double lon;
+    public void setLastRainAlarmReceived(LocalDateTime lastRainAlarmReceived) {
+        this.lastRainAlarmReceived = lastRainAlarmReceived;
+    }
+
+    public void setLastWindAlarmReceived(LocalDateTime lastWindAlarmReceived) {
+        this.lastWindAlarmReceived = lastWindAlarmReceived;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
 }
