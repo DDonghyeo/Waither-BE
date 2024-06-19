@@ -147,6 +147,8 @@ jobs:
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
 
             cd /home
+
+            bash ./docker_init.sh
             
             docker-compose pull
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/waither-config
@@ -155,7 +157,6 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/waither-user
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/waither-weather
             
-            bash ./docker_init.sh
             bash ./common.sh
             bash ./deploy.sh
             
