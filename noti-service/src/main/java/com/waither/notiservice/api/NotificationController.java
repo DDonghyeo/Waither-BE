@@ -4,7 +4,6 @@ import com.waither.notiservice.api.request.LocationDto;
 import com.waither.notiservice.global.annotation.AuthUser;
 import com.waither.notiservice.global.response.ApiResponse;
 import com.waither.notiservice.service.NotificationService;
-import com.waither.notiservice.utils.RedisUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,8 +40,8 @@ public class NotificationController {
 
     @Operation(summary = "Current Location", description = "현재 위치 전송")
     @PostMapping("/location")
-    public ApiResponse<?> checkCurrentAlarm(@AuthUser String email, @RequestBody @Valid LocationDto locationDto) {
-        notificationService.checkCurrentAlarm(email, locationDto);
+    public ApiResponse<?> updateLocation(@AuthUser String email, @RequestBody @Valid LocationDto locationDto) {
+        notificationService.updateLocation(email, locationDto);
         return ApiResponse.onSuccess(HttpStatus.OK);
     }
 

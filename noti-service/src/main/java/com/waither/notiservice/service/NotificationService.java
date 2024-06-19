@@ -124,7 +124,7 @@ public class NotificationService {
 
     //현재 위치 업데이트
     @Transactional
-    public void checkCurrentAlarm(String email, LocationDto locationDto) {
+    public void updateLocation(String email, LocationDto locationDto) {
 
         log.info("[ Notification Service ]  email ---> {}", email);
         log.info("[ Notification Service ]  현재 위치 위도 (lat) ---> {}", locationDto.lat());
