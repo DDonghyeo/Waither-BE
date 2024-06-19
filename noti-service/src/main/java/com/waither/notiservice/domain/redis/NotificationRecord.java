@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Getter
 @Builder
@@ -25,6 +26,14 @@ public class NotificationRecord {
 
     //사용자 마지막 위치 (지역)
     private String region;
+
+    public void initializeWindTime() {
+        lastWindAlarmReceived = LocalDateTime.now();
+    }
+
+    public void initializeRainTime() {
+        lastRainAlarmReceived = LocalDateTime.now();
+    }
 
     public void setLastRainAlarmReceived(LocalDateTime lastRainAlarmReceived) {
         this.lastRainAlarmReceived = lastRainAlarmReceived;

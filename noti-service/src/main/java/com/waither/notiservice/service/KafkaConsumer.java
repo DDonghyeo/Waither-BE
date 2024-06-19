@@ -146,38 +146,21 @@ public class KafkaConsumer {
         // Wind Alert를 True로 설정한 User Query
         List<UserData> userData = userDataRepository.findAllByWindAlertIsTrue();
 
-        // 1. 현재 windStrength 보다 작게 설정한 유저 필터
-        // 2. 이메일 추출
-        // 3. 지역 일치 & 마지막 알림 3시간 경과했는지 필터
-        List<String> userEmails = userData.stream()
-                .filter(data -> data.getWindDegree() <= windStrength)
-                .map(UserData::getEmail)
-                .filter(email -> {
-                    Optional<NotificationRecord> notiRecord = notificationRecordRepository
-                            .findByEmail(email);
-                    if (notiRecord.isPresent()) {
-                        //지역 일치 검사
-                        if (!notiRecord.get().getRegion().equals(region)) {
-                            return false;
-                        }
-                        //경과 시간 검사
-                        int diff = notiRecord.get().getLastWindAlarmReceived().getHour() - currentHour;
-                        if (Math.abs(diff) >= 3) { //3시간 이상 경과했는지?
-                            return true;
-                        }
-                    }
-                    log.warn(" [ Kafka Listener ] Notification Record 존재하지 않습니다. Email ---> {}", email);
-                    return false;
-                })
-                .toList();
+        //알림 보낼 사용자 이메일
+        List<String> userEmails = filterRegionAndWindAlarm(region, userData, currentHour);
 
-        //TODO : 바람 세기 알림 멘트 정리
-        sb.append("현재 바람 세기가 ").append(windStrength).append("m/s 이상입니다. 강풍에 주의하세요.");
+        sb.append("현재 바람 세기가 ").append(windStrength).append("m/s 이상입니다.");
 
         System.out.println("[ 푸시알림 ] 바람 세기 알림");
 
         alarmService.sendAlarms(userEmails,title, sb.toString());
-        //TODO : Notification Record 저장
+
+        //Record 알림 시간 초기화
+        userEmails
+                .forEach(email -> {
+                    Optional<NotificationRecord> notificationRecord = notificationRecordRepository.findByEmail(email);
+                    notificationRecord.ifPresent(NotificationRecord::initializeWindTime);
+                });
     }
 
 
@@ -217,11 +200,18 @@ public class KafkaConsumer {
                 .append(getExpression(prediction)).append("가 내릴 예정입니다.");
 
         //알림 보낼 사용자 이메일
-        List<String> userEmails = filterRegionAndAlarm(region, userData, currentHour);
+        List<String> userEmails = filterRegionAndRainAlarm(region, userData, currentHour);
 
 
         System.out.println("[ 푸시알림 ] 강수량 알림");
         alarmService.sendAlarms(userEmails, title, sb.toString());
+
+        //Record 알림 시간 초기화
+        userEmails
+                .forEach(email -> {
+                    Optional<NotificationRecord> notificationRecord = notificationRecordRepository.findByEmail(email);
+                    notificationRecord.ifPresent(NotificationRecord::initializeRainTime);
+                });
 
     }
 
@@ -259,12 +249,26 @@ public class KafkaConsumer {
 
 
     //지역 필터링 & 알림 규칙 검사
-    private List<String> filterRegionAndAlarm(String region, List<UserData> userData, int currentHour) {
+    private List<String> filterRegionAndWindAlarm(String region, List<UserData> userData, int currentHour) {
         return userData.stream()
                 .filter(data -> {
                     Optional<NotificationRecord> notiRecord = notificationRecordRepository.findByEmail(data.getEmail());
                     return notiRecord.map(notificationRecord ->
                             (Math.abs(notiRecord.get().getLastWindAlarmReceived().getHour() - currentHour) >=3
+                                    && notificationRecord.getRegion().equals(region) )
+                    ).orElse(false);
+                })
+                .map(UserData::getEmail)
+                .toList();
+    }
+
+    //지역 필터링 & 알림 규칙 검사
+    private List<String> filterRegionAndRainAlarm(String region, List<UserData> userData, int currentHour) {
+        return userData.stream()
+                .filter(data -> {
+                    Optional<NotificationRecord> notiRecord = notificationRecordRepository.findByEmail(data.getEmail());
+                    return notiRecord.map(notificationRecord ->
+                            (Math.abs(notiRecord.get().getLastRainAlarmReceived().getHour() - currentHour) >=3
                                     && notificationRecord.getRegion().equals(region) )
                     ).orElse(false);
                 })
