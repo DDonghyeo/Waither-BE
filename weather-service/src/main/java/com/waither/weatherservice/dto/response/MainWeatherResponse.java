@@ -8,6 +8,7 @@ import lombok.Builder;
 public record MainWeatherResponse(
 
 	String pop,
+	String temp,
 	String tempMin,
 	String tempMax,
 	String humidity,
@@ -28,6 +29,7 @@ public record MainWeatherResponse(
 
 	public static MainWeatherResponse from(
 		String pop,
+		String temp,
 		String tempMin,
 		String tempMax,
 		String humidity,
@@ -47,6 +49,7 @@ public record MainWeatherResponse(
 	) {
 		return MainWeatherResponse.builder()
 			.pop(pop)
+			.temp(temp)
 			.tempMin(tempMin)
 			.tempMax(tempMax)
 			.humidity(humidity)

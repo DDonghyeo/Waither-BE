@@ -21,6 +21,7 @@ public class DailyWeather {
 
 	// 강수확률 (%)
 	private String pop;
+	private String tmp;
 	private String tempMin;
 	private String tempMax;
 	private String humidity;

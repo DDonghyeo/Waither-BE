@@ -96,6 +96,7 @@ public class WeatherService {
 			"http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst");
 
 		String pop = openApiUtil.apiResponseStringFilter(items, "POP");
+		String tmp = openApiUtil.apiResponseStringFilter(items, "TMP");
 		String tmn = openApiUtil.apiResponseStringFilter(items, "TMN");
 		String tmx = openApiUtil.apiResponseStringFilter(items, "TMX");
 		String reh = openApiUtil.apiResponseStringFilter(items, "REH");
@@ -111,6 +112,7 @@ public class WeatherService {
 		DailyWeather dailyWeather = DailyWeather.builder()
 			.id(key)
 			.pop(pop)
+			.tmp(tmp)
 			.tempMin(tmn)
 			.tempMax(tmx)
 			.humidity(reh)
@@ -165,7 +167,7 @@ public class WeatherService {
 		List<Region> region = regionRepository.findRegionByLatAndLong(latitude, longitude);
 		String key = region.get(0).getRegionName() + "_" + convertLocalDateTimeToString(now);
 
-		// 테스트 키 : "55_127_20240508_1500"
+		// 테스트 키 : "서울특별시_20240508_1500"
 
 		DailyWeather dailyWeather = dailyWeatherRepository.findById(key)
 			.orElseThrow(() -> new WeatherExceptionHandler(WeatherErrorCode.WEATHER_MAIN_ERROR));
@@ -174,7 +176,7 @@ public class WeatherService {
 			.orElseThrow(() -> new WeatherExceptionHandler(WeatherErrorCode.WEATHER_MAIN_ERROR));
 
 		MainWeatherResponse weatherMainResponse = MainWeatherResponse.from(
-			dailyWeather.getPop(), dailyWeather.getTempMin(),
+			dailyWeather.getPop(), dailyWeather.getTmp(), dailyWeather.getTempMin(),
 			dailyWeather.getTempMax(), dailyWeather.getHumidity(),
 			dailyWeather.getWindVector(), dailyWeather.getWindDegree(),
 			expectedWeather.getExpectedTemp(),
