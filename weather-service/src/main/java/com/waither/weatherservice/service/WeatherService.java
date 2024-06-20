@@ -65,7 +65,8 @@ public class WeatherService {
 		ForeCastOpenApiResponse.Item item = items.get(0);
 
 		List<Region> region = regionRepository.findRegionByXAndY(item.getNx(), item.getNy());
-		String key = region.get(0).getRegionName() + "_" + item.getFcstDate() + "_" + item.getFcstTime();
+		String regionName = region.get(0).getRegionName();
+		String key = regionName + "_" + item.getFcstDate() + "_" + item.getFcstTime();
 
 		ExpectedWeather expectedWeather = ExpectedWeather.builder()
 			.id(key)
@@ -74,6 +75,10 @@ public class WeatherService {
 			.expectedPty(expectedPtyList)
 			.expectedSky(expectedSkyList)
 			.build();
+
+		String content = String.join(",", expectedWeather.getExpectedRain());
+		KafkaMessage kafkaMessage = KafkaMessage.of(regionName, content);
+		producer.produceMessage("alarm-rain", kafkaMessage);
 
 		ExpectedWeather save = expectedWeatherRepository.save(expectedWeather);
 		log.info("[*] 예상 기후 : {}", save);
