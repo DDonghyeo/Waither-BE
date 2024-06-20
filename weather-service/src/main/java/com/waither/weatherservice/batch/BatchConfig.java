@@ -40,7 +40,6 @@ public class BatchConfig {
 	public Tasklet dailyWeatherTasklet() {
 		return new DailyWeatherTasklet(weatherService);
 	}
-	// ====================================
 
 	@Bean
 	public Job expectedWeatherJob() {
