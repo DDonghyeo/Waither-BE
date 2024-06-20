@@ -1,7 +1,7 @@
 package com.waither.weatherservice.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,13 +21,13 @@ public class WeatherController {
 	private final WeatherService weatherService;
 
 	@GetMapping("/main")
-	public ApiResponse<MainWeatherResponse> getMainWeather(@RequestBody @Valid GetWeatherRequest getWeatherRequest) {
+	public ApiResponse<MainWeatherResponse> getMainWeather(@ModelAttribute @Valid GetWeatherRequest getWeatherRequest) {
 		return ApiResponse.onSuccess(
 			weatherService.getMainWeather(getWeatherRequest.latitude(), getWeatherRequest.longitude()));
 	}
 
 	@GetMapping("/region")
-	public ApiResponse<String> convertGpsToRegionName(@RequestBody @Valid GetWeatherRequest getWeatherRequest) {
+	public ApiResponse<String> convertGpsToRegionName(@ModelAttribute @Valid GetWeatherRequest getWeatherRequest) {
 		return ApiResponse.onSuccess(
 			weatherService.convertGpsToRegionName(getWeatherRequest.latitude(), getWeatherRequest.longitude()));
 	}
