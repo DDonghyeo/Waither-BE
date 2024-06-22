@@ -20,6 +20,6 @@ public class Notification extends BaseEntity {
 
     private String content;
 
-    private Long userId;
+    private String email;
 
 }

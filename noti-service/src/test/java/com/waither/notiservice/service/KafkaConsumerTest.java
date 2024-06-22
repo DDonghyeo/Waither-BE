@@ -1,18 +1,16 @@
 package com.waither.notiservice.service;
 
 import com.waither.notiservice.domain.UserData;
-import com.waither.notiservice.dto.kafka.TokenDto;
-import com.waither.notiservice.dto.kafka.UserMedianDto;
-import com.waither.notiservice.dto.kafka.UserSettingsDto;
-import com.waither.notiservice.repository.UserDataRepository;
-import com.waither.notiservice.repository.UserMedianRepository;
+import com.waither.notiservice.domain.UserMedian;
+import com.waither.notiservice.enums.Season;
+import com.waither.notiservice.dto.kafka.KafkaDto;
+import com.waither.notiservice.repository.jpa.UserDataRepository;
+import com.waither.notiservice.repository.jpa.UserMedianRepository;
 import com.waither.notiservice.utils.RedisUtils;
+import com.waither.notiservice.utils.TemperatureUtils;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +24,9 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +40,7 @@ public class KafkaConsumerTest {
     Map<String, Object> stringProps;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws InterruptedException {
         jsonProps = new HashMap<>();
         jsonProps.put(ProducerConfig.ACKS_CONFIG, "all");
         jsonProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
@@ -63,10 +63,8 @@ public class KafkaConsumerTest {
 
     @Autowired
     private UserMedianRepository userMedianRepository;
-
     @Autowired
     private RedisUtils redisUtils;
-
     @Autowired
     private UserDataRepository userDataRepository;
 
@@ -74,17 +72,24 @@ public class KafkaConsumerTest {
     @DisplayName("User Median Consumer Test")
     @Transactional //Transaction 후 Rollback (작동하지 않음. Listener 로 작동해서?)
     void userMedianTest() throws InterruptedException {
+
         //Given
-        ProducerFactory<Integer, UserMedianDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
-        KafkaTemplate<Integer, UserMedianDto> template = new KafkaTemplate<>(pf);
+        ProducerFactory<String, KafkaDto.UserMedianDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
+        KafkaTemplate<String, KafkaDto.UserMedianDto> template = new KafkaTemplate<>(pf);
+        Season currentSeason = TemperatureUtils.getCurrentSeason();
+        String tempEmail = "kafkaTest@gmail.com";
 
         //when
-        UserMedianDto userMedianDto = UserMedianDto.builder()
-                .userId(0L)
-                .level(1)
-                .temperature(10.5)
+        KafkaDto.UserMedianDto userMedianDto = KafkaDto.UserMedianDto.builder()
+                .email(tempEmail)
+                .seasonData(KafkaDto.SeasonData.builder()
+                        .medianOf1And2(10.5)
+                        .medianOf2And3(12.5)
+                        .build()
+                )
                 .build();
-        CompletableFuture<SendResult<Integer, UserMedianDto>> future = template.send("user-median", userMedianDto);
+        System.out.println("[ Kafka Test ] data --> "+ userMedianDto);
+        CompletableFuture<SendResult<String, KafkaDto.UserMedianDto>> future = template.send("user-median", userMedianDto);
 
         //then
         future.whenComplete(((result, throwable) -> {
@@ -93,16 +98,20 @@ public class KafkaConsumerTest {
             System.out.println("offset : "+ result.getRecordMetadata().offset());
         }
         ));
-        Thread.sleep(2000); //2초 대기
+
+        System.out.println("5초 대기");
+        Thread.sleep(5000);
 
         userMedianRepository.findAll().forEach(userMedian -> {
-            System.out.println(" userId : " + userMedian.getUserId());
+            System.out.println(" email : " + userMedian.getEmail());
         });
 
-        assertThat(userMedianRepository.findById(0L).get().getMedianOf1And2()).isEqualTo(10.5);
+        Optional<UserMedian> byEmailAndSeason = userMedianRepository.findByEmailAndSeason(tempEmail, currentSeason);
+        assertThat(byEmailAndSeason.isPresent()).isTrue();
+        assertThat(byEmailAndSeason.get().getMedianOf1And2()).isEqualTo(10.5);
 
         //끝나고 삭제 -> Rollback 일어나지 않아서
-        userMedianRepository.deleteById(0L);
+        userMedianRepository.deleteById(tempEmail);
     }
 
 
@@ -112,15 +121,16 @@ public class KafkaConsumerTest {
     @Transactional //Transaction 후 Rollback (작동하지 않음. Listener 로 작동해서?)
     void firebaseTokenTest() throws InterruptedException {
         //Given
-        ProducerFactory<Integer, TokenDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
-        KafkaTemplate<Integer, TokenDto> template = new KafkaTemplate<>(pf);
+        ProducerFactory<Integer, KafkaDto.TokenDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
+        KafkaTemplate<Integer, KafkaDto.TokenDto> template = new KafkaTemplate<>(pf);
+        String tempEmail = "kafkaTest@gmail.com";
 
         //when
-        TokenDto tokenDto = TokenDto.builder()
-                .userId(0L)
+        KafkaDto.TokenDto tokenDto = KafkaDto.TokenDto.builder()
+                .email(tempEmail)
                 .token("test token")
                 .build();
-        CompletableFuture<SendResult<Integer, TokenDto>> future = template.send("firebase-token", tokenDto);
+        CompletableFuture<SendResult<Integer, KafkaDto.TokenDto>> future = template.send("firebase-token", tokenDto);
 
         //then
         future.whenComplete(((result, throwable) -> {
@@ -132,10 +142,10 @@ public class KafkaConsumerTest {
         Thread.sleep(2000); //2초 대기
 
 
-        assertThat(String.valueOf(redisUtils.get("0"))).isEqualTo("test token");
+        assertThat(String.valueOf(redisUtils.get(tempEmail))).isEqualTo("test token");
 
         //끝나고 삭제 -> Rollback 일어나지 않아서
-        redisUtils.delete("0");
+        redisUtils.delete(tempEmail);
     }
 
     @Test
@@ -143,21 +153,23 @@ public class KafkaConsumerTest {
     @Transactional //Transaction 후 Rollback (작동하지 않음. Listener 로 작동해서?)
     void userSettingsWindDegreeTest() throws InterruptedException {
         //Given
-        ProducerFactory<Integer, UserSettingsDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
-        KafkaTemplate<Integer, UserSettingsDto> template = new KafkaTemplate<>(pf);
+        ProducerFactory<Integer, KafkaDto.UserSettingsDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
+        KafkaTemplate<Integer, KafkaDto.UserSettingsDto> template = new KafkaTemplate<>(pf);
+        String tempEmail = "kafkaTest@gmail.com";
 
         //when
         userDataRepository.save(UserData.builder()
                 .windDegree(11)
-                .userId(0L)
+                .email(tempEmail)
                 .build());
-        UserSettingsDto userSettingsDto = UserSettingsDto.builder()
-                .userId(0L)
+
+        KafkaDto.UserSettingsDto userSettingsDto = KafkaDto.UserSettingsDto.builder()
+                .email(tempEmail)
                 .key("windDegree")
                 .value("11")
                 .build();
 
-        CompletableFuture<SendResult<Integer, UserSettingsDto>> future = template.send("user-settings", userSettingsDto);
+        CompletableFuture<SendResult<Integer, KafkaDto.UserSettingsDto>> future = template.send("user-settings", userSettingsDto);
 
         //then
         future.whenComplete(((result, throwable) -> {
@@ -169,10 +181,10 @@ public class KafkaConsumerTest {
         Thread.sleep(2000); //2초 대기
 
 
-        assertThat(userDataRepository.findById(0L).get().getWindDegree()).isEqualTo(11);
+        assertThat(userDataRepository.findByEmail(tempEmail).get().getWindDegree()).isEqualTo(11);
 
         //끝나고 삭제 -> Rollback 일어나지 않아서
-        userDataRepository.deleteById(0L);
+        userDataRepository.deleteById(tempEmail);
     }
 
     @Test

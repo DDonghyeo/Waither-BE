@@ -29,7 +29,7 @@ public class KafkaTopicConfig {
      * <h2>userMedian 동기화 토픽</h2>
      * @Producer : user-service
      * @Consumer : noti-service
-     * @MessageObject : {@link com.waither.notiservice.dto.kafka.UserMedianDto}
+     * @MessageObject : {@link com.waither.notiservice.dto.kafka.KafkaDto.UserMedianDto}
      * @Description : noti-service의 userMedian 테이블의 데이터를 동기화 하기 위해 사용합니다.
      * 계절은 자동으로 계산합니다.
      * <br>
@@ -48,7 +48,7 @@ public class KafkaTopicConfig {
      * <h2>Firebase Token 동기화 토픽</h2>
      * @Producer : user-service
      * @Consumer : noti-service
-     * @MessageObject : {@link com.waither.notiservice.dto.kafka.TokenDto}
+     * @MessageObject : {@link com.waither.notiservice.dto.kafka.KafkaDto.TokenDto}
      * @Description : noti-service의 firebase 토큰을 저장을 위해 사용됩니다.
      *
      */
@@ -64,7 +64,7 @@ public class KafkaTopicConfig {
      * <h2>User Settings 동기화 토픽</h2>
      * @Producer : user-service
      * @Consumer : noti-service
-     * @MessageObject : {@link com.waither.notiservice.dto.kafka.UserSettingsDto}
+     * @MessageObject : {@link com.waither.notiservice.dto.kafka.KafkaDto.UserSettingsDto}
      * @Description : noti-service의 User Data 데이터 동기화를 위해 사용됩니다.
      *
      */

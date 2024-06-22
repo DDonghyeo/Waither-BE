@@ -1,6 +1,5 @@
 package com.waither.notiservice.enums;
 
-import com.waither.notiservice.domain.type.Season;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

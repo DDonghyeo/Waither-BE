@@ -4,6 +4,7 @@ import com.waither.userservice.dto.response.KakaoResDto;
 import com.waither.userservice.global.response.ApiResponse;
 import com.waither.userservice.service.KakaoService;
 import com.waither.userservice.service.commandService.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,7 @@ public class OAuthController {
 
     private final UserService userService;
 
+    @Operation(hidden = true)
     @GetMapping("/kakao/callback")
     public ApiResponse<?> callback(@RequestParam("code") String code) {
 

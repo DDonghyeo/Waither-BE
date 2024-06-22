@@ -1,9 +1,7 @@
 package com.waither.notiservice.domain;
 
-import com.waither.notiservice.domain.type.Season;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
 @Builder
@@ -16,7 +14,7 @@ import org.hibernate.annotations.DynamicInsert;
 public class UserData {
 
     @Id
-    private Long userId;
+    private String email;
 
     private String nickName;
 
@@ -38,6 +36,9 @@ public class UserData {
     // 직장 지역 레포트 알림 받기
     private boolean regionReport;
 
+    //가중치
+    private Double weight;
+
     public void updateValue(String key, String value) {
         switch (key) {
             case "nickName" -> nickName = value;
@@ -47,6 +48,7 @@ public class UserData {
             case "windAlert" -> windAlert = Boolean.parseBoolean(value);
             case "regionReport" -> regionReport = Boolean.parseBoolean(value);
             case "windDegree" -> windDegree = Integer.valueOf(value);
+            case "weight" -> weight = Double.valueOf(value);
 
         }
     }
