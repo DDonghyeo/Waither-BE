@@ -34,7 +34,7 @@ public class FireBaseUtils {
 
         } catch (FirebaseMessagingException ex) {
             ex.printStackTrace();
-            throw new CustomException(ErrorCode.FIREBASE_ERROR);
+            log.error("[ FireBaseUtils ] Failed to send message : {}",ex.getMessage());
         }
     }
 
@@ -71,7 +71,7 @@ public class FireBaseUtils {
 
         } catch (FirebaseMessagingException ex) {
             ex.printStackTrace();
-            throw new CustomException(ErrorCode.FIREBASE_ERROR);
+            log.error("[ FireBaseUtils ] Failed to send message : {}",ex.getMessage());
         }
     }
 }
