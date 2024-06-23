@@ -59,6 +59,9 @@ dependencies {
 
     // File
     implementation 'org.apache.poi:poi-ooxml:5.2.0'
+
+    // Spring batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
 }
 
 openApi {
