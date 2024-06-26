@@ -18,7 +18,6 @@ import com.waither.weatherservice.entity.Region;
 import com.waither.weatherservice.entity.WeatherAdvisory;
 import com.waither.weatherservice.exception.WeatherExceptionHandler;
 import com.waither.weatherservice.gps.GpsTransfer;
-import com.waither.weatherservice.gps.LatXLngY;
 import com.waither.weatherservice.kafka.KafkaMessage;
 import com.waither.weatherservice.kafka.Producer;
 import com.waither.weatherservice.openapi.ForeCastOpenApiResponse;
@@ -160,11 +159,13 @@ public class WeatherService {
 	}
 
 	public MainWeatherResponse getMainWeather(double latitude, double longitude) {
-		LatXLngY latXLngY = GpsTransfer.convertGpsToGrid(latitude, longitude);
-
 		LocalDateTime now = LocalDateTime.now();
 
 		List<Region> region = regionRepository.findRegionByLatAndLong(latitude, longitude);
+
+		if (region.isEmpty())
+			throw new WeatherExceptionHandler(WeatherErrorCode.WEATHER_MAIN_ERROR);
+
 		String key = region.get(0).getRegionName() + "_" + convertLocalDateTimeToString(now);
 
 		// 테스트 키 : "서울특별시_20240508_1500"

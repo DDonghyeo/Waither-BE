@@ -10,6 +10,7 @@ import com.waither.weatherservice.dto.response.MainWeatherResponse;
 import com.waither.weatherservice.response.ApiResponse;
 import com.waither.weatherservice.service.WeatherService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +21,11 @@ public class WeatherController {
 
 	private final WeatherService weatherService;
 
+	@Operation(summary = "모든 날씨 정보 가져오기 - 프론트, noti-service 사용",
+		description = "{"
+			+ "\"latitude\": 37.41,"
+			+ "\"longitude\": 126.73"
+			+ "}")
 	@GetMapping("/main")
 	public ApiResponse<MainWeatherResponse> getMainWeather(@ModelAttribute @Valid GetWeatherRequest getWeatherRequest) {
 		return ApiResponse.onSuccess(
