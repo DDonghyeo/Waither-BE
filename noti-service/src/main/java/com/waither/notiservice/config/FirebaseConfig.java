@@ -16,7 +16,7 @@ import java.io.IOException;
 public class FirebaseConfig {
 
     @Value("${firebase.key.path}")
-    private final String keyPath;
+    private String keyPath;
 
     @PostConstruct
     public void initializeApp() throws IOException {
