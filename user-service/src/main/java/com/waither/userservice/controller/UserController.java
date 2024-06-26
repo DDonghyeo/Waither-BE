@@ -44,7 +44,7 @@ public class UserController {
 
     // 이메일에 인증번호 보내기
     @GetMapping("/emails/submit-authcode")
-    public ApiResponse<String> submitAuthCode(@RequestBody String email) {
+    public ApiResponse<String> submitAuthCode(@RequestParam String email) {
             userService.sendAuthCodeToEmail(email);
             return ApiResponse.onSuccess("인증번호 전송에 성공했습니다.");
     }
