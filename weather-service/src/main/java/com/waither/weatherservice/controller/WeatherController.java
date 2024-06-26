@@ -32,6 +32,11 @@ public class WeatherController {
 			weatherService.getMainWeather(getWeatherRequest.latitude(), getWeatherRequest.longitude()));
 	}
 
+	@Operation(summary = "위도, 경도 -> 지역 변환",
+		description = "{"
+			+ "\"latitude\": 37.41,"
+			+ "\"longitude\": 126.73"
+			+ "}")
 	@GetMapping("/region")
 	public ApiResponse<String> convertGpsToRegionName(@ModelAttribute @Valid GetWeatherRequest getWeatherRequest) {
 		return ApiResponse.onSuccess(
