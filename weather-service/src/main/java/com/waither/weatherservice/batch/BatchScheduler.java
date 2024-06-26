@@ -24,6 +24,7 @@ public class BatchScheduler {
 
 	@Scheduled(cron = "0 0 2,5,8,11,14,17,20,23 * * *") // 3시간마다
 	public void runDailyWeatherJob() {
+		log.info("[ Scheduler ] DailyWeather Api");
 		try {
 			JobParameters jobParameters = new JobParametersBuilder()
 				.addLong("executedTime", System.currentTimeMillis())
@@ -37,6 +38,7 @@ public class BatchScheduler {
 
 	@Scheduled(cron = "0 0 * * * *") // 1시간마다
 	public void runExpectedWeatherJob() {
+		log.info("[ Scheduler ] ExpectedWeather Api");
 		try {
 			JobParameters jobParameters = new JobParametersBuilder()
 				.addLong("executedTime", System.currentTimeMillis())
