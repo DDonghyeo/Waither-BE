@@ -8,16 +8,22 @@ import com.waither.notiservice.api.request.LocationDto;
 import com.waither.notiservice.domain.redis.NotificationRecord;
 import com.waither.notiservice.enums.Season;
 import com.waither.notiservice.global.exception.CustomException;
+import com.waither.notiservice.global.response.ApiResponse;
 import com.waither.notiservice.global.response.ErrorCode;
 import com.waither.notiservice.repository.jpa.NotificationRepository;
 import com.waither.notiservice.repository.jpa.UserDataRepository;
 import com.waither.notiservice.repository.jpa.UserMedianRepository;
 import com.waither.notiservice.repository.redis.NotificationRecordRepository;
+import com.waither.notiservice.utils.GpsTransfer;
 import com.waither.notiservice.utils.TemperatureUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,6 +40,8 @@ public class NotificationService {
     private final NotificationRecordRepository notificationRecordRepository;
 
     private final AlarmService alarmService;
+
+
 
 
     @Transactional(readOnly = true)
@@ -132,8 +140,7 @@ public class NotificationService {
 
         Optional<NotificationRecord> notiRecord = notificationRecordRepository.findByEmail(email);
 
-        //TODO : 위도 경도 -> 지역 변환
-        String region = "서울특별시";
+        String region = GpsTransfer.transferToRegion(locationDto);
 
         if (notiRecord.isPresent()) {
             NotificationRecord notificationRecord = notiRecord.get();
