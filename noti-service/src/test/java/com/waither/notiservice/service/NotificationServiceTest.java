@@ -1,5 +1,6 @@
 package com.waither.notiservice.service;
 
+import com.waither.notiservice.api.request.LocationDto;
 import com.waither.notiservice.api.response.NotificationResponse;
 import com.waither.notiservice.domain.Notification;
 import com.waither.notiservice.domain.UserData;
@@ -42,10 +43,13 @@ public class NotificationServiceTest {
     @MockBean
     NotificationRecordRepository notificationRecordRepository;
 
+    @MockBean
+    AlarmService alarmService;
+
     @BeforeEach
     void setUp() {
         //가짜 객체 주입
-        notificationService = new NotificationService(notificationRepository, userMedianRepository, userDataRepository, notificationRecordRepository);
+        notificationService = new NotificationService(notificationRepository, userMedianRepository, userDataRepository, notificationRecordRepository, alarmService);
     }
 
     @Test
@@ -57,6 +61,7 @@ public class NotificationServiceTest {
 
         String tempEmail = "serviceTest@gmail.com";
         Season currentSeason = TemperatureUtils.getCurrentSeason();
+        LocationDto locationDto = new LocationDto(33, 134);
 
         UserData newUser = UserData.builder()
                 .email(tempEmail)
@@ -81,7 +86,7 @@ public class NotificationServiceTest {
         Mockito.when(userMedianRepository.findByEmailAndSeason(tempEmail, currentSeason)).thenReturn(Optional.of(newUserMedian)); // (Mock) find시 Return
 
         //when
-        String resultMessage = notificationService.sendGoOutAlarm(tempEmail);
+        String resultMessage = notificationService.sendGoOutAlarm(tempEmail,locationDto);
 
         //then
         System.out.println("[ Notification Service Test ] result Message --> "+resultMessage);
@@ -109,7 +114,7 @@ public class NotificationServiceTest {
         //then
         assertEquals(1, notifications.size()); // 예상되는 알림 개수가 맞는지 확인
         NotificationResponse notification = notifications.get(0);
-        assertEquals("test content", notification.getMessage()); // 내용이 예상과 일치하는지 확인
+        assertEquals("test content", notification.message()); // 내용이 예상과 일치하는지 확인
 
 
 
