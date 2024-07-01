@@ -17,12 +17,13 @@ public class TemperatureUtils {
     public static Expressions[] winterExpressions = {WARM, GOOD, LITTLE_COLD, COLD, VERY_COLD };
     public static Expressions[] springAndAutumnExpressions = {HOT, LITTLE_HOT, GOOD, LITTLE_COLD, COLD};
     public static Expressions[] summerExpressions = {COOL, GOOD, LITTLE_HOT, HOT, VERY_HOT};
+    public static double WEIGHT_ADJUSTMENT_FACTOR = 0.5;
 
-    public static String createUserDataMessage(UserMedian userMedian, double temperature) {
-        double medianBetween1And2 = userMedian.getMedianOf1And2();
-        double medianBetween2And3 = userMedian.getMedianOf2And3();
-        double medianBetween3And4 = userMedian.getMedianOf3And4();
-        double medianBetween4And5 = userMedian.getMedianOf4And5();
+    public static String createUserDataMessage(UserMedian userMedian, double temperature, double weight) {
+        double medianBetween1And2 = userMedian.getMedianOf1And2() + weight * WEIGHT_ADJUSTMENT_FACTOR;
+        double medianBetween2And3 = userMedian.getMedianOf2And3() + weight * WEIGHT_ADJUSTMENT_FACTOR;
+        double medianBetween3And4 = userMedian.getMedianOf3And4() + weight * WEIGHT_ADJUSTMENT_FACTOR;
+        double medianBetween4And5 = userMedian.getMedianOf4And5() + weight * WEIGHT_ADJUSTMENT_FACTOR;
 
         if (temperature < medianBetween1And2) {
             return getExpression(getCurrentSeason(), 1);
