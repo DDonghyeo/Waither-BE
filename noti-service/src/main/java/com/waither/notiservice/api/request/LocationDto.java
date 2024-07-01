@@ -3,7 +3,9 @@ package com.waither.notiservice.api.request;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 
+@Builder
 public record LocationDto (
         @NotBlank(message = " 위도(latitude) 값은 필수입니다.")
         @DecimalMax(value = "43.0", inclusive = true, message = "대한민국 내에서만 가능합니다. (33~43)")
