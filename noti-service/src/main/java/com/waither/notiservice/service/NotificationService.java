@@ -1,5 +1,6 @@
 package com.waither.notiservice.service;
 
+import com.waither.notiservice.api.response.MainWeatherResponse;
 import com.waither.notiservice.api.response.NotificationResponse;
 import com.waither.notiservice.domain.Notification;
 import com.waither.notiservice.domain.UserData;
@@ -8,22 +9,17 @@ import com.waither.notiservice.api.request.LocationDto;
 import com.waither.notiservice.domain.redis.NotificationRecord;
 import com.waither.notiservice.enums.Season;
 import com.waither.notiservice.global.exception.CustomException;
-import com.waither.notiservice.global.response.ApiResponse;
 import com.waither.notiservice.global.response.ErrorCode;
 import com.waither.notiservice.repository.jpa.NotificationRepository;
 import com.waither.notiservice.repository.jpa.UserDataRepository;
 import com.waither.notiservice.repository.jpa.UserMedianRepository;
 import com.waither.notiservice.repository.redis.NotificationRecordRepository;
-import com.waither.notiservice.utils.GpsTransfer;
-import com.waither.notiservice.utils.TemperatureUtils;
+import com.waither.notiservice.utils.RestClient;
+import com.waither.notiservice.utils.WeatherMessageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,10 +34,7 @@ public class NotificationService {
     private final UserMedianRepository userMedianRepository;
     private final UserDataRepository userDataRepository;
     private final NotificationRecordRepository notificationRecordRepository;
-
     private final AlarmService alarmService;
-
-
 
 
     @Transactional(readOnly = true)
@@ -64,68 +57,58 @@ public class NotificationService {
     }
 
     @Transactional
-    public String sendGoOutAlarm(String email) {
+    public String sendGoOutAlarm(String email, LocationDto location) {
 
         UserData userData = userDataRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(ErrorCode.NO_USER_DATA_REGISTERED));
 
-        Season currentSeason = TemperatureUtils.getCurrentSeason();
+        Season currentSeason = WeatherMessageUtils.getCurrentSeason();
 
         LocalDateTime now = LocalDateTime.now();
         String title = now.getMonth() + "월 " + now.getDayOfMonth() + "일 날씨 정보입니다.";
         StringBuilder sb = new StringBuilder();
 
+        //메인 날씨 정보
+        MainWeatherResponse mainWeather = RestClient.getMainWeather(location);
+
         /**
          * 1. 기본 메세지 시작 형식
          */
-        //TODO : 날씨 정보 가져오기 & 날씨별 멘트 정리
         String nickName = userData.getNickName();
         sb.append(nickName).append("님, 오늘은 ");
-
 
         /**
          * 2. 당일 온도 정리 - Weather Service
          * {@link com.waither.notiservice.enums.Expressions} 참고
          */
-        double temperature = 10.8;
+        //현재 온도라고 함 -> 평균 온도 구하기 알아보는 중
+        double avgTemp = Double.parseDouble(mainWeather.temp());
 
         if (userData.isUserAlert()) {
             //사용자 맞춤 알림이 on이라면 -> 계산 후 전용 정보 제공
             UserMedian userMedian = userMedianRepository.findByEmailAndSeason(email, currentSeason).orElseThrow(
                     () ->  new CustomException(ErrorCode.NO_USER_MEDIAN_REGISTERED));
 
-            sb.append(TemperatureUtils.createUserDataMessage(userMedian, temperature));
+            sb.append(WeatherMessageUtils.createUserDataMessage(userMedian, avgTemp, userData.getWeight()));
         } else {
             //사용자 맞춤 알림이 off라면 -> 하루 평균 온도 정보 제공
-            sb.append("평균 온도가 ").append(temperature).append("도입니다.");
+            sb.append("평균 온도가 ").append(avgTemp).append("도입니다.");
         }
 
-
-//        /**
-//         * 2. 미세먼지 정보 가져오기 - Weather Service
-//         */
-//        //TODO : 미세먼지 On/Off 확인, 멘트
-//        finalMessage += " 미세먼지는 없습니다.";
 
         /**
          * 3. 강수 정보 가져오기 - Weather Service
          */
-        //TODO : 강수량 확인, 멘트
-        sb.append(" 오후 6시부터 8시까지 120mm의 비가 올 예정입니다.");
-
-        /**
-         * 4. 꽃가루 정보 가져오기 - Weather Service
-         */
-        //TODO : 꽃가루 확인
-        sb.append(" 꽃가루는 없습니다. ") ;
-
-        /**
-         * 알림 전송
-         */
-        //TODO : FireBase 알림 보내기
-        log.info("[ Notification Service ] Final Message ---> {}", sb.toString());
+        List<Double> predictions = mainWeather.expectedRain().stream()
+                        .map(String::trim) //공백 제거
+                        .map(s -> s.equals("강수없음") ? "0" : s)
+                        .map(Double::parseDouble)
+                        .toList();
+        String rainPredictionMessage = WeatherMessageUtils.getRainPredictions(predictions);
+        sb.append(rainPredictionMessage);
 
         //알림 보내기
+        log.info("[ Notification Service ] Final Message ---> {}", sb.toString());
         alarmService.sendSingleAlarm(email, title, sb.toString());
         return sb.toString();
     }
@@ -135,12 +118,12 @@ public class NotificationService {
     public void updateLocation(String email, LocationDto locationDto) {
 
         log.info("[ Notification Service ]  email ---> {}", email);
-        log.info("[ Notification Service ]  현재 위치 위도 (lat) ---> {}", locationDto.lat());
-        log.info("[ Notification Service ]  현재 위치 경도 (lon) ---> {}", locationDto.lon());
+        log.info("[ Notification Service ]  현재 위치 위도 (latitude) ---> {}", locationDto.latitude());
+        log.info("[ Notification Service ]  현재 위치 경도 (longitude) ---> {}", locationDto.longitude());
 
         Optional<NotificationRecord> notiRecord = notificationRecordRepository.findByEmail(email);
 
-        String region = GpsTransfer.transferToRegion(locationDto);
+        String region = RestClient.transferToRegion(locationDto);
 
         if (notiRecord.isPresent()) {
             NotificationRecord notificationRecord = notiRecord.get();
