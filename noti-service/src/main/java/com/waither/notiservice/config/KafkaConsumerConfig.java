@@ -138,12 +138,12 @@ public class KafkaConsumerConfig {
     private ConsumerFactory<String, KafkaDto.WeatherDto> weatherConsumerFactory() {
         Map<String, Object> props = dtoSettings();
         props.put(JsonDeserializer.TYPE_MAPPINGS, "KafkaMessage:com.waither.notiservice.dto.kafka.KafkaDto.WeatherDto");
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.waither.*");
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), createJsonDeserializer(KafkaDto.WeatherDto.class));
     }
 
     private <T> JsonDeserializer<T> createJsonDeserializer(Class<T> valueType) {
         JsonDeserializer<T> jsonDeserializer = new JsonDeserializer<>(valueType);
-        jsonDeserializer.addTrustedPackages("com.waither.*");
         return jsonDeserializer;
     }
 
