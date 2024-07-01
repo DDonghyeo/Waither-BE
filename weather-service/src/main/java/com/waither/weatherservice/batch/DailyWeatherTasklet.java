@@ -23,7 +23,7 @@ public class DailyWeatherTasklet implements Tasklet {
 
 	@Override
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
-		LocalDateTime baseTime = LocalDateTime.now().minusHours(1);
+		LocalDateTime baseTime = LocalDateTime.now();
 		String[] dateTime = weatherService.convertLocalDateTimeToString(baseTime).split("_");
 		List<Region> regionList = weatherService.getRegionList();
 		regionList.stream()
