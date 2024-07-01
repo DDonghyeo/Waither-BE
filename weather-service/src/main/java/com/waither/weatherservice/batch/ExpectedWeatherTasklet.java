@@ -22,9 +22,9 @@ public class ExpectedWeatherTasklet implements Tasklet {
 	private final WeatherService weatherService;
 
 	@Override
-	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-		LocalDateTime now = LocalDateTime.now();
-		String[] dateTime = weatherService.convertLocalDateTimeToString(now).split("_");
+	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
+		LocalDateTime baseTime = LocalDateTime.now().minusHours(1);
+		String[] dateTime = weatherService.convertLocalDateTimeToString(baseTime).split("_");
 		List<Region> regionList = weatherService.getRegionList();
 		regionList.stream()
 			.forEach(region -> {

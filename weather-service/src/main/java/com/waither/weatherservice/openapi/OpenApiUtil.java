@@ -150,7 +150,6 @@ public class OpenApiUtil {
 		return localDate.format(formatter);
 	}
 
-	// TODO AccuWeather 대기 정보로 변경 예정
 	public List<AirKoreaOpenApiResponse.Items> callAirKorea(String searchDate) throws URISyntaxException {
 		int pageNo = 1;
 		int numOfRows = 10;
