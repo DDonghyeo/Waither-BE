@@ -9,7 +9,7 @@ import com.waither.notiservice.repository.jpa.UserDataRepository;
 import com.waither.notiservice.repository.jpa.UserMedianRepository;
 import com.waither.notiservice.repository.redis.NotificationRecordRepository;
 import com.waither.notiservice.utils.RedisUtils;
-import com.waither.notiservice.utils.TemperatureUtils;
+import com.waither.notiservice.utils.WeatherMessageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +39,7 @@ public class KafkaConsumer {
     @KafkaListener(topics = "${spring.kafka.template.user-median-topic}", containerFactory = "userMedianKafkaListenerContainerFactory")
     public void consumeUserMedian(KafkaDto.UserMedianDto userMedianDto) {
 
-        Season currentSeason = TemperatureUtils.getCurrentSeason();
+        Season currentSeason = WeatherMessageUtils.getCurrentSeason();
         log.info("[ Kafka Listener ] 사용자 중앙값 데이터 동기화");
         log.info("[ Kafka Listener ] Season : -- {} ", currentSeason.name());
         log.info("[ Kafka Listener ] Email : --> {}", userMedianDto.email());
@@ -49,8 +50,6 @@ public class KafkaConsumer {
             //User Median 이미 있을 경우
             UserMedian userMedian = optionalUserMedian.get();
             userMedian.setLevel(userMedianDto);
-            userMedianRepository.save(userMedian);
-
         } else {
             //User Median 없을 경우 생성
             //TODO : 계절당 초기값 받아야 함
@@ -62,22 +61,6 @@ public class KafkaConsumer {
             newUserMedian.setLevel(userMedianDto);
             userMedianRepository.save(newUserMedian);
         }
-    }
-
-
-    /**
-     * Firebase Token Listener
-     * */
-    @Transactional
-    @KafkaListener(topics = "firebase-token", containerFactory = "firebaseTokenKafkaListenerContainerFactory")
-    public void consumeFirebaseToken(KafkaDto.TokenDto tokenDto) {
-
-        log.info("[ Kafka Listener ] Firebase Token 동기화");
-        log.info("[ Kafka Listener ] Email : --> {}", tokenDto.email());
-        log.info("[ Kafka Listener ] Token : --> {}", tokenDto.token());
-
-        //토큰 Redis 저장
-        redisUtils.save(tokenDto.email(), tokenDto.token());
     }
 
 
@@ -96,7 +79,6 @@ public class KafkaConsumer {
         Optional<UserData> userData = userDataRepository.findByEmail(userSettingsDto.email());
         if (userData.isPresent()) {
             userData.get().updateValue(userSettingsDto.key(), userSettingsDto.value());
-            userDataRepository.save(userData.get());
         } else {
             log.warn("[ Kafka Listener ] User Data 초기값이 없었습니다.");
             UserData newUserData = UserData.builder()
@@ -165,7 +147,7 @@ public class KafkaConsumer {
 
 
     /**
-     * 강설 정보 알림 Listener <br>
+     * 강수 정보 알림 Listener <br>
      * 기상청 기준 <br>
      * 약한 비     1~3mm <br>
      * 보통 비     3~15mm <br>
@@ -174,8 +156,8 @@ public class KafkaConsumer {
      * <a href="https://www.kma.go.kr/kma/biz/forecast05.jsp">참고</a>
      */
     @Transactional
-    @KafkaListener(topics = "alarm-snow", containerFactory = "weatherKafkaListenerContainerFactory")
-    public void consumeSnow(KafkaDto.WeatherDto weatherDto) {
+    @KafkaListener(topics = "alarm-rain", containerFactory = "weatherKafkaListenerContainerFactory")
+    public void consumeRain(KafkaDto.WeatherDto weatherDto) {
 
         int currentHour = LocalDateTime.now().getHour();
         // 22:00 ~ 07:00 는 알림을 전송하지 않음
@@ -184,24 +166,30 @@ public class KafkaConsumer {
         }
 
         String title = "Waither 강수 정보 알림";
-        StringBuilder sb = new StringBuilder();
-        
-        String region = weatherDto.region();
-        Double prediction = Double.valueOf(weatherDto.message()); //강수량
-
-        log.info("[ Kafka Listener ] 강수량  지역 --> {}", region);
-        log.info("[ Kafka Listener ] 걍수량 --> {}", prediction);
-
         List<UserData> userData = userDataRepository.findAllBySnowAlertIsTrue();
+        StringBuilder sb = new StringBuilder();
 
-        //예시 : 현재 서울특별시 지역에 2mm의 약한 비가 내릴 예정입니다.
-        //TODO: 언제 내리는지? 확인 필요
-        sb.append("현재 ").append(region).append(" 지역에 ").append(prediction).append("mm의 ")
-                .append(getExpression(prediction)).append("가 내릴 예정입니다.");
+        //지역
+        String region = weatherDto.region();
+        log.info("[ Kafka Listener ] 강수량  지역 --> {}", region);
+        String message = weatherDto.message();
 
+        //1시간 뒤, 2시간 뒤, 3시간 뒤, 4시간 뒤, 5시간 뒤, 6시간 뒤
+        List<Double> predictions =  Arrays.stream(message.split(","))
+                .map(String::trim) //공백 제거
+                .map(s -> s.equals("강수없음") ? "0" : s)
+                .map(Double::parseDouble)
+                .toList();
+        String rainMessage = WeatherMessageUtils.getRainPredictions(predictions);
+
+        if (rainMessage == null) {
+            //6시간 동안 강수 정보 없음
+            return;
+        }
+
+        sb.append("현재 ").append(region).append(" 지역에 ").append(rainMessage);
         //알림 보낼 사용자 이메일
         List<String> userEmails = filterRegionAndRainAlarm(region, userData, currentHour);
-
 
         System.out.println("[ 푸시알림 ] 강수량 알림");
         alarmService.sendAlarms(userEmails, title, sb.toString());
@@ -214,6 +202,7 @@ public class KafkaConsumer {
                 });
 
     }
+
 
     /**
      * 기상 특보 알림 Listener
@@ -249,6 +238,7 @@ public class KafkaConsumer {
 
 
     //지역 필터링 & 알림 규칙 검사
+
     private List<String> filterRegionAndWindAlarm(String region, List<UserData> userData, int currentHour) {
         return userData.stream()
                 .filter(data -> {
@@ -261,8 +251,8 @@ public class KafkaConsumer {
                 .map(UserData::getEmail)
                 .toList();
     }
-
     //지역 필터링 & 알림 규칙 검사
+
     private List<String> filterRegionAndRainAlarm(String region, List<UserData> userData, int currentHour) {
         return userData.stream()
                 .filter(data -> {
@@ -275,7 +265,6 @@ public class KafkaConsumer {
                 .map(UserData::getEmail)
                 .toList();
     }
-
     private List<String> filterRegion(String region, List<UserData> userData) {
         return userData.stream()
                 .filter(data -> {
@@ -286,20 +275,6 @@ public class KafkaConsumer {
                 .toList();
     }
 
-    //강수 표현
-    private String getExpression(double prediction) {
-        //1~3mm : 약한 비
-        if (prediction > 1 && prediction < 3) {
-            return "약한 비";
-            //3~15mm : 비
-        } else if (prediction >=3 && prediction < 15) {
-            return "비";
-            //15~30mm 강한 비
-        } else if (prediction >= 15 &&prediction <= 30) {
-            return "강한 비";
-            //30mm~ 매우 강한 비
-        } else if (prediction >= 30) {
-            return "매우 강한 비";
-        } else return "비";
-    }
+
+
 }

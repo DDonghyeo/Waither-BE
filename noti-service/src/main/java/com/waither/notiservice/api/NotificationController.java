@@ -33,8 +33,8 @@ public class NotificationController {
 
     @Operation(summary = "Send Go Out Alarm", description = "외출 알림 전송하기")
     @PostMapping("/goOut")
-    public ApiResponse<?> sendGoOutAlarm(@AuthUser String email) {
-        notificationService.sendGoOutAlarm(email);
+    public ApiResponse<?> sendGoOutAlarm(@AuthUser String email, @RequestBody @Valid LocationDto location) {
+        notificationService.sendGoOutAlarm(email, location);
         return ApiResponse.onSuccess(HttpStatus.OK);
     }
 

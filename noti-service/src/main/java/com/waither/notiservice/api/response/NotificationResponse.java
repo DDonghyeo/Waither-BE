@@ -9,14 +9,11 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Builder
-@Getter
-@AllArgsConstructor
-public class NotificationResponse {
-
-    public String id;
-    public LocalDateTime time;
-    public String message;
-
+public record NotificationResponse(
+        String id,
+        LocalDateTime time,
+        String message
+) {
     public static NotificationResponse of(Notification notification) {
         return NotificationResponse.builder()
                 .id(notification.getId())
