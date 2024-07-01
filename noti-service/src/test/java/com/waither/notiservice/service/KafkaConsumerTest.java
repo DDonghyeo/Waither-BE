@@ -7,7 +7,7 @@ import com.waither.notiservice.dto.kafka.KafkaDto;
 import com.waither.notiservice.repository.jpa.UserDataRepository;
 import com.waither.notiservice.repository.jpa.UserMedianRepository;
 import com.waither.notiservice.utils.RedisUtils;
-import com.waither.notiservice.utils.TemperatureUtils;
+import com.waither.notiservice.utils.WeatherMessageUtils;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.*;
@@ -24,7 +24,6 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -76,7 +75,7 @@ public class KafkaConsumerTest {
         //Given
         ProducerFactory<String, KafkaDto.UserMedianDto> pf = new DefaultKafkaProducerFactory<>(jsonProps);
         KafkaTemplate<String, KafkaDto.UserMedianDto> template = new KafkaTemplate<>(pf);
-        Season currentSeason = TemperatureUtils.getCurrentSeason();
+        Season currentSeason = WeatherMessageUtils.getCurrentSeason();
         String tempEmail = "kafkaTest@gmail.com";
 
         //when

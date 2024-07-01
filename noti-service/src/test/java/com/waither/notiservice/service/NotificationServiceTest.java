@@ -10,7 +10,7 @@ import com.waither.notiservice.repository.jpa.NotificationRepository;
 import com.waither.notiservice.repository.jpa.UserDataRepository;
 import com.waither.notiservice.repository.jpa.UserMedianRepository;
 import com.waither.notiservice.repository.redis.NotificationRecordRepository;
-import com.waither.notiservice.utils.TemperatureUtils;
+import com.waither.notiservice.utils.WeatherMessageUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -60,7 +60,7 @@ public class NotificationServiceTest {
         System.out.println("DB Mock 데이터 생성.. userid : 0");
 
         String tempEmail = "serviceTest@gmail.com";
-        Season currentSeason = TemperatureUtils.getCurrentSeason();
+        Season currentSeason = WeatherMessageUtils.getCurrentSeason();
         LocationDto locationDto = new LocationDto(33, 134);
 
         UserData newUser = UserData.builder()
@@ -81,7 +81,7 @@ public class NotificationServiceTest {
                         .medianOf2And3(15.0)
                         .medianOf3And4(20.0)
                         .medianOf4And5(25.0)
-                        .season(TemperatureUtils.getCurrentSeason()) //현재 계절로 저장
+                        .season(WeatherMessageUtils.getCurrentSeason()) //현재 계절로 저장
                         .build();
         Mockito.when(userMedianRepository.findByEmailAndSeason(tempEmail, currentSeason)).thenReturn(Optional.of(newUserMedian)); // (Mock) find시 Return
 
