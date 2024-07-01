@@ -9,7 +9,7 @@ import com.waither.notiservice.repository.jpa.UserDataRepository;
 import com.waither.notiservice.repository.jpa.UserMedianRepository;
 import com.waither.notiservice.repository.redis.NotificationRecordRepository;
 import com.waither.notiservice.utils.RedisUtils;
-import com.waither.notiservice.utils.TemperatureUtils;
+import com.waither.notiservice.utils.WeatherMessageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.StringTokenizer;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -40,7 +39,7 @@ public class KafkaConsumer {
     @KafkaListener(topics = "${spring.kafka.template.user-median-topic}", containerFactory = "userMedianKafkaListenerContainerFactory")
     public void consumeUserMedian(KafkaDto.UserMedianDto userMedianDto) {
 
-        Season currentSeason = TemperatureUtils.getCurrentSeason();
+        Season currentSeason = WeatherMessageUtils.getCurrentSeason();
         log.info("[ Kafka Listener ] 사용자 중앙값 데이터 동기화");
         log.info("[ Kafka Listener ] Season : -- {} ", currentSeason.name());
         log.info("[ Kafka Listener ] Email : --> {}", userMedianDto.email());
@@ -173,8 +172,15 @@ public class KafkaConsumer {
         //지역
         String region = weatherDto.region();
         log.info("[ Kafka Listener ] 강수량  지역 --> {}", region);
+        String message = weatherDto.message();
 
-        String rainMessage = getRainPredictions(weatherDto.message());
+        //1시간 뒤, 2시간 뒤, 3시간 뒤, 4시간 뒤, 5시간 뒤, 6시간 뒤
+        List<Double> predictions =  Arrays.stream(message.split(","))
+                .map(String::trim) //공백 제거
+                .map(s -> s.equals("강수없음") ? "0" : s)
+                .map(Double::parseDouble)
+                .toList();
+        String rainMessage = WeatherMessageUtils.getRainPredictions(predictions);
 
         if (rainMessage == null) {
             //6시간 동안 강수 정보 없음
@@ -269,64 +275,6 @@ public class KafkaConsumer {
                 .toList();
     }
 
-    private String getRainPredictions(String message) {
 
-        //1시간 뒤, 2시간 뒤, 3시간 뒤, 4시간 뒤, 5시간 뒤, 6시간 뒤
-        List<Double> predictions =  Arrays.stream(message.split(","))
-                .map(String::trim) //공백 제거
-                .map(s -> s.equals("강수없음") ? "0" : s)
-                .map(Double::parseDouble)
-                .toList();
-
-        List<String> predictionStr = predictions.stream()
-                .map(prediction -> prediction == 0 ? "강수없음" : getRainExpression(prediction))
-                .toList();
-        //예시 ["강수없음", "약한 비", "약한 비", "비", "비", "비"]
-
-        //몇 시간 뒤에 비가 얼만큼 몇 시간 동안 오는지?
-        int startHour = -1;
-        int duration = 0;
-        String intensity = "";
-        boolean isRaining = false;
-
-        for (int i = 0; i < predictionStr.size(); i++) {
-            String current = predictionStr.get(i);
-            if (!current.equals("강수없음")) {
-                if (!isRaining) {
-                    startHour = i + 1;
-                    intensity = current;
-                }
-                isRaining = true;
-                duration++;
-            } else if (isRaining) {
-                break;
-            }
-        }
-
-        if (startHour == -1) {
-            return null;
-        } else {
-            String timePhrase = startHour == 1 ? "1시간 후부터" : startHour + "시간 후부터";
-            String durationPhrase = duration == 1 ? "1시간 동안" : duration + "시간 동안";
-            //예시 "3시간 후부터 약한 비가 4시간 동안 올 예정입니다."
-            return String.format("%s %s가 %s 올 예정입니다.", timePhrase, intensity, durationPhrase);
-        }
-    }
-    //강수 표현
-    private String getRainExpression(double prediction) {
-        //1~3mm : 약한 비
-        if (prediction > 1 && prediction < 3) {
-            return "약한 비";
-            //3~15mm : 비
-        } else if (prediction >=3 && prediction < 15) {
-            return "비";
-            //15~30mm 강한 비
-        } else if (prediction >= 15 &&prediction <= 30) {
-            return "강한 비";
-            //30mm~ 매우 강한 비
-        } else if (prediction >= 30) {
-            return "매우 강한 비";
-        } else return "비";
-    }
 
 }
