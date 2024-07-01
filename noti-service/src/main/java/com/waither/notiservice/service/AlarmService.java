@@ -28,7 +28,7 @@ public class AlarmService {
 
     public void sendSingleAlarm(String email, String title, String message) {
         String token = String.valueOf(redisUtils.get(email));
-        fireBaseUtils.sendSingleMessage(token, title, message);
+//        fireBaseUtils.sendSingleMessage(token, title, message);
         notificationRepository.save(Notification.builder()
                 .email(email)
                 .title(title)
@@ -44,7 +44,7 @@ public class AlarmService {
         log.info("[ 푸시알림 ] Email ---> {}", userEmails);
         log.info("[ 푸시알림 ] message ---> {}", message);
 
-        fireBaseUtils.sendAllMessages(tokens,title, message);
+//        fireBaseUtils.sendAllMessages(tokens,title, message);
 
         List<Notification> notifications = userEmails.stream()
                 .map(email -> Notification.builder()
