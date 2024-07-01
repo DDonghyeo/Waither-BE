@@ -90,7 +90,7 @@ public class KafkaConsumerConfig {
 
     private ConsumerFactory<String, KafkaDto.UserMedianDto> userMedianConsumerFactory() {
         Map<String, Object> props = dtoSettings();
-         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(KafkaDto.UserMedianDto.class));
+         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), createJsonDeserializer(KafkaDto.UserMedianDto.class));
     }
 
 
@@ -106,7 +106,7 @@ public class KafkaConsumerConfig {
 
     private ConsumerFactory<String, KafkaDto.UserSettingsDto> userSettingsConsumerFactory() {
         Map<String, Object> props = dtoSettings();
-         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(KafkaDto.UserSettingsDto.class));
+         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), createJsonDeserializer(KafkaDto.UserSettingsDto.class));
     }
 
 
@@ -122,7 +122,7 @@ public class KafkaConsumerConfig {
 
     private ConsumerFactory<String, KafkaDto.InitialDataDto> initialDataConsumerFactory() {
         Map<String, Object> props = dtoSettings();
-         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(KafkaDto.InitialDataDto.class));
+         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), createJsonDeserializer(KafkaDto.InitialDataDto.class));
     }
 
     @Bean("weatherKafkaListenerContainerFactory")
@@ -137,10 +137,13 @@ public class KafkaConsumerConfig {
 
     private ConsumerFactory<String, KafkaDto.WeatherDto> weatherConsumerFactory() {
         Map<String, Object> props = dtoSettings();
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(KafkaDto.WeatherDto.class));
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), createJsonDeserializer(KafkaDto.WeatherDto.class));
     }
 
-
-
+    private <T> JsonDeserializer<T> createJsonDeserializer(Class<T> valueType) {
+        JsonDeserializer<T> jsonDeserializer = new JsonDeserializer<>(valueType);
+        jsonDeserializer.addTrustedPackages("com.waither.*");
+        return jsonDeserializer;
+    }
 
 }
