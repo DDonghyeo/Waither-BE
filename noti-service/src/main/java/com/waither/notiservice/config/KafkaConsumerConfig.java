@@ -137,6 +137,7 @@ public class KafkaConsumerConfig {
 
     private ConsumerFactory<String, KafkaDto.WeatherDto> weatherConsumerFactory() {
         Map<String, Object> props = dtoSettings();
+        props.put(JsonDeserializer.TYPE_MAPPINGS, "KafkaMessage:com.waither.notiservice.dto.kafka.KafkaDto.WeatherDto");
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), createJsonDeserializer(KafkaDto.WeatherDto.class));
     }
 
