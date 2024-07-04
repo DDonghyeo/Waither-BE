@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -166,14 +167,14 @@ public class WeatherService {
 		if (region.isEmpty())
 			throw new WeatherExceptionHandler(WeatherErrorCode.WEATHER_MAIN_ERROR);
 
-		String key = region.get(0).getRegionName() + "_" + convertLocalDateTimeToString(now);
+		String expectedWeatherKey = region.get(0).getRegionName() + "_" + convertLocalDateTimeToString(now);
 
-		// 테스트 키 : "서울특별시_20240508_1500"
+		String dailyWeatherKey = region.get(0).getRegionName() + "_" + convertLocalDateTimeToDailyWeatherTime(now);
 
-		DailyWeather dailyWeather = dailyWeatherRepository.findById(key)
+		DailyWeather dailyWeather = dailyWeatherRepository.findById(dailyWeatherKey)
 			.orElseThrow(() -> new WeatherExceptionHandler(WeatherErrorCode.WEATHER_MAIN_ERROR));
 
-		ExpectedWeather expectedWeather = expectedWeatherRepository.findById(key)
+		ExpectedWeather expectedWeather = expectedWeatherRepository.findById(expectedWeatherKey)
 			.orElseThrow(() -> new WeatherExceptionHandler(WeatherErrorCode.WEATHER_MAIN_ERROR));
 
 		MainWeatherResponse weatherMainResponse = MainWeatherResponse.from(
@@ -202,9 +203,27 @@ public class WeatherService {
 		return baseDate + "_" + baseTime;
 	}
 
+	public LocalDateTime convertLocalDateTimeToDailyWeatherTime(LocalDateTime time) {
+
+		// DailyWeather 정보는 3시간마다
+		List<Integer> scheduledHours = Arrays.asList(2, 5, 8, 11, 14, 17, 20, 23);
+
+		int currentHour = time.getHour();
+		int adjustedHour = scheduledHours.stream()
+			.filter(hour -> hour <= currentHour)
+			.reduce((first, second) -> second)
+			.orElse(23);
+
+		if (currentHour < scheduledHours.get(0)) {
+			time = time.minusDays(1);
+		}
+
+		return time.withHour(adjustedHour).withMinute(0).withSecond(0).withNano(0);
+	}
+
 	public List<Region> getRegionList() {
 		List<Region> all = regionRepository.findAll();
-		log.info("Region List : {}", all);
+		// log.info("Region List : {}", all);
 		return regionRepository.findAll();
 	}
 
