@@ -2,7 +2,9 @@ package com.waither.weatherservice.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.time.LocalDateTime;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +17,9 @@ import com.waither.weatherservice.dto.request.ForeCastTestRequest;
 import com.waither.weatherservice.service.WeatherService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/weather-test")
@@ -46,5 +50,13 @@ public class WeatherTestController {
 	@PostMapping("/accuweather")
 	public void accuweatherTest(@RequestBody AccuweatherTestRequest request) throws URISyntaxException, IOException {
 		weatherService.convertLocation(request.latitude(), request.longitude());
+	}
+
+	@GetMapping("/converㅅ")
+	public LocalDateTime convertTest() {
+
+		LocalDateTime specificDateTime = LocalDateTime.of(2024, 7, 5, 23, 0);
+		log.info("Changed : {}", specificDateTime);
+		return weatherService.convertLocalDateTimeToDailyWeatherTime(specificDateTime);
 	}
 }
