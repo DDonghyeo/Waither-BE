@@ -59,4 +59,23 @@ public class BatchConfig {
 	public Tasklet expectedWeatherTasklet() {
 		return new ExpectedWeatherTasklet(weatherService);
 	}
+
+	@Bean
+	public Job weatherAdvisoryJob() {
+		return new JobBuilder("weatherAdvisoryJob", jobRepository)
+			.start(weatherAdvisoryStep())
+			.build();
+	}
+
+	@Bean
+	public Step weatherAdvisoryStep() {
+		return new StepBuilder("weatherAdvisoryStep", jobRepository)
+			.tasklet(weatherAdvisoryTasklet(), transactionManager)
+			.build();
+	}
+
+	@Bean
+	public Tasklet weatherAdvisoryTasklet() {
+		return new WeatherAdvisoryTasklet(weatherService);
+	}
 }
