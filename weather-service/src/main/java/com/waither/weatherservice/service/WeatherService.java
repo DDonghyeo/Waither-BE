@@ -167,15 +167,23 @@ public class WeatherService {
 		if (region.isEmpty())
 			throw new WeatherExceptionHandler(WeatherErrorCode.WEATHER_MAIN_ERROR);
 
-		String expectedWeatherKey = region.get(0).getRegionName() + "_" + convertLocalDateTimeToString(now);
+		String regionName = region.get(0).getRegionName();
 
-		String dailyWeatherKey = region.get(0).getRegionName() + "_" + convertLocalDateTimeToDailyWeatherTime(now);
+		log.info("region : {}", regionName);
+
+		String expectedWeatherKey = regionName + "_" + convertLocalDateTimeToString(now);
+
+		String dailyWeatherKey = regionName + "_" + convertLocalDateTimeToDailyWeatherTime(now);
 
 		DailyWeather dailyWeather = dailyWeatherRepository.findById(dailyWeatherKey)
 			.orElseThrow(() -> new WeatherExceptionHandler(WeatherErrorCode.WEATHER_MAIN_ERROR));
 
+		log.info(regionName + "DailyWeather : {}", dailyWeather);
+
 		ExpectedWeather expectedWeather = expectedWeatherRepository.findById(expectedWeatherKey)
 			.orElseThrow(() -> new WeatherExceptionHandler(WeatherErrorCode.WEATHER_MAIN_ERROR));
+
+		log.info(regionName + "ExpectedWeather : {}", expectedWeather);
 
 		MainWeatherResponse weatherMainResponse = MainWeatherResponse.from(
 			dailyWeather.getPop(), dailyWeather.getTmp(), dailyWeather.getTempMin(),
@@ -185,7 +193,7 @@ public class WeatherService {
 			expectedWeather.getExpectedRain(), expectedWeather.getExpectedPty(),
 			expectedWeather.getExpectedSky()
 		);
-		log.info("{}", weatherMainResponse);
+		log.info(regionName + "MainWeatherResponse : {}", weatherMainResponse);
 
 		return weatherMainResponse;
 	}
@@ -222,8 +230,6 @@ public class WeatherService {
 	}
 
 	public List<Region> getRegionList() {
-		List<Region> all = regionRepository.findAll();
-		// log.info("Region List : {}", all);
 		return regionRepository.findAll();
 	}
 
