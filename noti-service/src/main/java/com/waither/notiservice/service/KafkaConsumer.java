@@ -13,6 +13,7 @@ import com.waither.notiservice.utils.WeatherMessageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -108,7 +109,7 @@ public class KafkaConsumer {
      * @Query  : 0200, 0500, 0800, 1100, 1400, 1700, 2000, 2300  */
     @Transactional
     @KafkaListener(topics = "alarm-wind", containerFactory = "weatherKafkaListenerContainerFactory")
-    public void consumeWindAlarm(KafkaDto.WeatherDto weatherDto) {
+    public void consumeWindAlarm(@Payload KafkaDto.WeatherDto weatherDto) {
 
         int currentHour = LocalDateTime.now().getHour();
         // 22:00 ~ 07:00 는 알림을 전송하지 않음
@@ -165,7 +166,7 @@ public class KafkaConsumer {
      */
     @Transactional
     @KafkaListener(topics = "alarm-rain", containerFactory = "weatherKafkaListenerContainerFactory")
-    public void consumeRain(KafkaDto.WeatherDto weatherDto) {
+    public void consumeRain(@Payload KafkaDto.WeatherDto weatherDto) {
 
         int currentHour = LocalDateTime.now().getHour();
         // 22:00 ~ 07:00 는 알림을 전송하지 않음
@@ -230,7 +231,7 @@ public class KafkaConsumer {
      * */
     @Transactional
     @KafkaListener(topics = "alarm-climate", containerFactory = "weatherKafkaListenerContainerFactory")
-    public void consumeClimateAlarm(KafkaDto.WeatherDto weatherDto) {
+    public void consumeClimateAlarm(@Payload KafkaDto.WeatherDto weatherDto) {
         int currentHour = LocalDateTime.now().getHour();
         // 22:00 ~ 07:00 는 알림을 전송하지 않음
         if (currentHour >= 22 || currentHour <= 7) {
