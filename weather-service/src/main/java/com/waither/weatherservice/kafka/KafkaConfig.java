@@ -45,6 +45,11 @@ public class KafkaConfig {
 			config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 		}
 
+		config.put(ProducerConfig.RETRIES_CONFIG, 3);
+		config.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 60000);
+		config.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
+
+
 		return new DefaultKafkaProducerFactory<>(config);
 	}
 

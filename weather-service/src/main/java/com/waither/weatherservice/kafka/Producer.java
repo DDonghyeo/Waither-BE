@@ -22,7 +22,7 @@ public class Producer {
 
 		kafkaTemplate.send(topic, message);
 
-		CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topic, message);
+		CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topic, "weather-key", message);
 
 		future.whenComplete(((result, throwable) -> {
 			if (throwable == null) {
