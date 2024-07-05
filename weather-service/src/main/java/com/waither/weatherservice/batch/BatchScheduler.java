@@ -21,6 +21,7 @@ public class BatchScheduler {
 	private final JobLauncher jobLauncher;
 	private final Job dailyWeatherJob;
 	private final Job expectedWeatherJob;
+	private final Job weatherAdvisoryTasklet;
 
 	@Scheduled(cron = "0 0 2,5,8,11,14,17,20,23 * * *") // 3시간마다
 	public void runDailyWeatherJob() {
@@ -45,6 +46,20 @@ public class BatchScheduler {
 				.toJobParameters();
 
 			jobLauncher.run(expectedWeatherJob, jobParameters);
+		} catch (JobExecutionException e) {
+			log.error("Error executing expectedWeatherJob: ", e);
+		}
+	}
+
+	@Scheduled(cron = "0 0 * * * *") // 1시간마다
+	public void runWeatherAdvisoryJob() {
+		log.info("[ Scheduler ] WeatherAdvisory Api");
+		try {
+			JobParameters jobParameters = new JobParametersBuilder()
+				.addLong("executedTime", System.currentTimeMillis())
+				.toJobParameters();
+
+			jobLauncher.run(weatherAdvisoryTasklet, jobParameters);
 		} catch (JobExecutionException e) {
 			log.error("Error executing expectedWeatherJob: ", e);
 		}
