@@ -15,9 +15,9 @@ public enum WeatherErrorCode implements BaseErrorCode {
 	WEATHER_OPENAPI_ERROR(HttpStatus.BAD_REQUEST, "WEAT400_3", "OpenApi 관련 오류입니다."),
 	WEATHER_MAIN_ERROR(HttpStatus.BAD_REQUEST, "WEAT400_2", "잘못된 위도, 경도입니다."), // 레디스에 캐싱 데이터가 없는 경우
 	WEATHER_URI_ERROR(HttpStatus.BAD_REQUEST, "WEAT400_3", "URI 변환에 실패하였습니다."),
-	REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "WEAT400_4", "URI 변환에 실패하였습니다."),
-	DAILY_NOT_FOUND(HttpStatus.NOT_FOUND, "WEAT400_5", "URI 변환에 실패하였습니다."),
-	EXPECTED_NOT_FOUND(HttpStatus.NOT_FOUND, "WEAT400_6", "URI 변환에 실패하였습니다."),
+	REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "WEAT400_4", "지역명을 찾을 수 없습니다."),
+	DAILY_NOT_FOUND(HttpStatus.NOT_FOUND, "WEAT400_5", "하루 날씨 정보를 찾을 수 없습니다."),
+	EXPECTED_NOT_FOUND(HttpStatus.NOT_FOUND, "WEAT400_6", "예상 날씨 정보를 찾을 수 없습니다."),
 	;
 
 	private final HttpStatus httpStatus;
