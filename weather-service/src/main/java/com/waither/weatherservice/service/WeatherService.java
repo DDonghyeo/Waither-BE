@@ -173,7 +173,7 @@ public class WeatherService {
 
 		String expectedWeatherKey = regionName + "_" + convertLocalDateTimeToString(now);
 
-		LocalDateTime dailyWeatherBaseTime = convertLocalDateTimeToDailyWeatherTime(now);
+		LocalDateTime dailyWeatherBaseTime = convertLocalDateTimeToDailyWeatherTime(now.minusHours(1));
 
 		String dailyWeatherKey = regionName + "_" + convertLocalDateTimeToString(dailyWeatherBaseTime);
 
@@ -219,14 +219,15 @@ public class WeatherService {
 	public LocalDateTime convertLocalDateTimeToDailyWeatherTime(LocalDateTime time) {
 
 		// DailyWeather 정보는 3시간마다
-		List<Integer> scheduledHours = Arrays.asList(2, 5, 8, 11, 14, 17, 20, 23);
+		List<Integer> scheduledHours = Arrays.asList(0, 3, 6, 9, 12, 15, 18, 21);
 
 		int currentHour = time.getHour();
 		int adjustedHour = scheduledHours.stream()
 			.filter(hour -> hour <= currentHour)
 			.reduce((first, second) -> second)
-			.orElse(23);
+			.orElse(scheduledHours.get(scheduledHours.size() - 1)); // 이전 날의 마지막 스케줄 시간(21시) 반환
 
+		// 현재 시간이 첫 스케줄 시간(0시)보다 작을 경우, 전날의 마지막 스케줄 시간으로 설정
 		if (currentHour < scheduledHours.get(0)) {
 			time = time.minusDays(1);
 		}
