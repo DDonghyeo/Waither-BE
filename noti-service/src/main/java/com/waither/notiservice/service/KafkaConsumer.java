@@ -127,9 +127,17 @@ public class KafkaConsumer {
 
         // Wind Alert를 True로 설정한 User Query
         List<UserData> userData = userDataRepository.findAllByWindAlertIsTrue();
+        if (userData.isEmpty()) {
+            log.info("[ Kafka Listener ] 보낼 사용자 없음.");
+            return;
+        }
 
         //알림 보낼 사용자 이메일
         List<String> userEmails = filterRegionAndWindAlarm(region, userData, currentHour);
+        if (userEmails.isEmpty()) {
+            log.info("[ Kafka Listener ] 보낼 사용자 없음.");
+            return;
+        }
 
         sb.append("현재 바람 세기가 ").append(windStrength).append("m/s 이상입니다.");
 
@@ -165,14 +173,26 @@ public class KafkaConsumer {
             return;
         }
 
-        String title = "Waither 강수 정보 알림";
-        List<UserData> userData = userDataRepository.findAllBySnowAlertIsTrue();
-        StringBuilder sb = new StringBuilder();
-
         //지역
         String region = weatherDto.region();
         log.info("[ Kafka Listener ] 강수량  지역 --> {}", region);
         String message = weatherDto.message();
+
+        String title = "Waither 강수 정보 알림";
+        List<UserData> userData = userDataRepository.findAllBySnowAlertIsTrue();
+        if (userData.isEmpty()) {
+            log.info("[ Kafka Listener ] 보낼 사용자 없음.");
+            return;
+        }
+
+        List<String> userEmails = filterRegionAndRainAlarm(region, userData, currentHour);
+        if (userEmails.isEmpty()) {
+            log.info("[ Kafka Listener ] 보낼 사용자 없음.");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+
 
         //1시간 뒤, 2시간 뒤, 3시간 뒤, 4시간 뒤, 5시간 뒤, 6시간 뒤
         List<Double> predictions =  Arrays.stream(message.split(","))
@@ -183,13 +203,14 @@ public class KafkaConsumer {
         String rainMessage = WeatherMessageUtils.getRainPredictions(predictions);
 
         if (rainMessage == null) {
+            log.info("[ Kafka Listener ] 6시간 동안 강수 정보 없음.");
             //6시간 동안 강수 정보 없음
             return;
         }
 
         sb.append("현재 ").append(region).append(" 지역에 ").append(rainMessage);
         //알림 보낼 사용자 이메일
-        List<String> userEmails = filterRegionAndRainAlarm(region, userData, currentHour);
+
 
         System.out.println("[ 푸시알림 ] 강수량 알림");
         alarmService.sendAlarms(userEmails, title, sb.toString());
@@ -226,9 +247,17 @@ public class KafkaConsumer {
 
         // Wind Climate를 True로 설정한 User Query
         List<UserData> userData = userDataRepository.findAllByClimateAlertIsTrue();
+        if (userData.isEmpty()) {
+            log.info("[ Kafka Listener ] 보낼 사용자 없음.");
+            return;
+        }
 
         // 알림 보낼 사용자 이메일
         List<String> userEmails = filterRegion(region, userData);
+        if (userEmails.isEmpty()) {
+            log.info("[ Kafka Listener ] 보낼 사용자 없음.");
+            return;
+        }
 
         sb.append("[기상청 기상 특보] ").append(message);
 
