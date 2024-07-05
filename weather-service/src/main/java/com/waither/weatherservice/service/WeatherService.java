@@ -173,7 +173,12 @@ public class WeatherService {
 
 		String expectedWeatherKey = regionName + "_" + convertLocalDateTimeToString(now);
 
-		String dailyWeatherKey = regionName + "_" + convertLocalDateTimeToDailyWeatherTime(now);
+		LocalDateTime dailyWeatherBaseTime = convertLocalDateTimeToDailyWeatherTime(now);
+
+		String dailyWeatherKey = regionName + "_" + convertLocalDateTimeToString(dailyWeatherBaseTime);
+
+		log.info("[Main - api] dailyWeatherKey : {}", dailyWeatherKey);
+		log.info("[Main - api] expectedWeatherKey : {}", expectedWeatherKey);
 
 		DailyWeather dailyWeather = dailyWeatherRepository.findById(dailyWeatherKey)
 			.orElseThrow(() -> new WeatherExceptionHandler(WeatherErrorCode.DAILY_NOT_FOUND));
