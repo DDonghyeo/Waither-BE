@@ -51,12 +51,4 @@ public class WeatherTestController {
 	public void accuweatherTest(@RequestBody AccuweatherTestRequest request) throws URISyntaxException, IOException {
 		weatherService.convertLocation(request.latitude(), request.longitude());
 	}
-
-	@GetMapping("/converㅅ")
-	public LocalDateTime convertTest() {
-
-		LocalDateTime specificDateTime = LocalDateTime.of(2024, 7, 5, 23, 0);
-		log.info("Changed : {}", specificDateTime);
-		return weatherService.convertLocalDateTimeToDailyWeatherTime(specificDateTime);
-	}
 }

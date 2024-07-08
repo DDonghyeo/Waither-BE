@@ -123,6 +123,10 @@ public class WeatherService {
 		KafkaMessage kafkaMessage = KafkaMessage.of(regionName, dailyWeather.getWindDegree());
 		producer.produceMessage("alarm-wind", kafkaMessage);
 
+		double windChill = calculateWindChill(Double.valueOf(tmp), Double.valueOf(wsd));
+		KafkaMessage kafkaMessageWindChill = KafkaMessage.of(regionName, String.valueOf(windChill));
+		producer.produceMessage("alarm-temp", kafkaMessageWindChill);
+
 		DailyWeather save = dailyWeatherRepository.save(dailyWeather);
 		log.info("[*] 하루 온도 : {}", save);
 
@@ -241,5 +245,12 @@ public class WeatherService {
 
 	public String convertGpsToRegionName(double latitude, double longitude) {
 		return regionRepository.findRegionByLatAndLong(latitude, longitude).get(0).getRegionName();
+	}
+
+	public double calculateWindChill(double temp, double wind) {
+		if (temp > 10 || wind < 4.8) {
+			return temp;
+		}
+		return 13.12 + 0.6215 * temp - 11.37 * Math.pow(wind, 0.16) + 0.3965 * temp * Math.pow(wind, 0.16);
 	}
 }
