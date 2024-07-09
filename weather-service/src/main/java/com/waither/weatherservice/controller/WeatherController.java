@@ -50,7 +50,7 @@ public class WeatherController {
 			+ "\"longitude\": 126.73,"
 			+ "\"baseTime\": \"2024-07-09T12:34:56\" "
 			+ "}")
-	@GetMapping("/region")
+	@GetMapping("/wind-chill")
 	public ApiResponse<Double> getWindChill(@ModelAttribute @Valid GetWindChillRequest getWindChillRequest) {
 		return ApiResponse.onSuccess(
 			weatherService.getWindChill(
