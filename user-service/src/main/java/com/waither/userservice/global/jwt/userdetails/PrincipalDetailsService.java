@@ -26,6 +26,6 @@ public class PrincipalDetailsService implements UserDetailsService {
             User user = userEntity.get();
             return new PrincipalDetails(user.getEmail(),user.getPassword(), user.getRole());
         }
-        throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        throw new UsernameNotFoundException("올바르지 않은 email");
     }
 }
