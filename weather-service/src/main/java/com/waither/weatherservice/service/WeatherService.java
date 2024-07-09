@@ -123,10 +123,6 @@ public class WeatherService {
 		KafkaMessage kafkaMessage = KafkaMessage.of(regionName, dailyWeather.getWindDegree());
 		producer.produceMessage("alarm-wind", kafkaMessage);
 
-		double windChill = calculateWindChill(Double.valueOf(tmp), Double.valueOf(wsd));
-		KafkaMessage kafkaMessageWindChill = KafkaMessage.of(regionName, String.valueOf(windChill));
-		producer.produceMessage("alarm-temp", kafkaMessageWindChill);
-
 		DailyWeather save = dailyWeatherRepository.save(dailyWeather);
 		log.info("[*] 하루 온도 : {}", save);
 
@@ -220,5 +216,25 @@ public class WeatherService {
 			return temp;
 		}
 		return 13.12 + 0.6215 * temp - 11.37 * Math.pow(wind, 0.16) + 0.3965 * temp * Math.pow(wind, 0.16);
+	}
+
+	public double getWindChill(double latitude, double longitude, LocalDateTime baseTime) {
+
+		List<Region> region = regionRepository.findRegionByLatAndLong(latitude, longitude);
+
+		if (region.isEmpty())
+			throw new WeatherExceptionHandler(WeatherErrorCode.REGION_NOT_FOUND);
+
+		String regionName = region.get(0).getRegionName();
+
+
+		LocalDateTime dailyWeatherBaseTime = convertLocalDateTimeToDailyWeatherTime(baseTime.minusHours(1));
+
+		String dailyWeatherKey = regionName + "_" + convertLocalDateTimeToString(dailyWeatherBaseTime);
+
+		DailyWeather dailyWeather = dailyWeatherRepository.findById(dailyWeatherKey)
+			.orElseThrow(() -> new WeatherExceptionHandler(WeatherErrorCode.DAILY_NOT_FOUND));
+
+		return calculateWindChill(Double.valueOf(dailyWeather.getTmp()), Double.valueOf(dailyWeather.getWindDegree()));
 	}
 }
