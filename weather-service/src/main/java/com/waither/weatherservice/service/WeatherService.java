@@ -221,15 +221,11 @@ public class WeatherService {
 	public double getWindChill(double latitude, double longitude, LocalDateTime baseTime) {
 
 		List<Region> region = regionRepository.findRegionByLatAndLong(latitude, longitude);
-
 		if (region.isEmpty())
 			throw new WeatherExceptionHandler(WeatherErrorCode.REGION_NOT_FOUND);
 
 		String regionName = region.get(0).getRegionName();
-
-
 		LocalDateTime dailyWeatherBaseTime = convertLocalDateTimeToDailyWeatherTime(baseTime.minusHours(1));
-
 		String dailyWeatherKey = regionName + "_" + convertLocalDateTimeToString(dailyWeatherBaseTime);
 
 		DailyWeather dailyWeather = dailyWeatherRepository.findById(dailyWeatherKey)
