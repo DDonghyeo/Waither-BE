@@ -39,8 +39,8 @@ public enum ErrorCode implements BaseErrorCode {
     UNABLE_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL500_0", "이메일을 전송하는 도중, 에러가 발생했습니다."),
     NO_SUCH_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL500_1", "이메일 인증 코드를 생성할 수 없습니다."),
 
-    DATA_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER404_0", "해당 데이터를 찾을 수 없습니다."),
-    USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER404_1", "사용자가 없습니다."),
+    DATA_NOT_FOUND(HttpStatus.NOT_FOUND, "USER404_0", "해당 데이터를 찾을 수 없습니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER404_1", "사용자가 없습니다."),
     EMAIL_NOT_EXIST(HttpStatus.BAD_REQUEST, "USER400_2", "이메일은 필수 입니다."),
     PASSWORD_NOT_EQUAL(HttpStatus.BAD_REQUEST, "USER400_3", "비밀번호가 일치하지 않습니다."),
     CURRENT_PASSWORD_NOT_EQUAL(HttpStatus.BAD_REQUEST, "USER400_4", "현재 비밀번호가 일치하지 않습니다."),
