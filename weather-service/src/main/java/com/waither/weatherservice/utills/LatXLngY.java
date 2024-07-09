@@ -1,4 +1,4 @@
-package com.waither.weatherservice.gps;
+package com.waither.weatherservice.utills;
 
 import lombok.Builder;
 

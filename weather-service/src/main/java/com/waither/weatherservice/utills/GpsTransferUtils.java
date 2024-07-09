@@ -1,4 +1,4 @@
-package com.waither.weatherservice.gps;
+package com.waither.weatherservice.utills;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,8 +15,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-// @Component
-public class GpsTransfer {
+public class GpsTransferUtils {
 
 	// 격자 간격 (단위: km)
 	private static final double GRID_INTERVAL = 5.0;
@@ -110,7 +109,7 @@ public class GpsTransfer {
 	public static String convertGpsToRegionCode(double lat, double lon) {
 		String regionCode = null;
 		try {
-			InputStream inputStream = GpsTransfer.class.getResourceAsStream("/api/Region.xlsx");
+			InputStream inputStream = GpsTransferUtils.class.getResourceAsStream("/api/Region.xlsx");
 			XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
 			Sheet sheet = workbook.getSheetAt(0); // 시트 인덱스, 첫 번째 시트를 가져옴
 

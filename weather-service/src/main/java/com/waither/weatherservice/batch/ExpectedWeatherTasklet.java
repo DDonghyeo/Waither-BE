@@ -1,5 +1,7 @@
 package com.waither.weatherservice.batch;
 
+import static com.waither.weatherservice.utills.DateTimeUtils.*;
+
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,7 +26,7 @@ public class ExpectedWeatherTasklet implements Tasklet {
 	@Override
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
 		LocalDateTime baseTime = LocalDateTime.now().minusHours(1);
-		String[] dateTime = weatherService.convertLocalDateTimeToString(baseTime).split("_");
+		String[] dateTime = convertLocalDateTimeToString(baseTime).split("_");
 		List<Region> regionList = weatherService.getRegionList();
 		regionList.stream()
 			.forEach(region -> {
