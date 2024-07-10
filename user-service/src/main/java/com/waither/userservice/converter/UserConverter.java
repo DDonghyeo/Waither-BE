@@ -1,6 +1,7 @@
 package com.waither.userservice.converter;
 
 import com.waither.userservice.dto.request.UserReqDto;
+import com.waither.userservice.dto.response.KakaoResDto;
 import com.waither.userservice.entity.User;
 import com.waither.userservice.entity.enums.UserStatus;
 import lombok.AccessLevel;
@@ -19,6 +20,17 @@ public class UserConverter {
                 .status(UserStatus.ACTIVE)
                 .role("ROLE_USER")
                 .custom(true)
+                .build();
+    }
+
+    public static User toUser(KakaoResDto.UserInfoResponseDto userInfo) {
+        return User.builder()
+                .authId(userInfo.getId())
+                .nickname(userInfo.getKakaoAccount().getProfile().getNickName())
+                .email(userInfo.getKakaoAccount().getEmail())
+                .status(UserStatus.ACTIVE)
+                .custom(true)
+                .role("ROLE_USER")
                 .build();
     }
 

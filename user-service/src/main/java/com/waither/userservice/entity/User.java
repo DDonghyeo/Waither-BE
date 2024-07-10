@@ -6,6 +6,7 @@ import com.waither.userservice.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -63,10 +64,13 @@ public class User extends BaseEntity {
     private Setting setting;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserData> UserData;
+    private List<Survey> surveys = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserMedian> UserMedian;
+    private List<UserData> userData = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserMedian> userMedian = new ArrayList<>();
 
     // 비밀번호 변경
     public void setPassword(String password) {
@@ -83,17 +87,21 @@ public class User extends BaseEntity {
         this.custom = custom;
     }
 
-
     // 연관관계 설정
-    public void setSetting(Setting setSetting) {
-        setting = setSetting;
+    public void addSurvey(Survey survey) {
+        surveys.add(survey);
+        survey.setUser(this);
+    }
+
+    public void setSetting(Setting setting) {
+        this.setting = setting;
     }
 
     public void setUserData(List<UserData> userData) {
-        UserData = userData;
+        this.userData = userData;
     }
 
     public void setUserMedian(List<UserMedian> userMedian) {
-        UserMedian = userMedian;
+        this.userMedian = userMedian;
     }
 }

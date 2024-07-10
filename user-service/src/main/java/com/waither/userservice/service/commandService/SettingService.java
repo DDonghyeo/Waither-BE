@@ -1,17 +1,13 @@
 package com.waither.userservice.service.commandService;
 
 import com.waither.userservice.dto.request.SettingReqDto;
-import com.waither.userservice.entity.Region;
-import com.waither.userservice.entity.Setting;
-import com.waither.userservice.entity.User;
+import com.waither.userservice.entity.*;
 import com.waither.userservice.global.exception.CustomException;
 import com.waither.userservice.global.response.ErrorCode;
 import com.waither.userservice.kafka.KafkaConverter;
 import com.waither.userservice.kafka.KafkaDto;
 import com.waither.userservice.kafka.KafkaService;
-import com.waither.userservice.repository.RegionRepository;
-import com.waither.userservice.repository.SettingRepository;
-import com.waither.userservice.repository.UserRepository;
+import com.waither.userservice.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +27,9 @@ public class SettingService {
     private final UserRepository userRepository;
     private final SettingRepository settingRepository;
     private final RegionRepository regionRepository;
+    private final UserDataRepository userDataRepository;
+    private final UserMedianRepository userMedianRepository;
+    private final SurveyRepository surveyRepository;
 
     private final KafkaService kafkaService;
 
@@ -38,7 +37,35 @@ public class SettingService {
 
     // 사용자 맞춤 서비스 제공 설정 변경
     public void updateCustom(User user, SettingReqDto.CustomDto customDto) {
+        boolean previousCustomSetting = user.isCustom();
         user.setCustom(customDto.custom());
+
+        // 맞춤 서비스를 껐다 켜면 데이터 "초기화"
+
+        // 사용자가 맞춤 서비스를 끄는 경우
+        // 데이터 삭제
+        if (previousCustomSetting && !customDto.custom()) {
+            // Servey, UserData, UserMedian 삭제
+            surveyRepository.deleteAllByUser(user);
+            userDataRepository.deleteAllByUser(user);
+            userMedianRepository.deleteAllByUser(user);
+        }
+
+        // 사용자가 맞춤 서비스를 켜는 경우
+        // Default 데이터로 생성
+        if (!previousCustomSetting && customDto.custom()) {
+            // 새로운 UserData와 UserMedian 생성
+            List<UserData> newUserDataList = UserData.createUserDataList(user);
+            List<UserMedian> newUserMedianList = UserMedian.createUserMedianList(newUserDataList, user);
+
+            // UserData UserMedian 컬렉션 업데이트
+            user.getUserData().clear();
+            user.getUserMedian().clear();
+            userRepository.saveAndFlush(user);  // <= 이거!!
+            user.getUserData().addAll(newUserDataList);
+            user.getUserMedian().addAll(newUserMedianList);
+        }
+
         userRepository.save(user);
     }
 
