@@ -1,10 +1,6 @@
 package com.waither.userservice.service.commandService;
 
-import com.waither.userservice.converter.RegionConverter;
-import com.waither.userservice.converter.SettingConverter;
-import com.waither.userservice.converter.SurveyConverter;
-import com.waither.userservice.converter.UserConverter;
-import com.waither.userservice.dto.converter.AccountConverter;
+import com.waither.userservice.converter.*;
 import com.waither.userservice.dto.request.UserReqDto;
 import com.waither.userservice.dto.response.KakaoResDto;
 import com.waither.userservice.entity.*;
@@ -43,14 +39,15 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private static final String AUTH_CODE_PREFIX = "AuthCode_";
-    private static final String VERIFIED_PREFIX = "Verified_";
 
     private final EmailService emailService;
     private final KafkaService kafkaService;
 
     private final RedisUtil redisUtil;
     private final JwtUtil jwtUtil;
+
+    private static final String AUTH_CODE_PREFIX = "AuthCode_";
+    private static final String VERIFIED_PREFIX = "Verified_";
 
     @Value("${spring.mail.auth-code-expiration-millis}")
     private long authCodeExpirationMillis;
@@ -62,26 +59,31 @@ public class UserService {
 //            throw new CustomException(ErrorCode.INVALID_Account);
 //        }
         User newUser = UserConverter.toUser(requestDto, passwordEncoder);
-        Region newRegion = RegionConverter.createRegion();
-        Setting newSetting = SettingConverter.createSetting();
+        Region newRegion = Region.createRegion();
+        Setting newSetting = Setting.createSetting();
+        List<UserData> userDataList = UserData.createUserDataList(newUser);
+        List<UserMedian> userMedianList = UserMedian.createUserMedianList(userDataList, newUser);
 
-        // 모든 계절에 대한 UserData 생성
-        List<UserData> userDataList = Arrays.stream(Season.values())
-                .map(season -> {
-                    UserData userData = SurveyConverter.createUserData(season);
-                    userData.setUser(newUser);
-                    return userData;
-                })
-                .toList();
+        // 연관관계 설정
+        newSetting.setRegion(newRegion);
+        newUser.setSetting(newSetting);
+        newUser.setUserData(userDataList);
+        newUser.setUserMedian(userMedianList);
 
-        // 모든 계절에 대한 UserMedian 생성
-        List<UserMedian> userMedianList = userDataList.stream()
-                .map(userData -> {
-                    UserMedian userMedian = SurveyConverter.createUserMedian(userData);
-                    userMedian.setUser(newUser);
-                    return userMedian;
-                })
-                .toList();
+//        // 초기값 Kafka 전송
+        KafkaDto.InitialDataDto initialDataDto = KafkaConverter.toInitialData(newUser, newSetting, userMedianList);
+        kafkaService.sendInitialData(initialDataDto);
+        userRepository.save(newUser);
+    }
+
+    // 회원가입 (카카오)
+    public void signup(KakaoResDto.UserInfoResponseDto userInfo) {
+
+        User newUser = UserConverter.toUser(userInfo);
+        Region newRegion = Region.createRegion();
+        Setting newSetting = Setting.createSetting();
+        List<UserData> userDataList = UserData.createUserDataList(newUser);
+        List<UserMedian> userMedianList = UserMedian.createUserMedianList(userDataList, newUser);
 
         // 연관관계 설정
         newSetting.setRegion(newRegion);
@@ -92,19 +94,6 @@ public class UserService {
         // 초기값 Kafka 전송
         KafkaDto.InitialDataDto initialDataDto = KafkaConverter.toInitialData(newUser, newSetting, userMedianList);
         kafkaService.sendInitialData(initialDataDto);
-        userRepository.save(newUser);
-    }
-
-    // 회원가입 (카카오)
-    public void signup(KakaoResDto.UserInfoResponseDto userInfo) {
-
-        User newUser = AccountConverter.toUser(userInfo);
-
-        Setting defaultSetting = deafultSettings();
-        Region defaultRegion = deafultRegion();
-
-        defaultSetting.setRegion(defaultRegion);
-        newUser.setSetting(defaultSetting);
         userRepository.save(newUser);
     }
 
@@ -121,8 +110,8 @@ public class UserService {
         jwtUtil.isRefreshToken(refreshToken);
         return jwtUtil.reissueToken(refreshToken);
     }
-    // 인증 번호 전송
 
+    // 인증 번호 전송
     public void sendAuthCodeToEmail(String email) {
         this.checkDuplicatedEmail(email);
 
@@ -135,8 +124,8 @@ public class UserService {
         redisUtil.save(AUTH_CODE_PREFIX + email,
                 authCode, authCodeExpirationMillis, TimeUnit.MILLISECONDS);
     }
-    // 임시 비밀번호 보내기
 
+    // 임시 비밀번호 보내기
     public String sendTempPassword(String email) {
         // 전송
         String tempPassword = this.createTemporaryPassword();
@@ -145,9 +134,9 @@ public class UserService {
 
         return tempPassword;
     }
+
     // 회원가입 하려는 이메일로 이미 가입한 회원이 있는지 확인하는 메서드.
     // 만약 해당 이메일을 가진 회원이 존재하면 예외를 발생.
-
     private void checkDuplicatedEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
@@ -160,14 +149,13 @@ public class UserService {
     }
 
     // 회원 존재하는 지 확인
-
     public void checkUserExists(String email) {
         if (!userRepository.existsByEmail(email)) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
     }
-    // 인증 번호 생성하는 메서드
 
+    // 인증 번호 생성하는 메서드
     public String createAuthCode() {
         int lenth = 6;
         try {
@@ -182,8 +170,8 @@ public class UserService {
             throw new CustomException(ErrorCode.NO_SUCH_ALGORITHM);
         }
     }
-    //랜덤함수로 임시비밀번호 구문 만들기
 
+    //랜덤함수로 임시비밀번호 구문 만들기
     public String createTemporaryPassword() {
         char[] charSet = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
                 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
@@ -194,8 +182,8 @@ public class UserService {
                 .mapToObj(idx -> String.valueOf(charSet[idx]))
                 .collect(Collectors.joining());
     }
-    // 인증 코드를 검증하는 메서드.
 
+    // 인증 코드를 검증하는 메서드.
     public void verifyCode(String email, String authCode) {
         this.checkDuplicatedEmail(email);
 
@@ -214,8 +202,8 @@ public class UserService {
             throw new CustomException(ErrorCode.INVALID_CODE);
         }
     }
-    // signup 과정 전에 인증된 email인지 확인하는 메서드
 
+    // signup 과정 전에 인증된 email인지 확인하는 메서드
     public boolean verifiedAccounts(String email) {
         // 인증하지 않았거나, 인증 완료까지는 했지만 너무 시간이 경과한 경우
         if(!redisUtil.hasKey(VERIFIED_PREFIX + email)) {
@@ -224,22 +212,22 @@ public class UserService {
         // hasKey(VERIFIED_PREFIX + email) 만 통과 하면 -> 인증 완료한 것
         return true;
     }
-    // 임시 비밀번호로 비밀번호를 변경
 
+    // 임시 비밀번호로 비밀번호를 변경
     public void changeToTempPassword(String email, String tempPassword) {
         // 이메일로 사용자 조회
         userRepository.findByEmail(email).get().setPassword(passwordEncoder.encode(tempPassword));
     }
-    // 현재 비밀번호 체크
 
+    // 현재 비밀번호 체크
     public void checkPassword(User user, String currentPassword) {
         // 현재 비밀번호가 일치하는지 확인
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new CustomException(ErrorCode.CURRENT_PASSWORD_NOT_EQUAL);
         }
     }
-    // 비밀번호 변경
 
+    // 비밀번호 변경
     public void updatePassword(User user, String newPassword) {
         if (passwordEncoder.matches(newPassword, user.getPassword())) {
             throw new CustomException(ErrorCode.CURRENT_PASSWORD_EQUAL);
@@ -247,8 +235,8 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
-    // 닉네임 변경
 
+    // 닉네임 변경
     public void updateNickname(User user, String nickanme) {
         user.setNickname(nickanme);
 
@@ -258,32 +246,10 @@ public class UserService {
 
         userRepository.save(user);
     }
-    // 회원 삭제
 
+    // 회원 삭제
     public void deleteUser(User user){
         userRepository.delete(user);
     }
 
-    private Setting deafultSettings() {
-        return Setting.builder()
-                .climateAlert(true)
-                .userAlert(true)
-                .snowAlert(true)
-                .windAlert(true)
-                .windDegree(10)
-                .regionReport(true)
-                .precipitation(true)
-                .wind(true)
-                .dust(true)
-                .weight(0.0)
-                .build();
-    }
-
-    private Region deafultRegion() {
-        return Region.builder()
-                .regionName("서울시")
-                .longitude(37.5665)
-                .latitude(126.9780)
-                .build();
-    }
 }

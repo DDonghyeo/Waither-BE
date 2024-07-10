@@ -39,6 +39,7 @@ public class SurveyService {
         Double temp = getTemp(surveyRequestDto.time());
         Survey survey = SurveyConverter.toSurvey(surveyRequestDto, temp, getCurrentSeason());
         survey.setUser(user);
+        user.addSurvey(survey);
 
         UserData userData = userDataRepository.findByUserAndSeason(user, survey.getSeason())
                 .orElseThrow(() -> new CustomException(ErrorCode.NO_USER_DATA_FOUND));

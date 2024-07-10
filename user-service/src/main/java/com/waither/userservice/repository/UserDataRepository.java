@@ -9,4 +9,7 @@ import java.util.Optional;
 
 public interface UserDataRepository extends JpaRepository<UserData, Integer> {
     Optional<UserData> findByUserAndSeason(User user, Season season);
+
+    void deleteAllByUser(User user);
+
 }
