@@ -7,14 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.waither.weatherservice.gps.GpsTransfer;
-import com.waither.weatherservice.gps.LatXLngY;
+import com.waither.weatherservice.utills.GpsTransferUtils;
+import com.waither.weatherservice.utills.LatXLngY;
 
 @SpringBootTest
 class GpsTransferTest {
 
 	@Autowired
-	GpsTransfer gpsTransfer;
+	GpsTransferUtils gpsTransfer;
 
 	LatXLngY expected;
 

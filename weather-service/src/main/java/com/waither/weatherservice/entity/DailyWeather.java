@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@RedisHash(value = "DailyWeather", timeToLive = 28800L) // 유효시간: 8시간
+@RedisHash(value = "DailyWeather", timeToLive = 172800L) // 유효시간: 48시간
 public class DailyWeather {
 
 	@Id

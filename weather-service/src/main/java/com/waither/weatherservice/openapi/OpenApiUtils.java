@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class OpenApiUtil {
+public class OpenApiUtils {
 
 	@Value("${openapi.forecast.key}")
 	private String forecastKey;
@@ -143,11 +143,6 @@ public class OpenApiUtil {
 			log.info("특보 오류");
 			throw new WeatherExceptionHandler(WeatherErrorCode.WEATHER_OPENAPI_ERROR);
 		}
-	}
-
-	public String convertLocalDateToString(LocalDate localDate) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-		return localDate.format(formatter);
 	}
 
 	public List<AirKoreaOpenApiResponse.Items> callAirKorea(String searchDate) throws URISyntaxException {
