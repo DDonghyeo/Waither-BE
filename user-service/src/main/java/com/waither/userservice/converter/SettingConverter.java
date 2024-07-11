@@ -11,23 +11,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SettingConverter {
 
-    // Setting을 기본값으로 설정
-    public static Setting createSetting() {
-        // Setting을 기본값으로 설정
-        return Setting.builder()
-                .climateAlert(true)
-                .userAlert(true)
-                .snowAlert(true)
-                .windAlert(true)
-                .windDegree(10)
-                .regionReport(true)
-                .precipitation(true)
-                .wind(true)
-                .dust(true)
-                .weight(0.0)
-                .build();
-    }
-
     public static SettingResDto.CustomDto toCustomDto(User user) {
         return SettingResDto.CustomDto.builder()
                 .custom(user.isCustom())

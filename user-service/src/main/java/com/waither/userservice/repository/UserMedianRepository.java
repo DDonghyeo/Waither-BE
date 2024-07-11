@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface UserMedianRepository extends JpaRepository<UserMedian, Integer> {
     Optional<UserMedian> findByUserAndSeason(User user, Season season);
 
+    void deleteAllByUser(User user);
+
 }

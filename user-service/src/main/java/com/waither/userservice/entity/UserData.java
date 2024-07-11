@@ -1,11 +1,15 @@
 package com.waither.userservice.entity;
 
+import com.waither.userservice.converter.SurveyConverter;
 import com.waither.userservice.entity.enums.Season;
 import com.waither.userservice.global.BaseEntity;
 import com.waither.userservice.global.exception.CustomException;
 import com.waither.userservice.global.response.ErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Builder
 @Getter
@@ -30,13 +34,60 @@ public class UserData extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Season season;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     public void setUser(User user) {
         this.user = user;
     }
+
+    // UserData 기본값으로 설정
+    public static UserData createUserData(Season season) {
+        switch (season) {
+            case SPRING_AUTUMN:
+                return UserData.builder()
+                        .level1(10.0)
+                        .level2(17.0)
+                        .level3(24.0)
+                        .level4(27.0)
+                        .level5(30.0)
+                        .season(season)
+                        .build();
+            case SUMMER:
+                return UserData.builder()
+                        .level1(15.0)
+                        .level2(24.0)
+                        .level3(30.0)
+                        .level4(33.0)
+                        .level5(36.0)
+                        .season(season)
+                        .build();
+            case WINTER:
+                return UserData.builder()
+                        .level1(-17.0)
+                        .level2(-7.0)
+                        .level3(0.0)
+                        .level4(6.0)
+                        .level5(12.0)
+                        .season(season)
+                        .build();
+            default:
+                throw new CustomException(ErrorCode.INVALID_SEASON);
+        }
+    }
+
+    public static List<UserData> createUserDataList(User user) {
+        return Arrays.stream(Season.values())
+                .map(season -> {
+                    UserData userData = createUserData(season);
+                    // 연관관계 설정
+                    userData.setUser(user);
+                    return userData;
+                })
+                .toList();
+    }
+
     public Double getLevel(int level) {
         return switch (level) {
             case 1 -> level1;

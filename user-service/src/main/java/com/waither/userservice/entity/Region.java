@@ -29,6 +29,16 @@ public class Region extends BaseEntity {
     @Column(name = "latitude")
     private double latitude;
 
+    // Region 기본값으로 설정
+    public static Region createRegion() {
+        // Region 기본값으로 설정
+        return Region.builder()
+                .regionName("서울시")
+                .longitude(37.5665)
+                .latitude(126.9780)
+                .build();
+    }
+
     public void update(String newRegionName, double newLongitude, double newLatitude) {
         regionName = newRegionName;
         longitude = newLongitude;

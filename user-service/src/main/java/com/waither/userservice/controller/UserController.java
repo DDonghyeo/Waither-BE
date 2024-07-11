@@ -23,9 +23,9 @@ public class UserController {
     private final UserService userService;
 
     // 회원가입
-    @Operation(summary = "Sign Up", description = "회원가입")
+    @Operation(summary = "회원가입")
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody UserReqDto.SignUpRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<String>> signup(@Valid @RequestBody UserReqDto.SignUpRequestDto requestDto) {
         userService.signup(requestDto);
         // SignUp 때만 201 Created 사용
         return ResponseEntity
@@ -33,6 +33,18 @@ public class UserController {
                 .body(
                         ApiResponse.onSuccess(HttpStatus.CREATED, "회원가입이 성공적으로 완료되었습니다.")
                 );
+    }
+
+    @Operation(summary = "로그인", description = "사용자 로그인을 수행합니다. (Swagger 문서용)")
+    @PostMapping("/login")
+    public ApiResponse<JwtDto> login(@RequestBody UserReqDto.LoginRequestDto loginRequestDto) {
+        return null; // 실제 구현은 Spring Security에서 처리
+    }
+
+    @Operation(summary = "로그아웃", description = "사용자 로그아웃을 수행합니다. (Swagger 문서용)")
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout() {
+        return null; // 실제 구현은 Spring Security에서 처리
     }
 
     // Jwt 토큰 재발급
@@ -89,7 +101,6 @@ public class UserController {
         return ApiResponse.onSuccess("비밀번호가 변경되었습니다.");
     }
 
-
     // Todo : soft delete로 변경 고려
     @DeleteMapping("/delete")
     public ApiResponse<String> deleteUser(@AuthUser User user) {
@@ -97,16 +108,4 @@ public class UserController {
         return ApiResponse.onSuccess(user.getEmail() + "님의 계정이 성공적으로 탈퇴되었습니다.");
     }
 
-
-    @Operation(summary = "로그인", description = "사용자 로그인을 수행합니다. (Swagger 문서용)")
-    @PostMapping("/login")
-    public ApiResponse<JwtDto> login(@RequestBody UserReqDto.LoginRequestDto loginRequestDto) {
-        return null; // 실제 구현은 Spring Security에서 처리
-    }
-
-    @Operation(summary = "로그아웃", description = "사용자 로그아웃을 수행합니다. (Swagger 문서용)")
-    @PostMapping("/logout")
-    public ApiResponse<Void> logout() {
-        return null; // 실제 구현은 Spring Security에서 처리
-    }
 }

@@ -85,6 +85,23 @@ public class Setting extends BaseEntity {
     @JoinColumn(name = "region_id", unique = true)
     private Region region;
 
+    // Setting을 기본값으로 설정
+    public static Setting createSetting() {
+        // Setting을 기본값으로 설정
+        return Setting.builder()
+                .climateAlert(true)
+                .userAlert(true)
+                .snowAlert(true)
+                .windAlert(true)
+                .windDegree(10)
+                .regionReport(true)
+                .precipitation(true)
+                .wind(true)
+                .dust(true)
+                .weight(0.0)
+                .build();
+    }
+
     // Id에 Setter 쓰지 않기 위해, 명시적으로 지정
     public void setId(Long id) {
     }

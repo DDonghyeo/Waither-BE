@@ -4,6 +4,8 @@ import com.waither.userservice.entity.enums.Season;
 import com.waither.userservice.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -32,7 +34,7 @@ public class Survey extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Season season;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
