@@ -20,6 +20,7 @@ public class SettingConverter {
     public static SettingResDto.RegionNameDto toRegionNameDto(Setting setting) {
         return SettingResDto.RegionNameDto.builder()
                 .regionName(setting.getRegion().getRegionName())
+                .regionReport(setting.isRegionReport())
                 .build();
     }
 
